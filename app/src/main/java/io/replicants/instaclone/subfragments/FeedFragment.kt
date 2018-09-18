@@ -123,6 +123,7 @@ class FeedFragment : Fragment() {
         // initialise adapter with the item list, attach adapter to recyclerview
         // list initially empty
         adapter = FeedAdapter(activity!!, feedItems, recyclerView)
+        adapter.header = LayoutInflater.from(context).inflate(R.layout.feed_header_sample, null, false)
         recyclerView.adapter = adapter
 
         // intial call - either date or location (default date)

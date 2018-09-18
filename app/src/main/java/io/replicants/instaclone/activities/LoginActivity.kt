@@ -13,7 +13,7 @@ import io.replicants.instaclone.utilities.Prefs
 import org.jetbrains.anko.toast
 import org.json.JSONObject
 
-
+// Simple activity with two fragments - login and register
 class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

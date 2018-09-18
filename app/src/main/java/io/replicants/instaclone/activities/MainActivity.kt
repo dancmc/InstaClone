@@ -32,7 +32,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private val TAG_HOME = "home"
         private val TAG_DISCOVER = "discover"
-        private val TAG_ADD_PHOTO = "addPhoto"
         private val TAG_ACTIVITY = "activity"
         private val TAG_PROFILE = "profile"
     }
