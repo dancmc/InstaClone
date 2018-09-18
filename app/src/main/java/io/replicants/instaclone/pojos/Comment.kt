@@ -1,4 +1,4 @@
-package io.replicants.instaclone.utilities
+package io.replicants.instaclone.pojos
 
 class Comment {
 

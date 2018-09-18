@@ -1,6 +1,5 @@
 package io.replicants.instaclone.utilities
 
-import android.Manifest
 import com.javadocmd.simplelatlng.LatLng
 import com.javadocmd.simplelatlng.LatLngTool
 import com.javadocmd.simplelatlng.util.LengthUnit
@@ -8,19 +7,17 @@ import org.json.JSONArray
 import org.json.JSONObject
 import android.app.Activity
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.text.Spannable
-import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.style.ClickableSpan
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import androidx.core.content.ContextCompat.getSystemService
 import android.text.TextPaint
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import io.replicants.instaclone.R
+import io.replicants.instaclone.pojos.Comment
+import io.replicants.instaclone.pojos.Like
+import io.replicants.instaclone.pojos.Photo
+import io.replicants.instaclone.pojos.User
 
 
 class Utils {
@@ -35,7 +32,7 @@ class Utils {
             return LatLngTool.distance(point1, point2, LengthUnit.KILOMETER)
         }
 
-        fun photoFromJson(jsonObject:JSONObject):Photo{
+        fun photoFromJson(jsonObject:JSONObject): Photo {
             val photo = Photo()
             photo.displayName = jsonObject.optString("display_name")
             photo.profileImage = jsonObject.optString("profile_image")
@@ -103,7 +100,7 @@ class Utils {
             return results
         }
 
-        fun userFromJson(jsonObject: JSONObject):User{
+        fun userFromJson(jsonObject: JSONObject): User {
             val user = User()
             user.displayName = jsonObject.optString("display_name")
             user.numberPosts = jsonObject.optInt("number_posts")
@@ -142,7 +139,7 @@ class Utils {
             return results
         }
 
-        fun commentFromJson(jsonObject: JSONObject):Comment{
+        fun commentFromJson(jsonObject: JSONObject): Comment {
             val comment = Comment()
             comment.commentID = jsonObject.optString("comment_id")
             comment.displayName = jsonObject.optString("display_name")
@@ -164,7 +161,7 @@ class Utils {
             return results
         }
 
-        fun likeFromJson(jsonObject: JSONObject):Like{
+        fun likeFromJson(jsonObject: JSONObject): Like {
             val like = Like()
             like.displayName = jsonObject.optString("display_name")
             like.profileImage = jsonObject.optString("profile_image")

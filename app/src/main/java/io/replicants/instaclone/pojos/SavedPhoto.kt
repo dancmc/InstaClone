@@ -1,4 +1,4 @@
-package io.replicants.instaclone.utilities
+package io.replicants.instaclone.pojos
 
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey

@@ -1,4 +1,4 @@
-package io.replicants.instaclone.maintabs
+package io.replicants.instaclone.activities
 
 import androidx.appcompat.app.AppCompatActivity
 

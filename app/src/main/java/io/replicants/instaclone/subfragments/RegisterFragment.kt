@@ -7,10 +7,8 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.Fragment
 import io.replicants.instaclone.R
-import io.replicants.instaclone.maintabs.LoginActivity
+import io.replicants.instaclone.activities.LoginActivity
 import io.replicants.instaclone.utilities.Utils
-import kotlinx.android.synthetic.main.fragment_login.view.*
-import kotlinx.android.synthetic.main.fragment_register.*
 import kotlinx.android.synthetic.main.fragment_register.view.*
 
 class RegisterFragment:Fragment(){

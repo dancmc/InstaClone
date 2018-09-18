@@ -3,17 +3,13 @@ package io.replicants.instaclone.adapters
 import android.app.Activity
 import android.graphics.drawable.Drawable
 import android.text.SpannableStringBuilder
-import android.text.SpannedString
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.*
 import android.widget.*
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.Constraints.GONE
 import androidx.constraintlayout.widget.Constraints.TAG
 import androidx.core.content.ContextCompat
 import androidx.core.text.bold
-import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -24,13 +20,12 @@ import com.bumptech.glide.request.target.Target
 import io.replicants.instaclone.R
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
-import io.replicants.instaclone.utilities.Photo
+import io.replicants.instaclone.pojos.Photo
 import io.replicants.instaclone.utilities.Utils
 import io.replicants.instaclone.utilities.setClickableSpan
 import java.util.ArrayList
 import kotlinx.android.synthetic.main.feed_item.view.*
 import kotlinx.android.synthetic.main.feed_item_grid.view.*
-import org.jetbrains.anko.clickable
 import org.jetbrains.anko.toast
 import org.json.JSONObject
 

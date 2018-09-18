@@ -8,7 +8,7 @@
     android:gravity="center_vertical"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context=".maintabs.MainActivity">
+    tools:context=".activities.MainActivity">
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"

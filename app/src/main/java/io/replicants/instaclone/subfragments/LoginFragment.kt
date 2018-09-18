@@ -6,12 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import io.replicants.instaclone.R
-import io.replicants.instaclone.maintabs.LoginActivity
-import kotlinx.android.synthetic.main.fragment_login.*
+import io.replicants.instaclone.activities.LoginActivity
 import kotlinx.android.synthetic.main.fragment_login.view.*
 import android.view.inputmethod.EditorInfo
-import android.widget.TextView
-import android.widget.EditText
 import io.replicants.instaclone.utilities.Utils
 
 

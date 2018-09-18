@@ -1,7 +1,6 @@
-package io.replicants.instaclone.maintabs
+package io.replicants.instaclone.activities
 
 import android.Manifest
-import android.annotation.TargetApi
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -11,9 +10,12 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import android.util.TypedValue
 import android.view.View
-import android.widget.Toast
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import io.replicants.instaclone.R
+import io.replicants.instaclone.maintabs.ActivityFragment
+import io.replicants.instaclone.maintabs.DiscoverFragment
+import io.replicants.instaclone.maintabs.HomeFragment
+import io.replicants.instaclone.maintabs.ProfileFragment
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.utilities.MyApplication
 import io.replicants.instaclone.utilities.Prefs
