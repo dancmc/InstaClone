@@ -4,11 +4,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import io.replicants.instaclone.adapters.FeedAdapter;
+
 public class Prefs {
 
     public static String JWT = "jwt";
     public static String FEED_SORT = "feed_sort";
-    public static int LOCATION_REQUEST_CODE =2318389;
+    public static String LOCATION_DENIED_FOREVER = "location_denied_forever";
+    public static int LOCATION_REQUEST_CODE =757;
 
 
     private static Prefs instance;
@@ -36,6 +39,7 @@ public class Prefs {
 
     public void writeFloat(String key, float value){
         sharedPref.edit().putFloat(key, value).apply();
+
     }
 
     public void writeBoolean(String key, boolean value){

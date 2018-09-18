@@ -10,6 +10,7 @@ import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.subfragments.LoginFragment
 import io.replicants.instaclone.subfragments.RegisterFragment
 import io.replicants.instaclone.utilities.Prefs
+import org.jetbrains.anko.toast
 import org.json.JSONObject
 
 
@@ -55,7 +56,7 @@ class LoginActivity : AppCompatActivity() {
             }
 
             override fun failure(jsonResponse: JSONObject?) {
-                Toast.makeText(this@LoginActivity,jsonResponse?.optString("error_message"), Toast.LENGTH_SHORT).show()
+                this@LoginActivity.toast(jsonResponse?.optString("error_message") ?:"")
             }
         })
         InstaApi.userLogin(username, password, callback)

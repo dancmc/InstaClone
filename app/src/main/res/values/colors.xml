@@ -6,4 +6,9 @@
     <color name="white">#FFFFFF</color>
     <color name="black87">#D9000000</color>
     <color name="grey200">#FFEEEEEE</color>
+    <color name="grey400">#BDBDBD</color>
+    <color name="grey500">#9E9E9E</color>
+    <color name="grey600">#757575</color>
+    9E9E9E
+    <color name="text_default">#303030</color>
 </resources>

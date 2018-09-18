@@ -1,8 +1,10 @@
 package io.replicants.instaclone.maintabs
 
 import android.Manifest
+import android.annotation.TargetApi
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +17,7 @@ import io.replicants.instaclone.R
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.utilities.MyApplication
 import io.replicants.instaclone.utilities.Prefs
+import org.jetbrains.anko.toast
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -187,15 +190,19 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == Prefs.LOCATION_REQUEST_CODE) {
-            if (permissions.size == 1 &&
-                    permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                MyApplication.instance.activateStoredCallback(this)
-                Toast.makeText(this, "Location permission granted", Toast.LENGTH_SHORT).show()
+            if (permissions.size == 1 && permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION ) {
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    MyApplication.instance.activateStoredCallback(true, this)
+                    toast("Location permission granted")
+                }else{
+                    // check if user checked never show again
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                        Prefs.getInstance().writeBoolean(Prefs.LOCATION_DENIED_FOREVER, !shouldShowRequestPermissionRationale(permissions[0]))
+                    }
+                    MyApplication.instance.activateStoredCallback(false, this)
+                    toast("Location permission not granted")
+                }
             }
-        } else {
-            // Permission was denied. Display an error message.
-            Toast.makeText(this, "Location permission not granted", Toast.LENGTH_SHORT).show()
         }
     }
 }

@@ -72,6 +72,9 @@ class MyApplication : Application() {
 
     fun getLocation(activity: AppCompatActivity, callback: LocationCallback) {
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if(locationManager==null){
+                listenForLocation()
+            }
             if (latestLocation == null) {
                 val locationProvider1 = LocationManager.NETWORK_PROVIDER
                 val locationProvider2 = LocationManager.GPS_PROVIDER
@@ -101,11 +104,15 @@ class MyApplication : Application() {
         }
     }
 
-    fun activateStoredCallback(activity: AppCompatActivity){
-        if(locationCallback!=null) {
-            getLocation(activity, locationCallback!!)
+    fun activateStoredCallback(success: Boolean, activity: AppCompatActivity) {
+        if (locationCallback != null) {
+            if (success) {
+                getLocation(activity, locationCallback!!)
+            } else {
+                locationCallback?.permissionFailed()
+            }
+            locationCallback = null
         }
-        locationCallback = null
     }
 
 

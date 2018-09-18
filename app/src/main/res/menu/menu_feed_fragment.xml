@@ -26,6 +26,12 @@
             <item
                 android:id="@+id/action_sort_location"
                 android:title="@string/sort_location"/>
+            <item
+                android:id="@+id/action_linear"
+                android:title="Linear"/>
+            <item
+                android:id="@+id/action_sort_grid"
+                android:title="Grid"/>
         </menu>
     </item>
 </menu>

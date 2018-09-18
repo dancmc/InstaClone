@@ -18,7 +18,7 @@ class Photo {
     var latitude = 999.0
     var longitude = 999.0
     var timestamp = 0L
-    var distance = Integer.MAX_VALUE
+    var distance = Double.MIN_VALUE
     var smallWidth = 0
     var smallHeight = 0
     var thumbWidth = 0

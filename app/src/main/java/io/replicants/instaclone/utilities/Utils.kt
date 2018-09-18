@@ -81,7 +81,7 @@ class Utils {
             photo.latitude = locationObject.optDouble("latitude")
             photo.longitude = locationObject.optDouble("longitude")
             photo.timestamp = locationObject.optLong("timestamp")
-            photo.distance = locationObject.optInt("distance", Integer.MAX_VALUE)
+            photo.distance = jsonObject.optDouble("distance", Double.MIN_VALUE)
             photo.thumbHeight =thumbUrlObject.optInt("height")
             photo.thumbWidth =thumbUrlObject.optInt("width")
             photo.smallHeight =smallUrlObject.optInt("height")
@@ -92,7 +92,7 @@ class Utils {
             return photo
         }
 
-        fun photosFromJsonArray(array:JSONArray):ArrayList<Photo>{
+        fun photosFromJsonArray(array:JSONArray):List<Photo>{
             val results = ArrayList<Photo>()
             for (i in 0 until array.length()){
                 val photoOb = array.getJSONObject(i)
@@ -191,20 +191,21 @@ class Utils {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0)
         }
 
-        fun isLocationGranted(context: Context):Boolean{
-            return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED
+        fun formatDistance(distanceInMetres:Double):String{
+            val d = Math.round(distanceInMetres)
+            return if(distanceInMetres<=999)"$d m" else "${d/1000} km"
         }
     }
 
 }
 
-fun SpannableStringBuilder.setClickableSpan(textToClick:String, index:Int=-1, onClickListener : ()->Unit):SpannableStringBuilder{
+fun SpannableStringBuilder.setClickableSpan(textToClick:String, index:Int=-1, color:Int = Utils.colorBlack, onClickListener : ()->Unit):SpannableStringBuilder{
     val clickableSpan = object : ClickableSpan() {
         override fun onClick(widget: View?) = onClickListener.invoke()
         override fun updateDrawState(ds: TextPaint) {
             super.updateDrawState(ds)
             ds.isUnderlineText = false
-            ds.color = Utils.colorBlack
+            ds.color = color
 
         }
     }

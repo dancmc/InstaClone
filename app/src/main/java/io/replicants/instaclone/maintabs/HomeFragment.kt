@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import io.replicants.instaclone.R
 import io.replicants.instaclone.subfragments.FeedFragment
+import org.jetbrains.anko.toast
 
 
 class HomeFragment : Fragment(), FeedFragment.FeedFragmentInterface {
@@ -49,7 +50,7 @@ class HomeFragment : Fragment(), FeedFragment.FeedFragmentInterface {
     }
 
     override fun moveToAdhoc() {
-        Toast.makeText(activity, "Will go to adhoc", Toast.LENGTH_SHORT).show()
+        activity?.toast("Will go to adhoc")
         // TODO not implemented
     }
 
