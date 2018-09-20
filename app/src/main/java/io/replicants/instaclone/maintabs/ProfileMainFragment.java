@@ -7,16 +7,16 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import io.replicants.instaclone.R;
 
-public class DiscoverFragment extends Fragment {
+public class ProfileMainFragment extends BaseMainFragment {
 
-    public static DiscoverFragment newInstance(){
-        DiscoverFragment fragment = new DiscoverFragment();
+    public static ProfileMainFragment newInstance(){
+        ProfileMainFragment fragment = new ProfileMainFragment();
 
         Bundle args  = new Bundle();
         fragment.setArguments(args);
+
 
         return fragment;
     }
@@ -24,9 +24,10 @@ public class DiscoverFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_discover, container, false);
+        View layout = inflater.inflate(R.layout.mainfragment_profile, container, false);
 
 
         return layout;
     }
+
 }

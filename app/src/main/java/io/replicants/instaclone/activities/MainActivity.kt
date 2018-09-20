@@ -12,13 +12,11 @@ import android.util.TypedValue
 import android.view.View
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import io.replicants.instaclone.R
-import io.replicants.instaclone.maintabs.ActivityFragment
-import io.replicants.instaclone.maintabs.DiscoverFragment
-import io.replicants.instaclone.maintabs.HomeFragment
-import io.replicants.instaclone.maintabs.ProfileFragment
+import io.replicants.instaclone.maintabs.*
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.utilities.MyApplication
 import io.replicants.instaclone.utilities.Prefs
+import io.replicants.instaclone.utilities.Utils
 import org.jetbrains.anko.toast
 import org.json.JSONObject
 import retrofit2.Call
@@ -46,6 +44,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        println("COLOR ${Utils.colorBlack}")
+
         val menuView = navigation.getChildAt(0) as BottomNavigationMenuView
         for (i in 0 until menuView.childCount) {
             val iconView = menuView.getChildAt(i).findViewById<View>(R.id.icon)
@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 switchFragment(TAG_HOME)
             }
-            InstaApi.validate(object : Callback<String> {
+            InstaApi.validate().enqueue(object : Callback<String> {
                 override fun onResponse(call: Call<String>?, response: Response<String>?) {
                     val responseJson = JSONObject(response?.body() ?: "{}")
                     val success = responseJson.optBoolean("success")
@@ -111,41 +111,44 @@ class MainActivity : AppCompatActivity() {
 
     private fun switchFragment(target: String) {
 
+        if(currentFragment == target){
+            (supportFragmentManager.findFragmentById(R.id.activity_container) as BaseMainFragment).clearBackStack()
+        }else {
 
-        val manager = supportFragmentManager
-        val transaction = manager.beginTransaction()
-        val currentFrag = supportFragmentManager.findFragmentByTag(currentFragment)
-        if (currentFrag != null) {
-            transaction.hide(currentFrag)
-        }
-
-        var newFrag = supportFragmentManager.findFragmentByTag(target)
-        if (newFrag == null) {
-
-            newFrag = when (target) {
-                TAG_HOME -> HomeFragment.newInstance()
-                TAG_DISCOVER -> DiscoverFragment.newInstance()
-                TAG_ACTIVITY -> ActivityFragment.newInstance()
-                TAG_PROFILE -> ProfileFragment.newInstance()
-                else -> HomeFragment.newInstance()
-            }!!
-
-            transaction.add(R.id.activity_container, newFrag, target)
-        } else {
-            transaction.show(newFrag)
-        }
-
-        backStack.remove(target)
-        if (!backPressed) {
-            if (currentFragment.isNotBlank()) {
-                backStack.add(currentFragment)
+            val manager = supportFragmentManager
+            val transaction = manager.beginTransaction()
+            val currentFrag = supportFragmentManager.findFragmentByTag(currentFragment)
+            if (currentFrag != null) {
+                transaction.hide(currentFrag)
             }
+
+            var newFrag = supportFragmentManager.findFragmentByTag(target)
+            if (newFrag == null) {
+
+                newFrag = when (target) {
+                    TAG_HOME -> HomeMainFragment.newInstance()
+                    TAG_DISCOVER -> DiscoverMainFragment.newInstance()
+                    TAG_ACTIVITY -> ActivityMainFragment.newInstance()
+                    TAG_PROFILE -> ProfileMainFragment.newInstance()
+                    else -> HomeMainFragment.newInstance()
+                }!!
+
+                transaction.add(R.id.activity_container, newFrag, target)
+            } else {
+                transaction.show(newFrag)
+            }
+
+            backStack.remove(target)
+            if (!backPressed) {
+                if (currentFragment.isNotBlank()) {
+                    backStack.add(currentFragment)
+                }
+            }
+            currentFragment = target
+            backPressed = false
+
+            transaction.commit()
         }
-        currentFragment = target
-        backPressed = false
-
-        transaction.commit()
-
 
     }
 
@@ -179,6 +182,9 @@ class MainActivity : AppCompatActivity() {
 
     fun logout() {
         Prefs.getInstance().writeString(Prefs.JWT, "")
+        Prefs.getInstance().writeString(Prefs.DISPLAY_NAME, "")
+        Prefs.getInstance().writeString(Prefs.USER_ID, "")
+        Prefs.getInstance().writeString(Prefs.USERNAME, "")
         val loginIntent = Intent(this, LoginActivity::class.java)
         startActivity(loginIntent)
         finish()

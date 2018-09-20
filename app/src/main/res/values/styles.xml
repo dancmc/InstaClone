@@ -31,8 +31,6 @@
     <style name="FakeTextView">
         <item name="android:focusable">false</item>
         <item name="android:longClickable">false</item>
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginEnd">8dp</item>
         <item name="android:textColor">@drawable/edittext_custom</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="android:textSize">14sp</item>

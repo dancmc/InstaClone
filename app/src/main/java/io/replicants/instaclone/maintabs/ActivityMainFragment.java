@@ -7,14 +7,12 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import io.replicants.instaclone.R;
-import io.replicants.instaclone.utilities.Utils;
 
-public class ActivityFragment extends Fragment {
+public class ActivityMainFragment extends BaseMainFragment {
 
-    public static ActivityFragment newInstance(){
-        ActivityFragment fragment = new ActivityFragment();
+    public static ActivityMainFragment newInstance(){
+        ActivityMainFragment fragment = new ActivityMainFragment();
 
         Bundle args  = new Bundle();
         fragment.setArguments(args);
@@ -25,7 +23,7 @@ public class ActivityFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_activity, container, false);
+        View layout = inflater.inflate(R.layout.mainfragment_activity, container, false);
 
 
         return layout;

@@ -24,14 +24,17 @@ class Utils {
 
     companion object {
 
+        @JvmField
         val colorBlack = Color.parseColor("#ff000000")
 
+        @JvmStatic
         fun distance(lat1:Double, long1:Double, lat2:Double, long2:Double):Double{
             val point1 = LatLng(lat1, long1)
             val point2 = LatLng(lat2, long2)
             return LatLngTool.distance(point1, point2, LengthUnit.KILOMETER)
         }
 
+        @JvmStatic
         fun photoFromJson(jsonObject:JSONObject): Photo {
             val photo = Photo()
             photo.displayName = jsonObject.optString("display_name")
@@ -89,6 +92,7 @@ class Utils {
             return photo
         }
 
+        @JvmStatic
         fun photosFromJsonArray(array:JSONArray):List<Photo>{
             val results = ArrayList<Photo>()
             for (i in 0 until array.length()){
@@ -100,6 +104,7 @@ class Utils {
             return results
         }
 
+        @JvmStatic
         fun userFromJson(jsonObject: JSONObject): User {
             val user = User()
             user.displayName = jsonObject.optString("display_name")
@@ -128,6 +133,7 @@ class Utils {
             return user
         }
 
+        @JvmStatic
         fun usersFromJsonArray(jsonArray:JSONArray):ArrayList<User>{
             val results = ArrayList<User>()
             for (i in 0 until jsonArray.length()){
@@ -139,6 +145,7 @@ class Utils {
             return results
         }
 
+        @JvmStatic
         fun commentFromJson(jsonObject: JSONObject): Comment {
             val comment = Comment()
             comment.commentID = jsonObject.optString("comment_id")
@@ -150,6 +157,7 @@ class Utils {
             return comment
         }
 
+        @JvmStatic
         fun commentsFromJsonArray(jsonArray:JSONArray):ArrayList<Comment>{
             val results = ArrayList<Comment>()
             for (i in 0 until jsonArray.length()){
@@ -161,6 +169,7 @@ class Utils {
             return results
         }
 
+        @JvmStatic
         fun likeFromJson(jsonObject: JSONObject): Like {
             val like = Like()
             like.displayName = jsonObject.optString("display_name")
@@ -172,6 +181,7 @@ class Utils {
             return like
         }
 
+        @JvmStatic
         fun likesFromJsonArray(jsonArray:JSONArray):ArrayList<Like>{
             val results = ArrayList<Like>()
             for (i in 0 until jsonArray.length()){
@@ -183,16 +193,19 @@ class Utils {
             return results
         }
 
+        @JvmStatic
         fun hideKeyboardFrom(context: Context, view: View) {
             val imm = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0)
         }
 
+        @JvmStatic
         fun formatDistance(distanceInMetres:Double):String{
             val d = Math.round(distanceInMetres)
             return if(distanceInMetres<=999)"$d m" else "${d/1000} km"
         }
     }
+
 
 }
 

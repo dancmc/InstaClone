@@ -2,15 +2,20 @@
 Activity and Navigation Flow
 - Entry point is Login Activity, users can register or login, Json Web Token received and saved to prefs
 - Moves to Main Activity, starts at Home Fragment
-- 5 main navigation tabs (copied from Instagram) :
+- 5 main fragments/tabs (copied from Instagram) :
     - Home Fragment
     - Discover Fragment
     - Upload Photo Activity
     - Activity Fragment
     - Profile Fragment
 - Main Activity coordinates changing between each fragment when navigation tab is pressed
-- Each main tab fragment has its own child fragment backstack, don't think will ever need to move between fragments if nav bar is not pressed
+- Each main tab fragment has its own child fragment backstack, adds and removes SubFragments
 - Each main tab fragment only exists once in overall backstack
+
+- The 4 main fragments extend BaseMainFragment
+    - BaseMainFragments have a preset listener object for changing between common subfragments - just pass this listener object down to subfragments
+    - Subfragments should pass this listener down to anything that needs to initiate a change of subfragment
+- Subfragments extend BaseSubFragment
 
 - Example :
     - going forward :
@@ -20,10 +25,11 @@ Activity and Navigation Flow
 
 
 Making API calls
-- Just call methods in InstaApi.java which take various parameters + a Retrofit Callback<String> object (because they are all asynchronous)
+- Just call methods in InstaApi.java which take various parameters and return a retrofit Call<String> object
+- You can call execute (synchronous) or enqueue(Callback<String> callback) (asynchronous, recommended)
 - 2 ways to deal with this :
     1. Pass in your own Retrofit Callback<String> implementation, but then you need to parse the String to JSONObjects and extract success/failure etc
-    2. Use InstaApi.generateCallback to generate a Callback<String> object for you, which you then pass to the InstaApi methods
+    2. Use InstaApi.generateCallback to generate a Callback<String> object for you, which you then pass to enqueue
         a. InstaApi.generateCallback takes a context object and your concrete implementation of InstaApiCallback
         b. InstaApiCallback only needs you to implement the success method, but you can also override failure and networkFailure methods
         c. success is called when we receive a JSON reply from the server and it contains success : true, failure is called when it contains success : false, networkFailure is called when something goes wrong
@@ -59,6 +65,7 @@ Adapter
 - It takes an ArrayList of Photo objects
 - It supports both LinearLayout and GridLayout, all you have to do is call recyclerview.setLayoutManager(llm or glm) on the recyclerview the adapter is attached to
 - Can set a header using adapter.setHeader (think of the Profile tab in the official Instagram app - the top part scrolls with the photo list)
+    - you should bind all the views in your header view before putting in the adapter
 
 
 Miscellaneous Utility Methods
@@ -68,5 +75,9 @@ Miscellaneous Utility Methods
 - formatDistance formats a Double in meters to a String representation, in m for distances <1km and in km for distances >= 1 km
 
 
-TODO list :
-1. Change API to return more details (display name etc on login)
+Listeners to set for subfragments used in multiple main fragments
+1. Move to UserListSubFragment (for lists of followers, likes, following)
+2. Move to CommentsSubFragment
+3. Move to ProfileSubFragment
+4. Move to MapSubFragment
+5. Move to PhotoSpecificSubFragment

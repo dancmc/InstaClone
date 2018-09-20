@@ -9,6 +9,9 @@ import io.replicants.instaclone.adapters.FeedAdapter;
 public class Prefs {
 
     public static String JWT = "jwt";
+    public static String USERNAME = "username";
+    public static String DISPLAY_NAME = "display_name";
+    public static String USER_ID = "user_id";
     public static String FEED_SORT = "feed_sort";
     public static String LOCATION_DENIED_FOREVER = "location_denied_forever";
     public static int LOCATION_REQUEST_CODE =757;

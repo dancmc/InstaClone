@@ -24,12 +24,13 @@ import org.jetbrains.anko.toast
 import org.json.JSONArray
 import org.json.JSONObject
 
-class FeedFragment : Fragment() {
+class FeedSubFragment : BaseSubFragment() {
 
     companion object {
 
-        fun newInstance(): FeedFragment {
-            val myFragment = FeedFragment()
+        @JvmStatic
+        fun newInstance(): FeedSubFragment {
+            val myFragment = FeedSubFragment()
 
             val args = Bundle()
             myFragment.arguments = args
@@ -37,6 +38,8 @@ class FeedFragment : Fragment() {
             return myFragment
         }
     }
+
+
 
     lateinit var recyclerView: RecyclerView
     lateinit var layoutManager: RecyclerView.LayoutManager
@@ -123,7 +126,7 @@ class FeedFragment : Fragment() {
         // initialise adapter with the item list, attach adapter to recyclerview
         // list initially empty
         adapter = FeedAdapter(activity!!, feedItems, recyclerView)
-        adapter.header = LayoutInflater.from(context).inflate(R.layout.feed_header_sample, null, false)
+        adapter.clickListeners = clickListeners
         recyclerView.adapter = adapter
 
         // intial call - either date or location (default date)
@@ -140,11 +143,11 @@ class FeedFragment : Fragment() {
                     adapter.notifyItemInserted(feedItems.lastIndex)
 
                     if (Prefs.getInstance().readString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString()) == InstaApi.Sort.DATE.toString()) {
-                        InstaApi.getFeed(InstaApi.Sort.DATE, null, null, lastPhotoID, InstaApi.generateCallback(activity, loadMoreApiCallback()))
+                        InstaApi.getFeed(InstaApi.Sort.DATE, null, null, lastPhotoID).enqueue(InstaApi.generateCallback(activity, loadMoreApiCallback()))
 
                     } else {
                         if (lastLocation?.longitude != null) {
-                            InstaApi.getFeed(InstaApi.Sort.LOCATION, lastLocation?.latitude, lastLocation?.longitude, lastPhotoID, InstaApi.generateCallback(activity, loadMoreApiCallback()))
+                            InstaApi.getFeed(InstaApi.Sort.LOCATION, lastLocation?.latitude, lastLocation?.longitude, lastPhotoID).enqueue(InstaApi.generateCallback(activity, loadMoreApiCallback()))
                         } else {
                             adapter.currentlyLoading = false
                             adapter.canLoadMore = false
@@ -166,11 +169,13 @@ class FeedFragment : Fragment() {
         adapter.notifyDataSetChanged()
 
         if (Prefs.getInstance().readString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString()) == InstaApi.Sort.DATE.toString()) {
-            InstaApi.getFeed(InstaApi.Sort.DATE, null, null, null, InstaApi.generateCallback(activity, initialApiCallback()))
+            InstaApi.getFeed(InstaApi.Sort.DATE, null, null, null).enqueue(InstaApi.generateCallback(activity, initialApiCallback()))
         } else {
             loadLocation()
         }
     }
+
+
 
     fun loadLocation() {
         MyApplication.instance.getLocation(activity as AppCompatActivity, object : LocationCallback {
@@ -180,7 +185,7 @@ class FeedFragment : Fragment() {
                     activity?.toast("Failed to get location")
                 } else {
                     lastLocation = location
-                    InstaApi.getFeed(InstaApi.Sort.LOCATION, location.latitude, location.longitude, null, InstaApi.generateCallback(activity, initialApiCallback()))
+                    InstaApi.getFeed(InstaApi.Sort.LOCATION, location.latitude, location.longitude, null).enqueue(InstaApi.generateCallback(activity, initialApiCallback()))
                 }
             }
 
@@ -214,10 +219,10 @@ class FeedFragment : Fragment() {
                 adapter.notifyDataSetChanged()
             }
 
-            override fun failure(jsonResponse: JSONObject?) {
+            override fun failure(context: Context, jsonResponse: JSONObject?) {
                 val failureMessage = jsonResponse?.optString("error_message") ?: ""
                 if (failureMessage.isNotBlank()) {
-                    activity?.toast(failureMessage)
+                    context.toast(failureMessage)
                 }
                 // TODO consider displaying reload button
             }
@@ -244,10 +249,10 @@ class FeedFragment : Fragment() {
                 adapter.currentlyLoading = false
             }
 
-            override fun failure(jsonResponse: JSONObject?) {
+            override fun failure(context: Context, jsonResponse: JSONObject?) {
                 val failureMessage = jsonResponse?.optString("error_message") ?: ""
                 if (failureMessage.isNotBlank()) {
-                    activity?.toast(failureMessage)
+                    context.toast(failureMessage)
                 }
                 feedItems.removeAt(feedItems.lastIndex)
                 adapter.notifyDataSetChanged()
@@ -255,7 +260,7 @@ class FeedFragment : Fragment() {
                 // TODO consider displaying reload button
             }
 
-            override fun networkFailure(context: Activity?) {
+            override fun networkFailure(context: Context) {
                 super.networkFailure(context)
                 feedItems.removeAt(feedItems.lastIndex)
                 adapter.notifyDataSetChanged()

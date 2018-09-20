@@ -5,16 +5,28 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import androidx.fragment.app.Fragment
 import io.replicants.instaclone.R
 import io.replicants.instaclone.activities.LoginActivity
 import io.replicants.instaclone.utilities.Utils
-import kotlinx.android.synthetic.main.fragment_register.view.*
+import kotlinx.android.synthetic.main.subfragment_register.view.*
 
-class RegisterFragment:Fragment(){
+class RegisterSubFragment:BaseSubFragment(){
+
+    companion object {
+
+        @JvmStatic
+        fun newInstance(): RegisterSubFragment {
+            val myFragment = RegisterSubFragment()
+
+            val args = Bundle()
+            myFragment.arguments = args
+
+            return myFragment
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.fragment_register, container, false)
+        val layout = inflater.inflate(R.layout.subfragment_register, container, false)
 
         layout.input_register_email.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {

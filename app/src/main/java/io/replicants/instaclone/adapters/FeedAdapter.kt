@@ -1,13 +1,12 @@
 package io.replicants.instaclone.adapters
 
 import android.app.Activity
+import android.content.Context
 import android.graphics.drawable.Drawable
 import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
-import android.util.Log
 import android.view.*
 import android.widget.*
-import androidx.constraintlayout.widget.Constraints.TAG
 import androidx.core.content.ContextCompat
 import androidx.core.text.bold
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,15 +17,16 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import io.replicants.instaclone.R
+import io.replicants.instaclone.maintabs.BaseMainFragment
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.pojos.Photo
+import io.replicants.instaclone.subfragments.UserListSubFragment
 import io.replicants.instaclone.utilities.Utils
 import io.replicants.instaclone.utilities.setClickableSpan
 import java.util.ArrayList
-import kotlinx.android.synthetic.main.feed_item.view.*
-import kotlinx.android.synthetic.main.feed_item_grid.view.*
-import org.jetbrains.anko.toast
+import kotlinx.android.synthetic.main.adapter_feed_item.view.*
+import kotlinx.android.synthetic.main.adapter_feed_item_grid.view.*
 import org.json.JSONObject
 
 class FeedAdapter(private val context: Activity, private val dataset: ArrayList<Photo?>, private val recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -35,6 +35,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
     var currentlyLoading = false
     var canLoadMore = true
     var header = LayoutInflater.from(context).inflate(R.layout.feed_header_dummy, null, false)
+    var clickListeners:BaseMainFragment.ClickListeners? = null
 
     private val visibleThreshold = 6
     private val VIEW_TYPE_HEADER = 0
@@ -72,7 +73,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
             ivPhoto.setOnTouchListener(object : View.OnTouchListener {
                 private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
                     override fun onDoubleTap(e: MotionEvent): Boolean {
-                        val item = dataset[adapterPosition]
+                        val item = dataset[adapterPosition-1]
                         handleLike(btLike, item!!)
                         return super.onDoubleTap(e)
                     }
@@ -84,15 +85,6 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                 }
             })
 
-            btLike.setOnClickListener {
-                val item = dataset[adapterPosition]
-                handleLike(btLike, item!!)
-            }
-
-            btComment.setOnClickListener {
-                // TODO
-                context.toast("Go to comment page")
-            }
 
         }
     }
@@ -111,25 +103,25 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
         toggleLike(button, item)
 
         if (item.isLiked) {
-            InstaApi.likePhoto(item.photoID, InstaApi.generateCallback(context, object : InstaApiCallback() {
+            InstaApi.likePhoto(item.photoID).enqueue(InstaApi.generateCallback(context, object : InstaApiCallback() {
                 override fun success(jsonResponse: JSONObject) {
                     if (!jsonResponse.optBoolean("success")) {
                         toggleLike(button, item)
                     }
                 }
 
-                override fun failure(jsonResponse: JSONObject?) = toggleLike(button, item)
+                override fun failure(context: Context,jsonResponse: JSONObject?) = toggleLike(button, item)
 
             }))
         } else {
-            InstaApi.unlikePhoto(item.photoID, InstaApi.generateCallback(context, object : InstaApiCallback() {
+            InstaApi.unlikePhoto(item.photoID).enqueue(InstaApi.generateCallback(context, object : InstaApiCallback() {
                 override fun success(jsonResponse: JSONObject) {
                     if (!jsonResponse.optBoolean("success")) {
                         toggleLike(button, item)
                     }
                 }
 
-                override fun failure(jsonResponse: JSONObject?) = toggleLike(button, item)
+                override fun failure(context: Context, jsonResponse: JSONObject?) = toggleLike(button, item)
             }))
         }
     }
@@ -183,15 +175,15 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
 
             }
             VIEW_TYPE_PHOTO -> {
-                val v = LayoutInflater.from(parent.context).inflate(R.layout.feed_item, parent, false) as View
+                val v = LayoutInflater.from(parent.context).inflate(R.layout.adapter_feed_item, parent, false) as View
                 PhotoViewHolder(v)
             }
             VIEW_TYPE_PHOTO_GRID -> {
-                val v = LayoutInflater.from(parent.context).inflate(R.layout.feed_item_grid, parent, false) as ImageView
+                val v = LayoutInflater.from(parent.context).inflate(R.layout.adapter_feed_item_grid, parent, false) as ImageView
                 PhotoGridViewHolder(v)
             }
             else -> {
-                val v = LayoutInflater.from(parent.context).inflate(R.layout.feed_loading, parent, false) as LinearLayout
+                val v = LayoutInflater.from(parent.context).inflate(R.layout.adapter_feed_loading, parent, false) as LinearLayout
                 ProgressViewHolder(v)
             }
         }
@@ -212,11 +204,11 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                 val displayNameBuilder = SpannableStringBuilder()
                         .bold { append(feedItem.displayName) }
                         .setClickableSpan(feedItem.displayName, 0) {
-                            //TODO show profile
-                            context.toast("Will show profile")
+                            clickListeners?.moveToProfileSubFragment(feedItem.displayName)
                         }
 
                 holder.tvProfileName.text = displayNameBuilder
+
                 holder.tvDistance.text = if (feedItem.distance > 0) Utils.formatDistance(feedItem.distance) else ""
 
                 if (feedItem.locationName.isNotBlank()) {
@@ -224,8 +216,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                     val locationNameBuilder = SpannableStringBuilder()
                             .append(feedItem.locationName)
                             .setClickableSpan(feedItem.locationName, 0) {
-                                //TODO show location
-                                context.toast("Will show map")
+                                clickListeners?.moveToMapSubFragment()
                             }
                     holder.tvLocationName.text = locationNameBuilder
                 } else {
@@ -248,13 +239,12 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                     }
                     feedItem.previewLikes.forEach {
                         likeBuilder.setClickableSpan(it) {
-                            //TODO show profile
-                            context.toast("Will show profile")
+                            clickListeners?.moveToProfileSubFragment(it)
+
                         }
                     }
                     likeBuilder.setClickableSpan(likeBuilder.toString().substringAfter(" and ")) {
-                        //TODO show likes
-                        context.toast("Will show likes")
+                        clickListeners?.moveToUserListSubFragmentWithCall(UserListSubFragment.CallType.LIKES, feedItem.photoID)
                     }
 
                 } else {
@@ -263,9 +253,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                     }
 
                     likeBuilder.setClickableSpan(likeBuilder.toString()) {
-                        //TODO show likes
-                        Log.d(TAG, "likes")
-                        context.toast("Will show likes")
+                        clickListeners?.moveToUserListSubFragmentWithCall(UserListSubFragment.CallType.LIKES, feedItem.photoID)
                     }
                 }
                 holder.tvLikeText.text = likeBuilder
@@ -276,8 +264,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                             .bold { append("${feedItem.displayName} ") }
                             .append(feedItem.caption)
                             .setClickableSpan(feedItem.displayName,0){
-                                //TODO show profile
-                                context.toast("Will show profile")
+                                clickListeners?.moveToProfileSubFragment(feedItem.displayName)
                             }
                     holder.tvCaption.text = captionBuilder
                 } else {
@@ -292,8 +279,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                                 .append(it.second)
                                 .append("\n")
                                 .setClickableSpan(it.first,0){
-                                    //TODO show profile
-                                    context.toast("Will show profile")
+                                    clickListeners?.moveToProfileSubFragment(it.first)
                                 }
                     }
                 } else {
@@ -306,8 +292,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                     val commentBuilder = SpannableStringBuilder()
                             .append(text)
                             .setClickableSpan(text, 0, ContextCompat.getColor(context, R.color.grey500)){
-                                //TODO show profile
-                                context.toast("Will show comments")
+                                clickListeners?.moveToCommentsSubFragment(feedItem.photoID)
                             }
                     holder.tvCommentText.text = commentBuilder
                 }else {
@@ -338,6 +323,15 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                 } else {
                     Glide.with(context).clear(holder.ivPhoto)
                     holder.ivPhoto.setImageDrawable(null)
+                }
+
+
+                holder.btLike.setOnClickListener {
+                    handleLike(holder.btLike, feedItem)
+                }
+
+                holder.btComment.setOnClickListener {
+                    clickListeners?.moveToCommentsSubFragment(feedItem.displayName)
                 }
             }
             is HeaderViewHolder->{

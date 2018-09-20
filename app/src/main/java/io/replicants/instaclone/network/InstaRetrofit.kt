@@ -33,6 +33,7 @@ class InstaRetrofit {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
 
+        @JvmField
         var api = retrofit.create(PhotoApi::class.java)
     }
 
@@ -114,6 +115,9 @@ class InstaRetrofit {
 
         @GET("user/following")
         fun getFollowing(@QueryMap queries:HashMap<String, String>): Call<String>
+
+        @GET("user/followingWhoFollow")
+        fun getFollowingWhoFollow(@QueryMap queries:HashMap<String, String>): Call<String>
 
         @GET("user/getDetails")
         fun getDetails(): Call<String>

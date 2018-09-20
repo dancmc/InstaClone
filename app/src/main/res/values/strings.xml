@@ -22,6 +22,9 @@
     <string name="sort_date">Date</string>
 
     <string name="request_location">Request Location Permission</string>
+    <string name="posts">posts</string>
+    <string name="followers">followers</string>
+    <string name="following">following</string>
 
 
 </resources>

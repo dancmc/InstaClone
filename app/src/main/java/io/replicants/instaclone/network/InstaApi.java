@@ -1,6 +1,7 @@
 package io.replicants.instaclone.network;
 
 import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -28,10 +29,9 @@ public class InstaApi {
 
     private static String TAG = "INSTA_API";
 
-    public static void userRegister(
+    public static Call<String> userRegister(
             String username, String password,
-            @Nullable String firstName, String lastName, String displayName, String email,
-            Callback<String> callback) {
+            @Nullable String firstName, String lastName, String displayName, String email) {
 
 
         JSONObject json = new JSONObject();
@@ -47,12 +47,11 @@ public class InstaApi {
             Log.d(TAG, j.getMessage());
         }
 
-        InstaRetrofit.Companion.getApi().userRegister(json.toString()).enqueue(callback);
+        return InstaRetrofit.api.userRegister(json.toString());
     }
 
-    public static void userLogin(
-            String username, String password,
-            Callback<String> callback) {
+    public static Call<String> userLogin(
+            String username, String password) {
 
 
         JSONObject json = new JSONObject();
@@ -64,16 +63,15 @@ public class InstaApi {
             Log.d(TAG, j.getMessage());
         }
 
-        InstaRetrofit.Companion.getApi().userLogin(json.toString()).enqueue(callback);
+        return InstaRetrofit.api.userLogin(json.toString());
     }
 
-    public static void validate(Callback<String> callback) {
-        InstaRetrofit.Companion.getApi().validate().enqueue(callback);
+    public static Call<String> validate() {
+        return InstaRetrofit.api.validate();
     }
 
-    public static void getFeed(
-            Sort sort, @Nullable Double latitude, @Nullable Double longitude, @Nullable String lastPhotoID,
-            Callback<String> callback) {
+    public static Call<String> getFeed(
+            Sort sort, @Nullable Double latitude, @Nullable Double longitude, @Nullable String lastPhotoID) {
 
 
         HashMap<String, String> queryMap = new HashMap<>();
@@ -88,11 +86,11 @@ public class InstaApi {
             queryMap.put("last_photo_fetched", lastPhotoID);
         }
 
-        InstaRetrofit.Companion.getApi().getFeed(queryMap).enqueue(callback);
+        return InstaRetrofit.api.getFeed(queryMap);
     }
 
-    public static void discoverSearch(
-            String displayName, @Nullable Integer page, Callback<String> callback) {
+    public static Call<String> discoverSearch(
+            String displayName, @Nullable Integer page) {
 
         HashMap<String, String> queryMap = new HashMap<>();
         queryMap.put("display_name", displayName);
@@ -100,25 +98,24 @@ public class InstaApi {
             queryMap.put("page", page.toString());
         }
 
-        InstaRetrofit.Companion.getApi().discoverSearch(queryMap).enqueue(callback);
+        return InstaRetrofit.api.discoverSearch(queryMap);
     }
 
-    public static void discoverUsers(Callback<String> callback) {
-        InstaRetrofit.Companion.getApi().discoverUsers().enqueue(callback);
+    public static Call<String> discoverUsers() {
+        return InstaRetrofit.api.discoverUsers();
     }
 
-    public static void discoverPhotos(@Nullable String seed, Callback<String> callback) {
+    public static Call<String> discoverPhotos(@Nullable String seed) {
 
         HashMap<String, String> queryMap = new HashMap<>();
         if (seed != null) {
             queryMap.put("seed", seed);
         }
-        InstaRetrofit.Companion.getApi().discoverPhotos(queryMap).enqueue(callback);
+        return InstaRetrofit.api.discoverPhotos(queryMap);
     }
 
-    public static void uploadPhoto(File file, String caption,
-                                   @Nullable Double latitude, @Nullable Double longitude, @Nullable String locationName,
-                                   Callback<String> callback) {
+    public static Call<String> uploadPhoto(File file, String caption,
+                                   @Nullable Double latitude, @Nullable Double longitude, @Nullable String locationName) {
 
         JSONObject jsonObject = new JSONObject();
         try {
@@ -141,10 +138,10 @@ public class InstaApi {
 
         RequestBody jsonBody = RequestBody.create(MediaType.parse("multipart/form-data"), jsonObject.toString());
 
-        InstaRetrofit.Companion.getApi().photoUpload(photo,jsonBody).enqueue(callback);
+        return InstaRetrofit.api.photoUpload(photo,jsonBody);
     }
 
-    public static void specificPhotos(ArrayList<String> photoIDs, Callback<String> callback) {
+    public static Call<String> specificPhotos(ArrayList<String> photoIDs) {
 
         JSONObject json = new JSONObject();
         JSONArray photoIDArray = new JSONArray();
@@ -160,20 +157,20 @@ public class InstaApi {
             Log.d(TAG, j.getMessage());
         }
 
-        InstaRetrofit.Companion.getApi().specificPhotos(json.toString()).enqueue(callback);
+        return InstaRetrofit.api.specificPhotos(json.toString());
     }
 
-    public static void getComments(String photoID, @Nullable String lastCommentFetched, Callback<String> callback) {
+    public static Call<String> getComments(String photoID, @Nullable String lastCommentFetched) {
 
         HashMap<String, String> queryMap = new HashMap<>();
         queryMap.put("photo_id", photoID);
         if (lastCommentFetched != null) {
             queryMap.put("last_comment_fetched", lastCommentFetched);
         }
-        InstaRetrofit.Companion.getApi().getComments(queryMap).enqueue(callback);
+        return InstaRetrofit.api.getComments(queryMap);
     }
 
-    public static void newComment(String photoID, String text, Callback<String> callback) {
+    public static Call<String> newComment(String photoID, String text) {
 
         JSONObject json = new JSONObject();
         try {
@@ -183,10 +180,10 @@ public class InstaApi {
             Log.d(TAG, j.getMessage());
         }
 
-        InstaRetrofit.Companion.getApi().newComment(json.toString()).enqueue(callback);
+        return InstaRetrofit.api.newComment(json.toString());
     }
 
-    public static void deleteComment(String photoID, String commentID, Callback<String> callback) {
+    public static Call<String> deleteComment(String photoID, String commentID) {
 
         JSONObject json = new JSONObject();
         try {
@@ -196,10 +193,10 @@ public class InstaApi {
             Log.d(TAG, j.getMessage());
         }
 
-        InstaRetrofit.Companion.getApi().deleteComment(json.toString()).enqueue(callback);
+        return InstaRetrofit.api.deleteComment(json.toString());
     }
 
-    public static void getLikes(String photoID, @Nullable Integer recent, @Nullable Long lastLikeTimestamp, Callback<String> callback) {
+    public static Call<String> getLikes(String photoID, @Nullable Integer recent, @Nullable Long lastLikeTimestamp) {
 
         HashMap<String, String> queryMap = new HashMap<>();
         queryMap.put("photo_id", photoID);
@@ -209,10 +206,10 @@ public class InstaApi {
         if (lastLikeTimestamp != null) {
             queryMap.put("last_like_timestamp", lastLikeTimestamp.toString());
         }
-        InstaRetrofit.Companion.getApi().getLikes(queryMap).enqueue(callback);
+        return InstaRetrofit.api.getLikes(queryMap);
     }
 
-    public static void likePhoto(String photoID,Callback<String> callback) {
+    public static Call<String> likePhoto(String photoID) {
 
         JSONObject json = new JSONObject();
         try {
@@ -221,10 +218,10 @@ public class InstaApi {
             Log.d(TAG, j.getMessage());
         }
 
-        InstaRetrofit.Companion.getApi().likePhoto(json.toString()).enqueue(callback);
+        return InstaRetrofit.api.likePhoto(json.toString());
     }
 
-    public static void unlikePhoto(String photoID,Callback<String> callback) {
+    public static Call<String> unlikePhoto(String photoID) {
 
         JSONObject json = new JSONObject();
         try {
@@ -233,26 +230,26 @@ public class InstaApi {
             Log.d(TAG, j.getMessage());
         }
 
-        InstaRetrofit.Companion.getApi().unlikePhoto(json.toString()).enqueue(callback);
+        return InstaRetrofit.api.unlikePhoto(json.toString());
     }
 
-    public static void getSelfActivity(Callback<String> callback) {
-        InstaRetrofit.Companion.getApi().getSelfActivity().enqueue(callback);
+    public static Call<String> getSelfActivity() {
+        return InstaRetrofit.api.getSelfActivity();
     }
 
-    public static void getFollowingActivity(Callback<String> callback) {
-        InstaRetrofit.Companion.getApi().getFollowingActivity().enqueue(callback);
+    public static Call<String> getFollowingActivity() {
+        return InstaRetrofit.api.getFollowingActivity();
     }
 
-    public static void getUserInfo(String displayName, Callback<String> callback) {
+    public static Call<String> getUserInfo(String displayName) {
 
         HashMap<String, String> queryMap = new HashMap<>();
         queryMap.put("display_name", displayName);
-        InstaRetrofit.Companion.getApi().getUserInfo(queryMap).enqueue(callback);
+        return InstaRetrofit.api.getUserInfo(queryMap);
     }
 
-    public static void getUserPhotos(String displayName, Sort sort, @Nullable Double latitude,@Nullable Double longitude,
-            @Nullable String lastPhotoFetchedID, Callback<String> callback) {
+    public static Call<String> getUserPhotos(String displayName, Sort sort, @Nullable Double latitude,@Nullable Double longitude,
+            @Nullable String lastPhotoFetchedID) {
 
         HashMap<String, String> queryMap = new HashMap<>();
         queryMap.put("display_name", displayName);
@@ -266,10 +263,10 @@ public class InstaApi {
         if(lastPhotoFetchedID!=null){
             queryMap.put("last_photo_fetched", lastPhotoFetchedID);
         }
-        InstaRetrofit.Companion.getApi().getUserPhotos(queryMap).enqueue(callback);
+        return InstaRetrofit.api.getUserPhotos(queryMap);
     }
 
-    public static void followUser(String displayName,Callback<String> callback) {
+    public static Call<String> followUser(String displayName) {
 
         JSONObject json = new JSONObject();
         try {
@@ -278,10 +275,10 @@ public class InstaApi {
             Log.d(TAG, j.getMessage());
         }
 
-        InstaRetrofit.Companion.getApi().followUser(json.toString()).enqueue(callback);
+        return InstaRetrofit.api.followUser(json.toString());
     }
 
-    public static void unfollowUser(String displayName,Callback<String> callback) {
+    public static Call<String> unfollowUser(String displayName) {
 
         JSONObject json = new JSONObject();
         try {
@@ -290,14 +287,14 @@ public class InstaApi {
             Log.d(TAG, j.getMessage());
         }
 
-        InstaRetrofit.Companion.getApi().unfollowUser(json.toString()).enqueue(callback);
+        return InstaRetrofit.api.unfollowUser(json.toString());
     }
 
-    public static void getRequests(Callback<String> callback) {
-        InstaRetrofit.Companion.getApi().getRequests().enqueue(callback);
+    public static Call<String> getRequests() {
+        return InstaRetrofit.api.getRequests();
     }
 
-    public static void approveUser(String displayName,Callback<String> callback) {
+    public static Call<String> approveUser(String displayName) {
 
         JSONObject json = new JSONObject();
         try {
@@ -306,39 +303,46 @@ public class InstaApi {
             Log.d(TAG, j.getMessage());
         }
 
-        InstaRetrofit.Companion.getApi().approveUser(json.toString()).enqueue(callback);
+        return InstaRetrofit.api.approveUser(json.toString());
     }
 
-    public static void getFollowers(String displayName, @Nullable String lastFollowerFetchedName,
-                                    Callback<String> callback) {
+    public static Call<String> getFollowers(String displayName, @Nullable String lastFollowerFetchedName) {
 
         HashMap<String, String> queryMap = new HashMap<>();
         queryMap.put("display_name", displayName);
         if(lastFollowerFetchedName!=null) {
             queryMap.put("last_follower_fetched", lastFollowerFetchedName);
         }
-        InstaRetrofit.Companion.getApi().getFollowers(queryMap).enqueue(callback);
+        return InstaRetrofit.api.getFollowers(queryMap);
     }
 
-    public static void getFollowing(String displayName, @Nullable String lastFollowingFetchedName,
-                                    Callback<String> callback) {
+    public static Call<String> getFollowing(String displayName, @Nullable String lastFollowingFetchedName) {
 
         HashMap<String, String> queryMap = new HashMap<>();
         queryMap.put("display_name", displayName);
         if(lastFollowingFetchedName!=null) {
             queryMap.put("last_following_fetched", lastFollowingFetchedName);
         }
-        InstaRetrofit.Companion.getApi().getFollowing(queryMap).enqueue(callback);
+        return InstaRetrofit.api.getFollowing(queryMap);
     }
 
-    public static void getDetails(Callback<String> callback) {
-        InstaRetrofit.Companion.getApi().getDetails().enqueue(callback);
+    public static Call<String> getFollowingWhoFollow(String displayName, @Nullable String lastFetchedName) {
+
+        HashMap<String, String> queryMap = new HashMap<>();
+        queryMap.put("display_name", displayName);
+        if(lastFetchedName!=null) {
+            queryMap.put("last_fetched", lastFetchedName);
+        }
+        return InstaRetrofit.api.getFollowing(queryMap);
     }
 
-    public static void updateDetails(@Nullable File profileImageFile, @Nullable String password, @Nullable String email,
+    public static Call<String> getDetails() {
+        return InstaRetrofit.api.getDetails();
+    }
+
+    public static Call<String> updateDetails(@Nullable File profileImageFile, @Nullable String password, @Nullable String email,
                                      @Nullable String firstName, @Nullable String lastName, @Nullable String displayName,
-                                     @Nullable String profileName, @Nullable String profileDesc, @Nullable Boolean isPrivate,
-                                   Callback<String> callback) {
+                                     @Nullable String profileName, @Nullable String profileDesc, @Nullable Boolean isPrivate) {
 
         JSONObject jsonObject = new JSONObject();
         try {
@@ -373,17 +377,18 @@ public class InstaApi {
         RequestBody jsonBody = RequestBody.create(MediaType.parse("multipart/form-data"), jsonObject.toString());
 
         if(profileImageFile!=null){
+
             RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), profileImageFile);
             MultipartBody.Part photo = MultipartBody.Part.createFormData("photo", profileImageFile.getName(), requestFile);
-            InstaRetrofit.Companion.getApi().updateDetails(photo,jsonBody).enqueue(callback);
+            return InstaRetrofit.api.updateDetails(photo,jsonBody);
         } else {
-            InstaRetrofit.Companion.getApi().updateDetails(jsonBody).enqueue(callback);
+            return InstaRetrofit.api.updateDetails(jsonBody);
         }
     }
 
 
 
-    public static Callback<String> generateCallback(final Activity context, final InstaApiCallback apiCallback){
+    public static Callback<String> generateCallback(final Context context, final InstaApiCallback apiCallback){
         return new Callback<String>(){
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
@@ -394,7 +399,7 @@ public class InstaApi {
                         if(success){
                             apiCallback.success(jsonResponse);
                         }else {
-                            apiCallback.failure(jsonResponse);
+                            apiCallback.failure(context, jsonResponse);
                         }
                     }catch (JSONException e){
                         Toast.makeText(context, "Invalid response from server", Toast.LENGTH_SHORT).show();
