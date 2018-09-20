@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity() {
     private fun switchFragment(target: String) {
 
         if(currentFragment == target){
-            (supportFragmentManager.findFragmentById(R.id.activity_container) as BaseMainFragment).clearBackStack()
+            (supportFragmentManager.findFragmentByTag(currentFragment) as BaseMainFragment).clearBackStack()
         }else {
 
             val manager = supportFragmentManager

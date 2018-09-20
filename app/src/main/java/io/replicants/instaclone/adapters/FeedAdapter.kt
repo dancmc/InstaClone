@@ -24,10 +24,10 @@ import io.replicants.instaclone.pojos.Photo
 import io.replicants.instaclone.subfragments.UserListSubFragment
 import io.replicants.instaclone.utilities.Utils
 import io.replicants.instaclone.utilities.setClickableSpan
-import java.util.ArrayList
 import kotlinx.android.synthetic.main.adapter_feed_item.view.*
 import kotlinx.android.synthetic.main.adapter_feed_item_grid.view.*
 import org.json.JSONObject
+import java.util.*
 
 class FeedAdapter(private val context: Activity, private val dataset: ArrayList<Photo?>, private val recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -59,6 +59,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
         var tvCaption = v.feed_item_caption
         var tvCommentPreviews = v.feed_item_comment_text_previews
         var tvCommentText = v.feed_item_comment_text
+        var tvDate = v.feed_item_date
 
         init {
 
@@ -147,6 +148,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                 }
             })
         }
+
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -333,6 +335,8 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                 holder.btComment.setOnClickListener {
                     clickListeners?.moveToCommentsSubFragment(feedItem.displayName)
                 }
+
+                holder.tvDate.text = Utils.formatDate(feedItem.timestamp)
             }
             is HeaderViewHolder->{
                 holder.container.removeAllViews()
@@ -352,6 +356,15 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
             }
         }
 
+
+    }
+
+    override fun getItemId(position: Int): Long {
+        if (position == 0){
+            return 0L
+        }else{
+            return dataset[position-1]?.photoID?.hashCode()?.toLong()?: Random().nextLong()
+        }
 
     }
 

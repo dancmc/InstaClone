@@ -18,6 +18,10 @@ import io.replicants.instaclone.pojos.Comment
 import io.replicants.instaclone.pojos.Like
 import io.replicants.instaclone.pojos.Photo
 import io.replicants.instaclone.pojos.User
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDateTime
+import java.util.*
 
 
 class Utils {
@@ -26,6 +30,26 @@ class Utils {
 
         @JvmField
         val colorBlack = Color.parseColor("#ff000000")
+        @JvmField
+        val sdfWithYr = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
+        @JvmField
+        val sdf = SimpleDateFormat("dd MMM",Locale.ENGLISH)
+        @JvmField
+        val oneDayMs = 1000*60*60*24
+        @JvmField
+        val oneWeekMs = 1000*60*60*24*7
+
+        @JvmField
+        val oneHrMs = 1000*60*60
+
+        @JvmField
+        val oneMinMs = 1000*60
+
+        @JvmField
+        val oneMonthMs = 1000L*60*60*24*30
+
+        @JvmField
+        val oneYrMs = 1000L*60*60*24*365
 
         @JvmStatic
         fun distance(lat1:Double, long1:Double, lat2:Double, long2:Double):Double{
@@ -80,7 +104,7 @@ class Utils {
             photo.locationName = locationObject.optString("location_name")
             photo.latitude = locationObject.optDouble("latitude")
             photo.longitude = locationObject.optDouble("longitude")
-            photo.timestamp = locationObject.optLong("timestamp")
+            photo.timestamp = jsonObject.optLong("timestamp")
             photo.distance = jsonObject.optDouble("distance", Double.MIN_VALUE)
             photo.thumbHeight =thumbUrlObject.optInt("height")
             photo.thumbWidth =thumbUrlObject.optInt("width")
@@ -203,6 +227,33 @@ class Utils {
         fun formatDistance(distanceInMetres:Double):String{
             val d = Math.round(distanceInMetres)
             return if(distanceInMetres<=999)"$d m" else "${d/1000} km"
+        }
+
+        @JvmStatic
+        fun formatDate(time:Long):String{
+            val diff = System.currentTimeMillis()-time
+            return when{
+                diff < oneHrMs ->{
+                    "${diff/ oneMinMs} minutes ago"
+                }
+                diff< oneDayMs ->{
+                    "${diff/oneHrMs} hours ago"
+                }
+                diff< oneWeekMs->{
+                    "${diff/ oneDayMs} days ago"
+                }
+                else ->{
+                    val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+                    val timeCalendar = Calendar.getInstance()
+                    timeCalendar.timeInMillis = time
+                    val timeYear = timeCalendar.get(Calendar.YEAR)
+                    if(timeYear<currentYear){
+                        sdfWithYr.format(Date(time))
+                    } else {
+                        sdf.format(Date(time))
+                    }
+                }
+            }
         }
     }
 
