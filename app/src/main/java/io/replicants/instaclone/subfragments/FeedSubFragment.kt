@@ -134,7 +134,6 @@ class FeedSubFragment : BaseSubFragment() {
         // initialise adapter with the item list, attach adapter to recyclerview
         // list initially empty
         adapter = FeedAdapter(activity!!, feedItems, recyclerView)
-        adapter.setHasStableIds(true)
         adapter.clickListeners = clickListeners
         recyclerView.adapter = adapter
 
@@ -185,7 +184,7 @@ class FeedSubFragment : BaseSubFragment() {
          locationRequestButton.visibility = View.GONE
         adapter.currentlyLoading = true
         feedItems.clear()
-//        adapter.notifyDataSetChanged()
+        adapter.notifyDataSetChanged()
 
         if (Prefs.getInstance().readString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString()) == InstaApi.Sort.DATE.toString()) {
             InstaApi.getFeed(InstaApi.Sort.DATE, null, null, null).enqueue(InstaApi.generateCallback(activity, initialApiCallback()))

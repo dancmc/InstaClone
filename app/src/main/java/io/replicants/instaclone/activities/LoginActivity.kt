@@ -11,6 +11,7 @@ import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.subfragments.LoginSubFragment
 import io.replicants.instaclone.subfragments.RegisterSubFragment
+import io.replicants.instaclone.utilities.GlideHeader
 import io.replicants.instaclone.utilities.Prefs
 import org.jetbrains.anko.toast
 import org.json.JSONObject
@@ -51,6 +52,7 @@ class LoginActivity : AppCompatActivity() {
                 val jwt = jsonResponse.optString("jwt")
                 if (jwt.isNotBlank()) {
                     Prefs.getInstance().writeString(Prefs.JWT, jwt)
+                    GlideHeader.setAuthorization(jwt)
                     Prefs.getInstance().writeString(Prefs.USERNAME, jsonResponse.optString("username"))
                     Prefs.getInstance().writeString(Prefs.USER_ID, jsonResponse.optString("user_id"))
                     Prefs.getInstance().writeString(Prefs.DISPLAY_NAME, jsonResponse.optString("display_name"))
@@ -74,6 +76,7 @@ class LoginActivity : AppCompatActivity() {
                 val jwt = jsonResponse.optString("jwt")
                 if (jwt.isNotBlank()) {
                     Prefs.getInstance().writeString(Prefs.JWT, jwt)
+                    GlideHeader.setAuthorization(jwt)
                     Prefs.getInstance().writeString(Prefs.USERNAME, jsonResponse.optString("username"))
                     Prefs.getInstance().writeString(Prefs.USER_ID, jsonResponse.optString("user_id"))
                     Prefs.getInstance().writeString(Prefs.DISPLAY_NAME, jsonResponse.optString("display_name"))

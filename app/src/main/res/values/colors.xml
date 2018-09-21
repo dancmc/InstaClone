@@ -9,6 +9,7 @@
     <color name="grey400">#BDBDBD</color>
     <color name="grey500">#9E9E9E</color>
     <color name="grey600">#757575</color>
-    9E9E9E
+    <color name="transparent">#00757575</color>
+
     <color name="text_default">#303030</color>
 </resources>

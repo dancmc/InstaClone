@@ -57,7 +57,7 @@ Preferences
 
 Utility Classes
 - AspectImageView allows you to call setAspectRatio(ratio) where ratio is height/width
-- To load images into any ImageView, call Glide.with(context).load(image).into(imageview)
+- To load images into any ImageView, call Glide.with(context).load(GlideHeader.getUrlWithHeaders(imageUrl)).into(imageview)
 
 
 Adapter

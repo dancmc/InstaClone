@@ -45,7 +45,7 @@ class HomeMainFragment : BaseMainFragment(), FeedSubFragment.FeedFragmentInterfa
         val tx = manager.beginTransaction()
         val settingsFrag = TemporarySubFragment.newInstance()
         settingsFrag.clickListeners = this.clickListeners
-        tx.replace(R.id.fragment_overall_container, settingsFrag, null)
+        tx.add(R.id.fragment_overall_container, settingsFrag, null)
         tx.addToBackStack(null)
         tx.commit()
     }

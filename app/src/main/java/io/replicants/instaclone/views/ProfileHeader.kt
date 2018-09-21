@@ -15,6 +15,7 @@ import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.pojos.User
 import io.replicants.instaclone.subfragments.UserListSubFragment
+import io.replicants.instaclone.utilities.GlideHeader
 import io.replicants.instaclone.utilities.Prefs
 import io.replicants.instaclone.utilities.Utils
 import io.replicants.instaclone.utilities.setClickableSpan
@@ -52,11 +53,18 @@ class ProfileHeader(val context: Context) {
                 view.view_profile_header_followers_text.onClick {
                     clickListeners?.moveToUserListSubFragmentWithCall(UserListSubFragment.CallType.FOLLOWERS, displayName)
                 }
+                view.view_profile_header_c2.onClick {
+                    clickListeners?.moveToUserListSubFragmentWithCall(UserListSubFragment.CallType.FOLLOWERS, displayName)
+                }
                 view.view_profile_header_following_text.text = user.following.toString()
                 view.view_profile_header_following_text.onClick {
                     clickListeners?.moveToUserListSubFragmentWithCall(UserListSubFragment.CallType.FOLLOWING, displayName)
                 }
-                Glide.with(context).load(user.profileImage).into(view.view_profile_header_image)
+                view.view_profile_header_c3.onClick {
+                    clickListeners?.moveToUserListSubFragmentWithCall(UserListSubFragment.CallType.FOLLOWING, displayName)
+                }
+
+                Glide.with(context).load(GlideHeader.getUrlWithHeaders(user.profileImage)).into(view.view_profile_header_image)
 
 
                 // 0 not following, 1 following, 2 requested
@@ -151,8 +159,10 @@ class ProfileHeader(val context: Context) {
         view.view_profile_header_post_text.text = "-"
         view.view_profile_header_followers_text.text = "-"
         view.view_profile_header_followers_text.onClick {  }
+        view.view_profile_header_c2.onClick {  }
         view.view_profile_header_following_text.text = "-"
         view.view_profile_header_following_text.onClick {  }
+        view.view_profile_header_c3.onClick {  }
         Glide.with(context).clear(view.view_profile_header_image)
         view.view_profile_header_follow_btn.text = "-"
         view.view_profile_header_follow_btn.onClick {  }

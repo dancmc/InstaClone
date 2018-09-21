@@ -22,10 +22,12 @@ import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.pojos.Photo
 import io.replicants.instaclone.subfragments.UserListSubFragment
+import io.replicants.instaclone.utilities.GlideHeader
 import io.replicants.instaclone.utilities.Utils
 import io.replicants.instaclone.utilities.setClickableSpan
 import kotlinx.android.synthetic.main.adapter_feed_item.view.*
 import kotlinx.android.synthetic.main.adapter_feed_item_grid.view.*
+import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.json.JSONObject
 import java.util.*
 
@@ -185,7 +187,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                 PhotoGridViewHolder(v)
             }
             else -> {
-                val v = LayoutInflater.from(parent.context).inflate(R.layout.adapter_feed_loading, parent, false) as LinearLayout
+                val v = LayoutInflater.from(parent.context).inflate(R.layout.adapter_loading, parent, false) as LinearLayout
                 ProgressViewHolder(v)
             }
         }
@@ -302,14 +304,14 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                 }
 
                 Glide.with(context)
-                        .load(feedItem.profileImage)
+                        .load(GlideHeader.getUrlWithHeaders(feedItem.profileImage))
 //                .placeholder(R.drawable.icon_android)
                         .into(holder.ivProfileHead)
 
 
                 if (feedItem.regularUrl.isNotBlank()) {
                     Glide.with(context)
-                            .load(feedItem.regularUrl)
+                            .load(GlideHeader.getUrlWithHeaders(feedItem.regularUrl))
 //                    .placeholder(R.drawable.icon_placeholder)
                             .listener(object : RequestListener<Drawable> {
                                 override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
@@ -322,9 +324,13 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                                 }
                             })
                             .into(holder.ivPhoto)
+                    holder.ivPhoto.onClick {
+                        clickListeners?.moveToPhotoSpecificSubFragment(arrayListOf(feedItem.photoID))
+                    }
                 } else {
                     Glide.with(context).clear(holder.ivPhoto)
                     holder.ivPhoto.setImageDrawable(null)
+                    holder.ivPhoto.onClick {}
                 }
 
 
@@ -336,6 +342,8 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                     clickListeners?.moveToCommentsSubFragment(feedItem.displayName)
                 }
 
+
+
                 holder.tvDate.text = Utils.formatDate(feedItem.timestamp)
             }
             is HeaderViewHolder->{
@@ -346,11 +354,15 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                 val feedItem = dataset[position - 1]!!
                 if (feedItem.smallUrl.isNotBlank()) {
                     Glide.with(context)
-                            .load(feedItem.smallUrl)
+                            .load(GlideHeader.getUrlWithHeaders(feedItem.smallUrl))
                             .into(holder.ivPhoto)
+                    holder.ivPhoto.onClick {
+                        clickListeners?.moveToPhotoSpecificSubFragment(arrayListOf(feedItem.photoID))
+                    }
                 } else {
                     Glide.with(context).clear(holder.ivPhoto)
                     holder.ivPhoto.setImageDrawable(null)
+                    holder.ivPhoto.onClick {  }
                 }
 
             }

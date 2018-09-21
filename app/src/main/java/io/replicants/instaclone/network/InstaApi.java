@@ -196,15 +196,15 @@ public class InstaApi {
         return InstaRetrofit.api.deleteComment(json.toString());
     }
 
-    public static Call<String> getLikes(String photoID, @Nullable Integer recent, @Nullable Long lastLikeTimestamp) {
+    public static Call<String> getLikes(String photoID, @Nullable Integer recent, @Nullable String lastFetched) {
 
         HashMap<String, String> queryMap = new HashMap<>();
         queryMap.put("photo_id", photoID);
         if (recent != null) {
             queryMap.put("recent", recent.toString());
         }
-        if (lastLikeTimestamp != null) {
-            queryMap.put("last_like_timestamp", lastLikeTimestamp.toString());
+        if (lastFetched != null) {
+            queryMap.put("last_fetched", lastFetched);
         }
         return InstaRetrofit.api.getLikes(queryMap);
     }

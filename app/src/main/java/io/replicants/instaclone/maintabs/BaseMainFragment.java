@@ -31,7 +31,7 @@ public class BaseMainFragment extends Fragment {
         @Override
         public void moveToUserListSubFragmentWithCall(UserListSubFragment.CallType callType, String id) {
             UserListSubFragment frag = UserListSubFragment.newInstance();
-            frag.setCall(callType, id);
+            frag.setCall(callType, id, null);
             changeFragment(frag);
         }
 
