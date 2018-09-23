@@ -166,7 +166,7 @@ class ProfileHeader(val context: Context) {
         Glide.with(context).clear(view.view_profile_header_image)
         view.view_profile_header_follow_btn.text = "-"
         view.view_profile_header_follow_btn.onClick {  }
-        view.feed_item_profile_name.setText("", TextView.BufferType.NORMAL)
+        view.view_profile_header_profile_name.setText("", TextView.BufferType.NORMAL)
         view.view_profile_header_desc.setText("", TextView.BufferType.NORMAL)
         view.view_profile_header_others_following.setText("", TextView.BufferType.NORMAL)
         view.view_profile_header_approve_request.visibility = View.GONE
