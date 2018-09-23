@@ -7,7 +7,9 @@ import org.json.JSONArray
 import org.json.JSONObject
 import android.app.Activity
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Matrix
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ClickableSpan
@@ -276,4 +278,8 @@ fun SpannableStringBuilder.setClickableSpan(textToClick:String, index:Int=-1, co
             start + textToClick.length,
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
     return this
+}
+fun Bitmap.rotate(degrees: Float): Bitmap {
+    val matrix = Matrix().apply { postRotate(degrees) }
+    return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
 }

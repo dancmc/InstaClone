@@ -1,7 +1,12 @@
 package io.replicants.instaclone.maintabs;
 
-import java.util.ArrayList;
+import android.view.LayoutInflater;
 
+
+import java.util.ArrayList;
+import java.util.zip.Inflater;
+
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -9,6 +14,7 @@ import io.replicants.instaclone.R;
 import io.replicants.instaclone.pojos.User;
 import io.replicants.instaclone.subfragments.BaseSubFragment;
 import io.replicants.instaclone.subfragments.CommentsSubFragment;
+import io.replicants.instaclone.subfragments.EditProfileSubFragment;
 import io.replicants.instaclone.subfragments.MapSubFragment;
 import io.replicants.instaclone.subfragments.PhotoSpecificSubFragment;
 import io.replicants.instaclone.subfragments.ProfileSubFragment;
@@ -52,8 +58,21 @@ public class BaseMainFragment extends Fragment {
 
         @Override
         public void moveToProfileSubFragment(String displayName) {
-            changeFragment(ProfileSubFragment.newInstance(displayName));
+            ProfileSubFragment fragment = ProfileSubFragment.newInstance(displayName);
+
+            Toolbar toolbar = (Toolbar)LayoutInflater.from(getContext()).inflate(R.layout.toolbar_basic, null, false);
+            toolbar.setTitle(R.string.app_name);
+            fragment.setToolbar(toolbar);
+
+            changeFragment(fragment);
         }
+
+        @Override
+        public void moveToEditProfileSubFragment(String displayName) {
+            changeFragment(EditProfileSubFragment.newInstance(displayName));
+        }
+
+
     };
 
     private void changeFragment(BaseSubFragment fragment) {
@@ -86,5 +105,7 @@ public class BaseMainFragment extends Fragment {
         public void moveToMapSubFragment();
 
         public void moveToProfileSubFragment(String displayName);
+
+        public void moveToEditProfileSubFragment(String displayName);
     }
 }

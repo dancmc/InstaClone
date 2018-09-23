@@ -14,7 +14,13 @@ public class Prefs {
     public static String USER_ID = "user_id";
     public static String FEED_SORT = "feed_sort";
     public static String LOCATION_DENIED_FOREVER = "location_denied_forever";
+    public static String CAMERA_DENIED_FOREVER = "camera_denied_forever";
+    public static String EXTERNAL_STORAGE_DENIED_FOREVER = "external_storage_denied_forever";
+    public static String CAMERA_FLASH_STATUS = "camera_flash_status";
+    public static String CAMERA_SIDE = "camera_side";
     public static int LOCATION_REQUEST_CODE =757;
+    public static int CAMERA_REQUEST_CODE =123;
+    public static int EXTERNAL_STORAGE_CODE =372;
 
 
     private static Prefs instance;

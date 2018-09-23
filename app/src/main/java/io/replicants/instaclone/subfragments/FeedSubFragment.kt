@@ -128,7 +128,7 @@ class FeedSubFragment : BaseSubFragment() {
 
         // use a linear layout manager
         layoutManager = LinearLayoutManager(activity)
-        recyclerView.setLayoutManager(layoutManager)
+        recyclerView.layoutManager = layoutManager
 
 
         // initialise adapter with the item list, attach adapter to recyclerview

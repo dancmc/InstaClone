@@ -72,7 +72,7 @@ class ProfileHeader(val context: Context) {
                     view.view_profile_header_approve_request.visibility = View.GONE
                     view.view_profile_header_follow_btn.text = "Edit Profile"
                     view.view_profile_header_follow_btn.onClick {
-                        // TODO edit profile subfragment
+                        clickListeners?.moveToEditProfileSubFragment(displayName)
                     }
                 }else {
                     if (user.followStatusToMe == 2) {

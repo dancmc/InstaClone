@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.replicants.instaclone.R
@@ -40,13 +42,17 @@ class ProfileSubFragment : BaseSubFragment() {
         }
     }
 
+    var layout :LinearLayout? = null
+    var toolbar:Toolbar? = null
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.subfragment_profile, container, false)
+        layout = inflater.inflate(R.layout.subfragment_profile, container, false) as LinearLayout
         val displayName = arguments?.getString("displayName")?:""
 
-        layout.subfragment_profile_toolbar.title = displayName
-
-        val recyclerView = layout.subfragment_profile_recyclerview
+        val recyclerView = (layout?.subfragment_profile_recyclerview)!!
+        if(toolbar!=null){
+            layout?.addView(toolbar, 0)
+        }
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -126,5 +132,13 @@ class ProfileSubFragment : BaseSubFragment() {
         }
 
         return layout
+    }
+
+    fun changeToolbar(toolbar:Toolbar){
+        this.toolbar = toolbar
+        if(layout?.getChildAt(0) is Toolbar){
+            layout?.removeViewAt(0)
+        }
+        layout?.addView(toolbar, 0)
     }
 }
