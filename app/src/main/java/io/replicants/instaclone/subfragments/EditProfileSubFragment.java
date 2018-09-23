@@ -1,6 +1,13 @@
 package io.replicants.instaclone.subfragments;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import io.replicants.instaclone.R;
 
 public class EditProfileSubFragment extends BaseSubFragment {
 
@@ -14,4 +21,10 @@ public class EditProfileSubFragment extends BaseSubFragment {
         return myFragment;
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View layout = inflater.inflate(R.layout.subfragment_editprofile, container, false);
+        return layout;
+    }
 }
