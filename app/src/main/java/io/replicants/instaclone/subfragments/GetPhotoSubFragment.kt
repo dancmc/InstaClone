@@ -10,14 +10,19 @@ import androidx.fragment.app.FragmentManager
 import io.replicants.instaclone.R
 import kotlinx.android.synthetic.main.subfragment_get_photo.view.*
 import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentStatePagerAdapter
 import com.google.android.material.tabs.TabLayout
 
 
 class GetPhotoSubFragment:BaseSubFragment() {
 
     lateinit var layout:View
-    var photoTakenListener: CameraSubFragment.PhotoTakenListener? = null
+    var photoTakenListener: PhotoObtainedListener? = null
     lateinit var adapter :MyAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         layout = inflater.inflate(R.layout.subfragment_get_photo, container, false)
@@ -30,7 +35,7 @@ class GetPhotoSubFragment:BaseSubFragment() {
         return layout
     }
 
-    class MyAdapter(fm:FragmentManager, var photoTakenListener: CameraSubFragment.PhotoTakenListener?) : FragmentPagerAdapter(fm) {
+    class MyAdapter(fm:FragmentManager, var photoObtainedListener: PhotoObtainedListener?) : FragmentStatePagerAdapter(fm) {
 
         override fun getCount(): Int {
             return 2
@@ -39,10 +44,12 @@ class GetPhotoSubFragment:BaseSubFragment() {
         override fun getItem(position: Int): Fragment {
 
             if(position==0){
-                return GallerySubFragment()
+                val galleryFragment = GallerySubFragment()
+                galleryFragment.photoObtainedListener = photoObtainedListener
+                return galleryFragment
             } else {
                 val camFragment = CameraSubFragment()
-                camFragment.photoTakenListener = photoTakenListener
+                camFragment.photoObtainedListener = photoObtainedListener
                 return camFragment
             }
         }
@@ -70,5 +77,9 @@ class GetPhotoSubFragment:BaseSubFragment() {
         }catch (e:ClassCastException){
             Log.d("GetPhotoFragment", e.message)
         }
+    }
+
+    interface PhotoObtainedListener {
+        fun photoObtained(filename: String)
     }
 }

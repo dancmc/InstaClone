@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.R.attr.scaleType
+import android.content.Context
 import android.graphics.Rect
 import android.net.Uri
 import android.util.Log
@@ -19,19 +20,25 @@ import android.view.View
 import io.replicants.instaclone.R
 
 
-class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener,
-        CropImageView.OnCropImageCompleteListener {
+class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener{
 
 
     private var mCropImageView: CropImageView? = null
+    var onCropImageCompleteListener:CropImageView.OnCropImageCompleteListener? = null
+    lateinit var rootView : View
     // endregion
 
 
     /** Set the image to show for cropping.  */
     fun setImageUri(imageUri: Uri) {
         mCropImageView!!.setImageUriAsync(imageUri)
+
         //        CropImage.activity(imageUri)
         //                .start(getContext(), this);
+    }
+
+    fun clear(){
+        mCropImageView?.clearImage()
     }
 
     /** Set the options of the crop image view to the given values.  */
@@ -78,19 +85,14 @@ class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener,
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.subfragment_crop, container, false)
-        return rootView
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        mCropImageView = view.findViewById(R.id.subfragment_crop_imageview)
+        rootView = inflater.inflate(R.layout.subfragment_crop, container, false)
+        mCropImageView = rootView.findViewById(R.id.subfragment_crop_imageview)
         mCropImageView!!.setOnSetImageUriCompleteListener(this)
-        mCropImageView!!.setOnCropImageCompleteListener(this)
+        mCropImageView!!.setOnCropImageCompleteListener(onCropImageCompleteListener)
 //        mCropImageView!!.setScaleType(CropImageView.ScaleType.FIT_CENTER);
         mCropImageView!!.setCropShape(CropImageView.CropShape.RECTANGLE);
         mCropImageView!!.setGuidelines(CropImageView.Guidelines.ON_TOUCH);
+        mCropImageView!!.rotatedDegrees
 //        mCropImageView!!.setAspectRatio(options.aspectRatio.first, options.aspectRatio.second);
 //        mCropImageView!!.setFixedAspectRatio(options.fixAspectRatio);
 //        mCropImageView!!.setMultiTouchEnabled(true);
@@ -102,6 +104,12 @@ class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener,
 //        mCropImageView!!.setFlippedVertically(options.flipVertically);
 
         updateCurrentCropViewOptions()
+        return rootView
+    }
+
+
+    override fun onResume() {
+        super.onResume()
 
     }
 
@@ -124,17 +132,18 @@ class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener,
 
 
 
-    override fun onDetach() {
-        super.onDetach()
-        if (mCropImageView != null) {
-            mCropImageView!!.setOnSetImageUriCompleteListener(null)
-            mCropImageView!!.setOnCropImageCompleteListener(null)
-        }
+    override fun onStop() {
+        super.onStop()
+//        if (mCropImageView != null) {
+//            mCropImageView!!.setOnSetImageUriCompleteListener(null)
+//            mCropImageView!!.setOnCropImageCompleteListener(null)
+//        }
     }
 
     override fun onSetImageUriComplete(view: CropImageView, uri: Uri, error: Exception?) {
         if (error == null) {
-//            Toast.makeText(activity, "Image load successful", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, "Image load successful", Toast.LENGTH_SHORT).show()
+
         } else {
             Log.e("AIC", "Failed to load image by URI", error)
             Toast.makeText(activity, "Image load failed: " + error.message, Toast.LENGTH_LONG)
@@ -142,20 +151,19 @@ class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener,
         }
     }
 
-    override fun onCropImageComplete(view: CropImageView, result: CropImageView.CropResult) {
-        handleCropResult(result)
-    }
+
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            val result = CropImage.getActivityResult(data)
-            handleCropResult(result)
-        }
+//        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+//            val result = CropImage.getActivityResult(data)
+//            handleCropResult(result)
+//        }
     }
 
-    private fun handleCropResult(result: CropImageView.CropResult) {
-
+    public fun getImageAsync(){
+        mCropImageView?.getCroppedImageAsync()
     }
 
 }

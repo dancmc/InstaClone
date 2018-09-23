@@ -22,6 +22,10 @@ public class Prefs {
     public static int CAMERA_REQUEST_CODE =123;
     public static int EXTERNAL_STORAGE_CODE =372;
 
+    public static String CAMERA_BACK_WIDTH = "camera_back_width";
+    public static String CAMERA_BACK_HEIGHT = "camera_back_height";
+    public static String CAMERA_FRONT_WIDTH = "camera_front_width";
+    public static String CAMERA_FRONT_HEIGHT = "camera_front_height";
 
     private static Prefs instance;
     private SharedPreferences sharedPref;
