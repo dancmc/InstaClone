@@ -14,21 +14,21 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 
 
 // Inspired by https://stackoverflow.com/questions/26517855/using-the-recyclerview-with-a-database
-class GalleryCursorAdapter(var context:Context, var cursor:Cursor, var clickListener:Listener):RecyclerView.Adapter<GalleryCursorAdapter.ViewHolder>() {
+class GalleryCursorAdapter(var context:Context, var cursor:Cursor, var clickListener:Listener, startingCursorPos:Int = 0):RecyclerView.Adapter<GalleryCursorAdapter.ViewHolder>() {
 
     lateinit var adapter:CursorAdapter
 
     init {
         // preview the first photo
 
-        swapCursor(cursor)
+        swapCursor(cursor, startingCursorPos)
     }
 
-    fun swapCursor(cursor: Cursor){
+    fun swapCursor(cursor: Cursor, position :Int = 0){
 
-        val move = cursor.moveToFirst()
+        val move = cursor.moveToPosition(position)
         if(move){
-            clickListener.onClick(cursor.getString(1))
+            clickListener.onClick(cursor.getString(1), position)
         }
 
         adapter = object : CursorAdapter(context, cursor, false){
@@ -41,10 +41,11 @@ class GalleryCursorAdapter(var context:Context, var cursor:Cursor, var clickList
             override fun bindView(view: View, context: Context?, cursor: Cursor) {
 
                 val path = cursor.getString(1)
+                val position = cursor.position
 
                 Glide.with(context!!).load(path).into(view.feed_item_grid_image)
                 view.feed_item_grid_image.onClick {
-                    clickListener.onClick(path)
+                    clickListener.onClick(path, position)
                 }
             }
         }
@@ -71,6 +72,6 @@ class GalleryCursorAdapter(var context:Context, var cursor:Cursor, var clickList
     }
 
     interface Listener{
-        fun onClick(filePath:String)
+        fun onClick(filePath:String, position:Int)
     }
 }

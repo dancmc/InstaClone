@@ -6,12 +6,18 @@ import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import io.realm.Realm
 import io.replicants.instaclone.R
+import io.replicants.instaclone.pojos.SavedPhoto
 import io.replicants.instaclone.subfragments.CameraSubFragment
+import io.replicants.instaclone.subfragments.FilterSubFragment
 import io.replicants.instaclone.subfragments.GallerySubFragment
 import io.replicants.instaclone.subfragments.GetPhotoSubFragment
 import io.replicants.instaclone.utilities.Prefs
 import org.jetbrains.anko.toast
+import java.io.File
+import java.util.logging.Filter
 
 // Same as Instagram's Upload Photo activity
 class AddPhotoActivity : AppCompatActivity() {
@@ -20,12 +26,18 @@ class AddPhotoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_photo)
 
+        deleteExtraPhotos()
+
         val manager = supportFragmentManager
         val transaction = manager.beginTransaction()
         val getPhotoFragment = GetPhotoSubFragment()
-        getPhotoFragment.photoTakenListener = object : CameraSubFragment.PhotoTakenListener {
-            override fun photoTaken(filename: String) {
-                //TODO
+        getPhotoFragment.photoTakenListener = object : GetPhotoSubFragment.PhotoObtainedListener {
+            override fun photoObtained(filename: String) {
+                val tx = supportFragmentManager.beginTransaction()
+                val filterFrag = FilterSubFragment.newInstance(filename)
+                tx.replace(R.id.add_photo_container, filterFrag)
+                tx.addToBackStack(null)
+                tx.commit()
                 toast("Move to filter fragment")
             }
         }
@@ -87,5 +99,23 @@ class AddPhotoActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun deleteExtraPhotos(){
+        if (ContextCompat.checkSelfPermission(this as AppCompatActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            val savedSet = HashSet<String>()
+            Realm.getDefaultInstance().where(SavedPhoto::class.java).findAll().forEach {
+                savedSet.add(it.photoFile)
+            }
+            val folder = File(filesDir, "photos")
+            if(folder.exists()){
+                folder.listFiles().forEach {
+                    if(!it.isDirectory && it.absolutePath !in savedSet && it.absolutePath.endsWith(".jpg")){
+                        it.delete()
+                    }
+                }
+            }
+        }
+
     }
 }

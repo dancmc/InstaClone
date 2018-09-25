@@ -19,8 +19,6 @@ import io.replicants.instaclone.utilities.GlideHeader
 import io.replicants.instaclone.utilities.Prefs
 import io.replicants.instaclone.utilities.Utils
 import io.replicants.instaclone.utilities.setClickableSpan
-import kotlinx.android.synthetic.main.adapter_feed_item.view.*
-import kotlinx.android.synthetic.main.adapter_feed_item_grid.view.*
 import kotlinx.android.synthetic.main.view_profile_header.view.*
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.noButton
