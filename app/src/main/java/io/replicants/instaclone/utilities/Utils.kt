@@ -257,6 +257,39 @@ class Utils {
                 }
             }
         }
+
+        @JvmStatic
+        fun formatDateForActivity(time:Long):String{
+            val diff = System.currentTimeMillis()-time
+            return when{
+                diff < oneHrMs ->{
+                    "${diff/ oneMinMs}m"
+                }
+                diff< oneDayMs ->{
+                    "${diff/oneHrMs}h"
+                }
+                diff< oneWeekMs->{
+                    "${diff/ oneDayMs}d"
+                }
+                diff< oneMonthMs->{
+                    "${diff/ oneWeekMs}w"
+                }
+                diff< oneYrMs->{
+                    "${diff/ oneMonthMs}M"
+                }
+                else ->{
+                    val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+                    val timeCalendar = Calendar.getInstance()
+                    timeCalendar.timeInMillis = time
+                    val timeYear = timeCalendar.get(Calendar.YEAR)
+                    if(timeYear<currentYear){
+                        sdfWithYr.format(Date(time))
+                    } else {
+                        sdf.format(Date(time))
+                    }
+                }
+            }
+        }
     }
 
 

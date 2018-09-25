@@ -3,6 +3,7 @@ package io.replicants.instaclone.utilities;
 import android.content.Context;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.replicants.instaclone.network.InstaApi;
@@ -30,6 +31,7 @@ public class ExampleClass {
         Callback<String> callback = InstaApi.generateCallback(context, new InstaApiCallback(){
             @Override
             public void success(JSONObject jsonResponse) {
+                JSONArray array = jsonResponse.optJSONArray("activities");
                 Log.d("EXAMPLE : ", jsonResponse.toString());
             }
 
