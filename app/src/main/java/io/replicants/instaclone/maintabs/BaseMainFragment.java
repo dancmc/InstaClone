@@ -69,7 +69,7 @@ public class BaseMainFragment extends Fragment {
 
         @Override
         public void moveToEditProfileSubFragment(String displayName) {
-            changeFragment(EditProfileSubFragment.newInstance(displayName));
+            changeFragment(EditProfileSubFragment.Companion.newInstance(displayName));
         }
 
 
@@ -107,5 +107,6 @@ public class BaseMainFragment extends Fragment {
         public void moveToProfileSubFragment(String displayName);
 
         public void moveToEditProfileSubFragment(String displayName);
+
     }
 }

@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toolbar
 
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
@@ -12,7 +11,6 @@ import androidx.fragment.app.FragmentManager
 import io.replicants.instaclone.R
 import io.replicants.instaclone.subfragments.ProfileSubFragment
 import io.replicants.instaclone.utilities.Prefs
-import kotlinx.android.synthetic.main.subfragment_feed.*
 
 class ProfileMainFragment : BaseMainFragment() {
 
@@ -36,8 +34,7 @@ class ProfileMainFragment : BaseMainFragment() {
     override fun onCreateView(@NonNull inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val layout = inflater.inflate(R.layout.mainfragment_profile, container, false)
 
-        val displayName = Prefs.DISPLAY_NAME
-//        val displayName = arguments?.getString("displayName") ?: ""
+        val displayName = Prefs.getInstance().readString(Prefs.DISPLAY_NAME,"")
 
         // stand alone toolbar for profile
         val toolbar = LayoutInflater.from(context).inflate(R.layout.profile_toolbar, null, false) as androidx.appcompat.widget.Toolbar

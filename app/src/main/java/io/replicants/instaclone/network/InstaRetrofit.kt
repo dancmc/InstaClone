@@ -17,7 +17,7 @@ class InstaRetrofit {
                 .addInterceptor { chain ->
                     val originalRequest = chain.request()
 
-                    val jwt = Prefs.getInstance().readString(Prefs.JWT, "")
+                    val jwt = Prefs.getInstance().readString(Prefs.JWT,"")
                     val newRequest = originalRequest.newBuilder()
                             .addHeader("Authorization", jwt)
                             .build()
@@ -122,9 +122,11 @@ class InstaRetrofit {
         @GET("user/getDetails")
         fun getDetails(): Call<String>
 
+        @Multipart
         @POST("user/update")
         fun updateDetails(@Part("photo") file:MultipartBody.Part, @Part("json") json:RequestBody): Call<String>
 
+        @Multipart
         @POST("user/update")
         fun updateDetails(@Part("json") json:RequestBody): Call<String>
     }

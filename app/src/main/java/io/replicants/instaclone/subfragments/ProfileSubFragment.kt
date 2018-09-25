@@ -100,7 +100,7 @@ class ProfileSubFragment : BaseSubFragment() {
         adapter.clickListeners = clickListeners
         recyclerView.adapter = adapter
 
-        val sort = Prefs.getInstance().readString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString())
+        val sort = Prefs.getInstance().readString(Prefs.FEED_SORT,InstaApi.Sort.DATE.toString())
         if(sort == InstaApi.Sort.DATE.toString()) {
             InstaApi.getUserPhotos(displayName, InstaApi.Sort.DATE, null,null,null)
                     .enqueue(InstaApi.generateCallback(context, object:InstaApiCallback(){

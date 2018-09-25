@@ -15,13 +15,11 @@ import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.BaseMainFragment
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
-import io.replicants.instaclone.pojos.Photo
 import io.replicants.instaclone.pojos.User
 import io.replicants.instaclone.utilities.GlideHeader
 import io.replicants.instaclone.utilities.Prefs
 import java.util.ArrayList
 import kotlinx.android.synthetic.main.adapter_userlist_item.view.*
-import kotlinx.android.synthetic.main.view_profile_header.view.*
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.noButton
 import org.jetbrains.anko.sdk27.coroutines.onClick
@@ -84,7 +82,7 @@ class UserListAdapter(private val context: Activity, private val dataset: ArrayL
                     .bold { append(userItem?.displayName) }
             holder.tvProfileName.text = userItem?.profileName
 
-            val self = Prefs.getInstance().readString(Prefs.DISPLAY_NAME, "")
+            val self = Prefs.getInstance().readString(Prefs.DISPLAY_NAME,"")
             if (self == userItem?.displayName) {
                 holder.btnFollow.visibility = View.GONE
             } else {

@@ -1,6 +1,5 @@
 package io.replicants.instaclone.views
 
-import android.app.Activity
 import android.content.Context
 import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
@@ -23,7 +22,6 @@ import kotlinx.android.synthetic.main.view_profile_header.view.*
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.noButton
 import org.jetbrains.anko.sdk27.coroutines.onClick
-import org.jetbrains.anko.toast
 import org.jetbrains.anko.yesButton
 import org.json.JSONObject
 
@@ -40,7 +38,7 @@ class ProfileHeader(val context: Context) {
 
     fun init(displayName :String){
 
-        val isSelf = Prefs.getInstance().readString(Prefs.DISPLAY_NAME, "") == displayName
+        val isSelf = Prefs.getInstance().readString(Prefs.DISPLAY_NAME,"") == displayName
 
         InstaApi.getUserInfo(displayName).enqueue(InstaApi.generateCallback(context, object:InstaApiCallback(){
             override fun success(jsonResponse: JSONObject) {

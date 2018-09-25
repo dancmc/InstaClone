@@ -21,9 +21,9 @@
             android:layout_height="?attr/actionBarSize"
 
             android:elevation="4dp"
-            app:title="Edit Profile"
             android:theme="@style/ProfileToolbarTheme"
-            app:popupTheme="@style/OverflowMenu"/>
+            app:popupTheme="@style/OverflowMenu"
+            app:title="Edit Profile" />
 
 
         <de.hdodenhof.circleimageview.CircleImageView
@@ -43,7 +43,7 @@
             android:layout_marginTop="16dp"
             android:background="@android:color/transparent"
             android:text="Change Photo"
-            android:textColor="@color/black87"/>
+            android:textColor="@color/black87" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -56,8 +56,8 @@
                 android:id="@+id/profile_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
-                android:hint="Username" />
+                android:hint="Username"
+                android:inputType="text" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -82,10 +82,10 @@
             android:layout_marginTop="8dp">
 
             <EditText
-                android:id="@+id/full_name"
+                android:id="@+id/firstname_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Full Name"
+                android:hint="First Name (Optional)"
                 android:inputType="text" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -98,10 +98,10 @@
             android:layout_marginTop="8dp">
 
             <EditText
-                android:id="@+id/bio_input"
+                android:id="@+id/lastname_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Bio"
+                android:hint="Last Name"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -113,12 +113,28 @@
             android:layout_marginTop="8dp">
 
             <EditText
-                android:id="@+id/website_input"
+                android:id="@+id/profile_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Website"
+                android:hint="Profile Name"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+
+            android:layout_marginTop="8dp">
+
+            <EditText
+                android:id="@+id/profile_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Profile Description"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -134,6 +150,28 @@
                 android:hint="Email Address"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+
+            android:layout_marginTop="8dp">
+
+            <EditText
+                android:id="@+id/change_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="New Password"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Switch
+            android:id="@+id/private_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Private Profile" />
 
         <Button
             android:id="@+id/button_confirm"

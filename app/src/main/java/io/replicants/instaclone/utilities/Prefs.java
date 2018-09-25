@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import io.replicants.instaclone.adapters.FeedAdapter;
-
 public class Prefs {
 
     public static String JWT = "jwt";
