@@ -130,6 +130,9 @@ class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener{
         return super.onOptionsItemSelected(item)
     }
 
+    fun rotate(deg:Int){
+        mCropImageView?.rotateImage(deg)
+    }
 
 
     override fun onStop() {

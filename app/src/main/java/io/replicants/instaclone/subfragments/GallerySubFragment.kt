@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -25,10 +26,12 @@ import io.replicants.instaclone.R
 import io.replicants.instaclone.adapters.GalleryCursorAdapter
 import io.replicants.instaclone.utilities.Prefs
 import kotlinx.android.synthetic.main.adapter_feed_item_grid.view.*
+import kotlinx.android.synthetic.main.subfragment_crop.view.*
 import kotlinx.android.synthetic.main.subfragment_gallery.view.*
 import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.sdk27.coroutines.onItemSelectedListener
+import org.jetbrains.anko.sdk27.coroutines.onSeekBarChangeListener
 import org.jetbrains.anko.uiThread
 import java.io.File
 import java.io.FileOutputStream
@@ -87,6 +90,7 @@ class GallerySubFragment : BaseSubFragment() {
                 tx.add(R.id.subfragment_gallery_image_container, cropFrag, null)
                 tx.commit()
             }
+
 
             if (ContextCompat.checkSelfPermission(activity as AppCompatActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 populateDirectory()

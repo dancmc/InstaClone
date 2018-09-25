@@ -98,6 +98,10 @@ public class InstaApi {
             queryMap.put("page", page.toString());
         }
 
+        Call<String> a = InstaRetrofit.api.discoverSearch(queryMap);
+
+
+
         return InstaRetrofit.api.discoverSearch(queryMap);
     }
 

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import io.replicants.instaclone.R;
+import io.replicants.instaclone.network.InstaApi;
 
 public class ActivityMainFragment extends BaseMainFragment {
 
@@ -24,7 +25,6 @@ public class ActivityMainFragment extends BaseMainFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.mainfragment_activity, container, false);
-
 
         return layout;
     }
