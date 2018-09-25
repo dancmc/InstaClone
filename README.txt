@@ -15,7 +15,9 @@ Activity and Navigation Flow
 - The 4 main fragments extend BaseMainFragment
     - BaseMainFragments have a preset listener object for changing between common subfragments - just pass this listener object down to subfragments
     - Subfragments should pass this listener down to anything that needs to initiate a change of subfragment
-- Subfragments extend BaseSubFragment
+        - this listener variable is called clickListeners
+        - eg in a SubFragment you might call clickListeners.moveToProfileFragment("orangetiger1990")
+- Subfragments should extend BaseSubFragment
 
 - Example :
     - going forward :

@@ -14,6 +14,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.*
 import io.replicants.instaclone.network.InstaApi
+import io.replicants.instaclone.utilities.ExampleClass
 import io.replicants.instaclone.utilities.MyApplication
 import io.replicants.instaclone.utilities.Prefs
 import io.replicants.instaclone.utilities.Utils
@@ -44,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        println("COLOR ${Utils.colorBlack}")
+        ExampleClass()
 
         val menuView = navigation.getChildAt(0) as BottomNavigationMenuView
         for (i in 0 until menuView.childCount) {
