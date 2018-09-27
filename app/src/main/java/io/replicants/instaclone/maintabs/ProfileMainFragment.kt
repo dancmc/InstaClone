@@ -7,12 +7,14 @@ import android.view.ViewGroup
 
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import io.replicants.instaclone.R
+import io.replicants.instaclone.subfragments.EditProfileSubFragment
 import io.replicants.instaclone.subfragments.ProfileSubFragment
 import io.replicants.instaclone.utilities.Prefs
 
-class ProfileMainFragment : BaseMainFragment() {
+class ProfileMainFragment : BaseMainFragment(), EditProfileSubFragment.EditProfileFinished {
 
 
     companion object {
@@ -47,11 +49,30 @@ class ProfileMainFragment : BaseMainFragment() {
         profileFrag.changeToolbar(toolbar)
         profileFrag.clickListeners = this.clickListeners
 
-        tx.add(R.id.fragment_overall_container, profileFrag, null)
+        tx.add(R.id.fragment_overall_container, profileFrag, "profile_base")
         tx.commit()
 
         return layout
     }
 
+    override fun editProfileFinished() {
+        var fragment: Fragment?=null
+        manager.fragments.forEach {
+            if(it is EditProfileSubFragment){
+                fragment = it
+            }
+        }
+        val tx = manager.beginTransaction()
+        if(fragment!=null){
+            tx.remove(fragment!!)
+        }
+        tx.commit()
+
+        val baseFrag = manager.findFragmentByTag("profile_base")
+        if(baseFrag!=null){
+            (baseFrag as ProfileSubFragment).reload()
+        }
+
+    }
 }
 

@@ -44,10 +44,12 @@ class ProfileSubFragment : BaseSubFragment() {
 
     var layout :LinearLayout? = null
     var toolbar:Toolbar? = null
+    var profileHeader: ProfileHeader?=null
+    lateinit var displayName :String
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         layout = inflater.inflate(R.layout.subfragment_profile, container, false) as LinearLayout
-        val displayName = arguments?.getString("displayName")?:""
+        displayName = arguments?.getString("displayName")?:""
 
         val recyclerView = (layout?.subfragment_profile_recyclerview)!!
         if(toolbar!=null){
@@ -74,9 +76,9 @@ class ProfileSubFragment : BaseSubFragment() {
         // initialise adapter with the item list, attach adapter to recyclerview
         // list initially empty
         val feedItems = ArrayList<Photo?>()
-        val profileHeader = ProfileHeader(context!!)
-        profileHeader.init(displayName)
-        profileHeader.listButtonsCallback = object:ProfileHeader.ListButtonsCallback{
+        profileHeader = ProfileHeader(context!!)
+        profileHeader?.init(displayName)
+        profileHeader?.listButtonsCallback = object:ProfileHeader.ListButtonsCallback{
             override fun onGridClicked() {
                 val oldManager = recyclerView.layoutManager
                 val firstItemView = oldManager!!.findViewByPosition(0)
@@ -93,10 +95,10 @@ class ProfileSubFragment : BaseSubFragment() {
                 (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, topOffset)
             }
         }
-        profileHeader.clickListeners = clickListeners
+        profileHeader?.clickListeners = clickListeners
 
         val adapter = FeedAdapter(activity!!,feedItems , recyclerView)
-        adapter.header = profileHeader.view
+        adapter.header = profileHeader?.view
         adapter.clickListeners = clickListeners
         recyclerView.adapter = adapter
 
@@ -140,5 +142,9 @@ class ProfileSubFragment : BaseSubFragment() {
             layout?.removeViewAt(0)
         }
         layout?.addView(toolbar, 0)
+    }
+
+    fun reload(){
+        profileHeader?.init(displayName)
     }
 }

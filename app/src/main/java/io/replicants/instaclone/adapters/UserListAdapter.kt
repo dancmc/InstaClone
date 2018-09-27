@@ -87,8 +87,8 @@ class UserListAdapter(private val context: Activity, private val dataset: ArrayL
                 holder.btnFollow.visibility = View.GONE
             } else {
                 holder.btnFollow.visibility = View.VISIBLE
-                when (userItem?.followStatusToThem) {
-                    0 -> {
+                when(userItem?.followStatusToThem)  {
+                     0 -> {
                         holder.btnFollow.text = "Follow"
                         holder.btnFollow.onClick {
                             follow(holder.btnFollow, userItem)
@@ -97,7 +97,7 @@ class UserListAdapter(private val context: Activity, private val dataset: ArrayL
                     1 -> {
                         holder.btnFollow.text = "Following"
                         holder.btnFollow.onClick {
-                            unfollow(holder.btnFollow, userItem)
+                            unfollow(holder.btnFollow, userItem!!)
                         }
                     }
                     2 -> {

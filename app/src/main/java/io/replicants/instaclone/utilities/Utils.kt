@@ -154,6 +154,9 @@ class Utils {
             }
             user.followingWhoFollow = followingList
             user.areFollowing = jsonObject.optBoolean("are_following")
+            if(user.areFollowing){
+                user.followStatusToThem = 1
+            }
             user.reason = jsonObject.optString("reason")
 
             return user

@@ -11,12 +11,15 @@ import androidx.annotation.Nullable
 import androidx.core.net.toFile
 import com.bumptech.glide.Glide
 import io.replicants.instaclone.R
+import io.replicants.instaclone.maintabs.ProfileMainFragment
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.utilities.Prefs
 import io.replicants.instaclone.utilities.Prefs.DISPLAY_NAME
+import io.replicants.instaclone.utilities.Utils
 import kotlinx.android.synthetic.main.subfragment_editprofile.*
 import kotlinx.android.synthetic.main.subfragment_editprofile.view.*
+import kotlinx.android.synthetic.main.subfragment_register.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
 import org.json.JSONObject
@@ -123,6 +126,8 @@ class EditProfileSubFragment : BaseSubFragment() {
                     InstaApi.updateDetails(newPhotoFile, password, inputEmail, inputFirstName, inputLastName, displayName, inputProfileName, inputProfileDesc, privacy).enqueue(InstaApi.generateCallback(context, object : InstaApiCallback() {
                         override fun success(jsonResponse: JSONObject?) {
                             context?.toast("Successfully updated details")
+                            Utils.hideKeyboardFrom(activity!!.applicationContext, layout.profile_desc)
+                            (parentFragment as EditProfileFinished?)?.editProfileFinished()
                         }
                     }))
                 }
@@ -142,5 +147,9 @@ class EditProfileSubFragment : BaseSubFragment() {
                 Glide.with(context!!).load(selectedImage).into(layout.profile_image)
             }
         }
+    }
+
+    interface EditProfileFinished{
+        fun editProfileFinished()
     }
 }
