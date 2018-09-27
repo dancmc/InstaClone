@@ -34,6 +34,7 @@ class ZoomRotateImageView : View {
 
     private val flingDetector = GestureDetector(context, FlingListener())
     private var flingAnimator: ValueAnimator = ValueAnimator()
+    private var flingWasCancelled = false
     private var snapBackAnimator : ValueAnimator = ValueAnimator()
 
     private var haveRecordedFocus = false
@@ -81,6 +82,8 @@ class ZoomRotateImageView : View {
     var viewLeft = 0
     var viewTop = 0
 
+    var rotate = 0f
+
     init {
         this.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
@@ -123,24 +126,9 @@ class ZoomRotateImageView : View {
         super.onDraw(canvas)
 
         canvas?.scale(scaleFactor, scaleFactor)
-
-        if (scaleFactor != oldScaleFactor) {
-
-
-        }
-
-//        println("$translateX, $translateY")
-
-
+        canvas?.rotate(rotate,viewWidth.toFloat()/2f/scaleFactor- translateX,viewHeight.toFloat()/2f/scaleFactor- translateY)
         canvas?.drawBitmap(bitmap, translateX, translateY, null)
-
-//        canvas?.translate(translateX, translateY);
-
-        // this section deals with out of bounds
-        // should also terminate fling at boundaries
-
-        // offset should never be positive (should be handled automatically because of the postScale focus
-        // calculate new offsets
+        println(rotate)
 
 
         oldScaleFactor = scaleFactor
@@ -241,11 +229,11 @@ class ZoomRotateImageView : View {
                 }
 
                 var mustChange = clampedY != targetY || clampedX != targetX
-//                println("$dx, $dy")
-//                println("$originalX, $originalY")
-//                println("$targetX, $targetY")
-//                println("$clampedX, $clampedY")
-//                println(mustChange)
+                println("$dx, $dy")
+                println("$originalX, $originalY")
+                println("$targetX, $targetY")
+                println("$clampedX, $clampedY")
+                println(mustChange)
                 var hasChanged = false
 
                 val boundsExceeded = fun(): Boolean {
@@ -278,6 +266,9 @@ class ZoomRotateImageView : View {
                         hasChanged = true
                         changePointX = translateX
                         changePointY = translateY
+                        if(clampedX!=targetX){
+
+                        }
                         dxToClampX = clampedX - translateX
                         dyToClampY = clampedY - translateY
                         changeTime = animatedValue
@@ -327,7 +318,13 @@ class ZoomRotateImageView : View {
 
     }
 
-    val animateSnapBack = fun() {
+    fun rotateImage(deg: Float){
+        rotate = deg
+
+        invalidate()
+    }
+
+    val animateSnapBackIfNeeded = fun() {
 
         var clampedX = translateX
         var clampedY = translateY
@@ -400,7 +397,7 @@ class ZoomRotateImageView : View {
             MotionEvent.ACTION_DOWN -> {
                 if (flinging) {
                     flingAnimator.cancel()
-                    snapBackAnimator.cancel()
+                    flingWasCancelled = true
                 }
 
                 downTime = System.currentTimeMillis()
@@ -432,9 +429,13 @@ class ZoomRotateImageView : View {
                 previousTranslateX = translateX;
                 previousTranslateY = translateY;
 
-                // calculating in real pixels
-                val distanceMoved = Math.pow((event.x - startX).toDouble(), 2.0) + Math.pow((event.y - startY).toDouble(), 2.0)
+                if(!flinging) {
+                    animateSnapBackIfNeeded()
+                }
 
+
+                // this variable prevents a click from registering if touch cancelled a fling
+                flingWasCancelled = false
 
             }
 

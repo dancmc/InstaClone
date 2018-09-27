@@ -114,31 +114,28 @@ class FilterSubFragment : BaseSubFragment(), RotateSubFragment.RotateImage {
                     rawIntendedRotation > 50f -> 50f
                     else -> rawIntendedRotation
                 }
-        val additionalRotation = absoluteIntendedRotation - currentRotation
         currentRotation = absoluteIntendedRotation
 
         display.text = "${floatFormat.format(absoluteIntendedRotation)}°"
 
-        rotateImage(additionalRotation)
+        rotateImage()
     }
 
+    private fun rationaliseRotation(deg:Float):Float{
+        return when{
+            deg<=-360f || deg>=360f-> 0f
+            else -> deg
+        }
+    }
 
     override fun onRotateRightAngle(deg: Float) {
         val newBase = baseRotation+deg
-        baseRotation = when{
-            newBase<=-360f || newBase>=360f-> 0f
-            else -> newBase
-        }
+        baseRotation = rationaliseRotation(newBase)
 
-        rotateImage(deg)
+        rotateImage()
     }
 
-    private fun rotateImage(deg: Float) {
-//        imageView.imageMatrix = imageView.imageMatrix
-//                .apply {
-//                    postRotate(deg, center.first / 2.toFloat(), center.second / 2.toFloat())
-//                }
-
-        imageView.invalidate()
+    private fun rotateImage() {
+        imageView.rotateImage(rationaliseRotation(baseRotation+currentRotation))
     }
 }

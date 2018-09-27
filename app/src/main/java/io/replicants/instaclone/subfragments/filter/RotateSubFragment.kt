@@ -49,7 +49,8 @@ class RotateSubFragment:BaseSubFragment() {
             }
 
             layout.subfragment_rotate_amount_reset.onClick {
-                layout.subfragment_rotate_scroller.scrollTo(centreScroll, 0)
+
+                layout.subfragment_rotate_scroller.smoothScrollTo(centreScroll, 0)
             }
 
             layout.subfragment_rotate_rotateleft.onClick {
