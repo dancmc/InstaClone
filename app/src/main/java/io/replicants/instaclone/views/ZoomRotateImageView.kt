@@ -5,14 +5,23 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Matrix
 import android.util.AttributeSet
 import android.view.*
 import android.view.animation.LinearInterpolator
+import android.widget.ImageView
 import androidx.annotation.Nullable
 import io.replicants.instaclone.utilities.Easing
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
+import java.lang.Math.cos
+import java.lang.Math.sin
+import java.util.concurrent.atomic.AtomicBoolean
 
 
-class ZoomRotateImageView : View {
+class ZoomRotateImageView : ImageView {
 
     constructor(context: Context) : super(context) {}
 
@@ -35,7 +44,7 @@ class ZoomRotateImageView : View {
     private val flingDetector = GestureDetector(context, FlingListener())
     private var flingAnimator: ValueAnimator = ValueAnimator()
     private var flingWasCancelled = false
-    private var snapBackAnimator : ValueAnimator = ValueAnimator()
+    private var snapBackAnimator: ValueAnimator = ValueAnimator()
 
     private var haveRecordedFocus = false
     private var initialFocusXReal: Float = 0f
@@ -43,7 +52,6 @@ class ZoomRotateImageView : View {
 
     private val CLICK_TIME_THRESHOLD = 200
     private val CLICK_DISTANCE_THRESHOLD = 200f
-    private var downTime = 0L
 
     var bitmap: Bitmap? = null
 
@@ -52,6 +60,8 @@ class ZoomRotateImageView : View {
     private val NONE = 0
     private val DRAG = 1
     private val ZOOM = 2
+    private val matVal = FloatArray(9)
+    private val offsets = FloatArray(4)
 
     private var dragged = false
     private var flinging = false
@@ -64,7 +74,11 @@ class ZoomRotateImageView : View {
     //touches the screen
     private var startX = 0f
     private var startY = 0f
+    private var lastTouchX = 0f
+    private var lastTouchY = 0f
 
+    private var previousRotationCentre = CoordinateHolder(0f, 0f)
+    private var coordinateHolder = CoordinateHolder(0f, 0f)
 
     //These two variables keep track of the amount we need to translate the canvas along the X
     //and the Y coordinate
@@ -83,6 +97,7 @@ class ZoomRotateImageView : View {
     var viewTop = 0
 
     var rotate = 0f
+    val inZoomRefractoryPeriod = AtomicBoolean(false)
 
     init {
         this.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -98,40 +113,14 @@ class ZoomRotateImageView : View {
         })
     }
 
-    fun setImageBitmap(bm: Bitmap?) {
+    override fun setImageBitmap(bm: Bitmap?) {
+        super.setImageBitmap(bm)
         originalHeight = bm?.height ?: 0
         originalWidth = bm?.width ?: 0
-        bitmap = bm
-//
-//        launch {
-//            delay(1500)
-//            translateX = -1000f/scaleFactor
-//            invalidate()
-//            delay(1500)
-//
-//            scaleFactor = 2f
-//            invalidate()
-//            delay(1000)
-//            translateX = 0f
-//            invalidate()
-//            delay(500)
-//            scaleFactor = minZoom
-//            invalidate()
-//
-//        }
-
     }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-
-        canvas?.scale(scaleFactor, scaleFactor)
-        canvas?.rotate(rotate,viewWidth.toFloat()/2f/scaleFactor- translateX,viewHeight.toFloat()/2f/scaleFactor- translateY)
-        canvas?.drawBitmap(bitmap, translateX, translateY, null)
-        println(rotate)
-
-
-        oldScaleFactor = scaleFactor
 
     }
 
@@ -143,6 +132,7 @@ class ZoomRotateImageView : View {
 
                 initialFocusXReal = detector?.focusX!!
                 initialFocusYReal = detector.focusY
+
                 haveRecordedFocus = true
             }
 
@@ -153,10 +143,15 @@ class ZoomRotateImageView : View {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             scaleFactor *= detector.scaleFactor
             scaleFactor = Math.max(minZoom, Math.min(scaleFactor, maxZoom))
-            if (scaleFactor != oldScaleFactor) {
-                translateX = getNewOffsetLeft(initialFocusXReal)
-                translateY = getNewOffsetTop(initialFocusYReal)
+
+            if (oldScaleFactor != scaleFactor) {
+                val scale = scaleFactor / oldScaleFactor
+                imageMatrix = imageMatrix.apply {
+                    postScale(scale, scale, initialFocusXReal, initialFocusYReal)
+                }
             }
+
+            oldScaleFactor = scaleFactor
 
             return true
         }
@@ -169,12 +164,9 @@ class ZoomRotateImageView : View {
         // constants
         private val SWIPE_MIN_DISTANCE = 120 * 120
         private val SWIPE_THRESHOLD_VELOCITY = 200 * 200
-        private val duration = 1000f
+        private val duration = 250f
         private val speedBase = 0.6
 
-        private var elapsedTime = 0f
-        private var originalX = 0f
-        private var originalY = 0f
         private var dx = 0f
         private var dy = 0f
 
@@ -184,8 +176,8 @@ class ZoomRotateImageView : View {
             if (Math.pow((e1!!.x - e2!!.x).toDouble(), 2.0) + Math.pow((e1.y - e2.y).toDouble(), 2.0) > SWIPE_MIN_DISTANCE &&
                     Math.pow(velocityX.toDouble(), 2.0) + Math.pow(velocityY.toDouble(), 2.0) > SWIPE_THRESHOLD_VELOCITY) {
 
+                println("fling")
                 flinging = true
-                elapsedTime = 0f
 
                 // calculate duration - exponential for now - constant time
                 // ------
@@ -193,94 +185,30 @@ class ZoomRotateImageView : View {
                 // calculate dx and dy
                 // v = ab^t, where say 0.05 = ab^ 2 - means v will become 5% in 2 seconds
                 // total distance in x secs = ab^x/ln(b)
-                dx = velocityX / 15f * Math.pow(speedBase, duration / 1000.0).toFloat() / -Math.log(speedBase).toFloat() / scaleFactor
-                dy = velocityY / 15f * Math.pow(speedBase, duration / 1000.0).toFloat() / -Math.log(speedBase).toFloat() / scaleFactor
+                dx = velocityX / 22f * Math.pow(speedBase, duration / 1000.0).toFloat() / -Math.log(speedBase).toFloat() * scaleFactor
+                dy = velocityY / 22f * Math.pow(speedBase, duration / 1000.0).toFloat() / -Math.log(speedBase).toFloat() *scaleFactor
 
-//                dx = velocityX* duration/1000f / scaleFactor
-//                dy = velocityY * duration/1000f / scaleFactor
-
-                // fix the original coordinates
-                originalX = translateX
-                originalY = translateY
-
-                // calculate if it would end with a translation where an edge is inside the view
-                // if it does, calculate the desired position
-                val targetX = originalX + dx
-                val targetY = originalY + dy
-
-                var clampedX = targetX
-                var clampedY = targetY
-
-
-                val mostAllowableScaledTranslateX = viewWidth - originalWidth * scaleFactor
-                val mostAllowableActualTranslateX = mostAllowableScaledTranslateX / scaleFactor
-                if (targetX > 0) {
-                    clampedX = 0f
-                } else if (targetX < mostAllowableActualTranslateX) {
-                    clampedX = mostAllowableActualTranslateX
-                }
-
-                val mostAllowableScaledTranslateY = viewHeight - originalHeight * scaleFactor
-                val mostAllowableActualTranslateY = mostAllowableScaledTranslateY / scaleFactor
-                if (targetY > 0) {
-                    clampedY = 0f
-                } else if (targetY < mostAllowableActualTranslateY) {
-                    clampedY = mostAllowableActualTranslateY
-                }
-
-                var mustChange = clampedY != targetY || clampedX != targetX
-                println("$dx, $dy")
-                println("$originalX, $originalY")
-                println("$targetX, $targetY")
-                println("$clampedX, $clampedY")
-                println(mustChange)
-                var hasChanged = false
-
-                val boundsExceeded = fun(): Boolean {
-                    return translateX > 0 || translateX < mostAllowableActualTranslateX || translateY > 0 || translateY < mostAllowableActualTranslateY
-                }
-
-                var changePointX = 0f
-                var changePointY = 0f
-                var changeTime = 0f
-                var remainingDurationAfterChange = 0f
-                var dxToClampX = 0f
-                var dyToClampY = 0f
 
                 flingAnimator = ValueAnimator.ofFloat(duration)
                 flingAnimator.duration = duration.toLong()
                 flingAnimator.interpolator = LinearInterpolator()
 
+                var cumulativeTranslationX = 0f
+                var cumulativeTranslationY = 0f
+
                 // at 1s, or after it goes past bounds, whichever comes later, change target to clampedTarget
                 flingAnimator.addUpdateListener {
                     val animatedValue = it.animatedValue as Float
 
-//                    if(mustChange){
-//                        translateX = Easing.easeOutBack(animatedValue, originalX, clampedX-originalX, duration)
-//                        translateY = Easing.easeOutBack(animatedValue, originalY, clampedY-originalY, duration)
-//                    } else {
-//                        translateX = Easing.easeOutQuart(animatedValue, originalX, -dx, duration)
-//                        translateY = Easing.easeOutQuart(animatedValue, originalY, -dy, duration)
-//                    }
-                    if (mustChange && !hasChanged && animatedValue > duration / 2f && boundsExceeded()) {
-                        hasChanged = true
-                        changePointX = translateX
-                        changePointY = translateY
-                        if(clampedX!=targetX){
+                    val targetTranslationXAtTime = Easing.easeOutQuart(animatedValue, 0f, dx, duration)
+                    val targetTranslationYAtTime = Easing.easeOutQuart(animatedValue, 0f, dy, duration)
+                    val translateXStep = targetTranslationXAtTime - cumulativeTranslationX
+                    val translateYStep = targetTranslationYAtTime - cumulativeTranslationY
+                    cumulativeTranslationX = targetTranslationXAtTime
+                    cumulativeTranslationY= targetTranslationYAtTime
 
-                        }
-                        dxToClampX = clampedX - translateX
-                        dyToClampY = clampedY - translateY
-                        changeTime = animatedValue
-                        remainingDurationAfterChange = duration - animatedValue
-                    }
-
-                    if (hasChanged) {
-                        translateX = Easing.easeOutQuart(animatedValue - changeTime, changePointX, dxToClampX, remainingDurationAfterChange)
-                        translateY = Easing.easeOutQuart(animatedValue - changeTime, changePointY, dyToClampY, remainingDurationAfterChange)
-                    } else {
-                        translateX = Easing.easeOutQuart(animatedValue, originalX, dx, duration)
-                        translateY = Easing.easeOutQuart(animatedValue, originalY, dy, duration)
+                    imageMatrix = imageMatrix.apply {
+                        postTranslate(translateXStep, translateYStep)
                     }
 
                     invalidate()
@@ -289,14 +217,11 @@ class ZoomRotateImageView : View {
                 flingAnimator.addListener(object : Animator.AnimatorListener {
                     override fun onAnimationEnd(animation: Animator?) {
                         flinging = false
-                        previousTranslateX = translateX
-                        previousTranslateY = translateY
+                        animateSnapBackIfNeeded()
                     }
 
                     override fun onAnimationCancel(animation: Animator?) {
                         flinging = false
-                        previousTranslateX = translateX
-                        previousTranslateY = translateY
                     }
 
                     override fun onAnimationRepeat(animation: Animator?) {
@@ -306,9 +231,6 @@ class ZoomRotateImageView : View {
                     }
                 })
                 flingAnimator.start()
-
-
-
                 return true
             }
 
@@ -318,70 +240,114 @@ class ZoomRotateImageView : View {
 
     }
 
-    fun rotateImage(deg: Float){
+    fun rotateImage(deg: Float) {
         rotate = deg
+
+        imageMatrix = imageMatrix
+                .apply {
+                    postRotate(deg, viewWidth / 2f, viewHeight/ 2f)
+                }
+
 
         invalidate()
     }
 
-    val animateSnapBackIfNeeded = fun() {
+    private fun animateSnapBackIfNeeded() {
 
-        var clampedX = translateX
-        var clampedY = translateY
-        val originalX = translateX
-        val originalY = translateY
+        getOffsets()
 
-        val mostAllowableScaledTranslateX = viewWidth - originalWidth * scaleFactor
-        val mostAllowableActualTranslateX = mostAllowableScaledTranslateX / scaleFactor
-        if (translateX > 0) {
-            clampedX = 0f
-        } else if (translateX < mostAllowableActualTranslateX) {
-            clampedX = mostAllowableActualTranslateX
+        var targetTranslationX = 0f
+        var targetTranslationY = 0f
+        var targetCorrectionZoom = 1f
+        val duration = 500f
+
+        if (scaleFactor < minZoom || scaleFactor > maxZoom) {
+            targetCorrectionZoom = minZoom / scaleFactor
+            // the target translation is figuring out the bounds after unshrinking, then translating accordingly
+            val unzoomedLeftOffset = initialFocusXReal - (initialFocusXReal - offsets[0]) * targetCorrectionZoom
+            val unzoomedTopOffset = initialFocusYReal - (initialFocusYReal - offsets[1]) * targetCorrectionZoom
+//            val unzoomedRightOffset = initialFocusXReal + (viewWidth + offsets[2] - initialFocusXReal) * targetCorrectionZoom - viewWidth
+//            val unzoomedBottomOffset = initialFocusYReal + (viewHeight + offsets[3] - initialFocusYReal) * targetCorrectionZoom - viewHeight
+
+            targetTranslationX = -unzoomedLeftOffset
+            targetTranslationY = -unzoomedTopOffset
+
+        } else if (scaleFactor > maxZoom) {
+
+            targetCorrectionZoom = maxZoom / scaleFactor
+
+            val unzoomedLeftOffset = initialFocusXReal - (initialFocusXReal - offsets[0]) * targetCorrectionZoom
+            val unzoomedTopOffset = initialFocusYReal - (initialFocusYReal - offsets[1]) * targetCorrectionZoom
+            val unzoomedRightOffset = initialFocusXReal + (viewWidth + offsets[2] - initialFocusXReal) * targetCorrectionZoom - viewWidth
+            val unzoomedBottomOffset = initialFocusYReal + (viewHeight + offsets[3] - initialFocusYReal) * targetCorrectionZoom - viewHeight
+
+            if (unzoomedLeftOffset > 0) {
+                targetTranslationX = -unzoomedLeftOffset
+            }
+            if (unzoomedTopOffset > 0) {
+                targetTranslationY = -unzoomedTopOffset
+            }
+            if (unzoomedRightOffset < 0) {
+                targetTranslationX = -unzoomedRightOffset
+            }
+            if (unzoomedBottomOffset < 0) {
+                targetTranslationY = -unzoomedBottomOffset
+            }
+
+        } else {
+            if (offsets[0] > 0) {
+                targetTranslationX = -offsets[0]
+            }
+            if (offsets[1] > 0) {
+                targetTranslationY = -offsets[1]
+            }
+            if (offsets[2] < 0) {
+                targetTranslationX = -offsets[2]
+            }
+            if (offsets[3] < 0) {
+                targetTranslationY = -offsets[3]
+            }
         }
 
-        val mostAllowableScaledTranslateY = viewHeight - originalHeight * scaleFactor
-        val mostAllowableActualTranslateY = mostAllowableScaledTranslateY / scaleFactor
-        if (translateY > 0) {
-            clampedY = 0f
-        } else if (translateY < mostAllowableActualTranslateY) {
-            clampedY = mostAllowableActualTranslateY
-        }
+        var focusXSoFar = initialFocusXReal
+        var focusYSoFar = initialFocusYReal
+        var relativeZoomSoFar = 1f
+        var cumulativeTranslateX = 0f
+        var cumulativeTranslateY = 0f
 
-        val dx = clampedX - translateX
-        val dy = clampedY - translateY
 
-        if(clampedX!=translateX || clampedY!=translateY) {
-            snapBackAnimator = ValueAnimator.ofFloat(500f)
-            snapBackAnimator.duration = 500L
+        if (targetCorrectionZoom != 1f || targetTranslationX != 0f || targetTranslationY != 0f) {
+            snapBackAnimator = ValueAnimator.ofFloat(duration)
+            snapBackAnimator.duration = duration.toLong()
             snapBackAnimator.interpolator = LinearInterpolator()
 
 
             snapBackAnimator.addUpdateListener {
                 val animatedValue = it.animatedValue as Float
 
-                translateX = Easing.easeOutQuart(animatedValue, originalX, dx, 500f)
-                translateY = Easing.easeOutQuart(animatedValue, originalY, dy, 500f)
+                val zoomAtTime = (targetCorrectionZoom - 1f) * it.animatedFraction + 1f
+                val zoomStep = zoomAtTime / relativeZoomSoFar
+                relativeZoomSoFar = zoomAtTime
+                val targetTranslationXAtTime = Easing.easeOutQuart(animatedValue, 0f, targetTranslationX, duration)
+                val targetTranslationYAtTime = Easing.easeOutQuart(animatedValue, 0f, targetTranslationY, duration)
+                val translateXStep = targetTranslationXAtTime - cumulativeTranslateX
+                val translateYStep = targetTranslationYAtTime - cumulativeTranslateY
+                cumulativeTranslateX = targetTranslationXAtTime
+                cumulativeTranslateY = targetTranslationYAtTime
 
+                oldScaleFactor = scaleFactor
+                imageMatrix = imageMatrix.apply {
+                    postScale(zoomStep, zoomStep, focusXSoFar, focusYSoFar)
+                    postTranslate(translateXStep, translateYStep)
+                }
+                scaleFactor *= zoomStep
                 invalidate()
+
+                focusXSoFar += translateXStep
+                focusYSoFar += translateYStep
+
             }
 
-            snapBackAnimator.addListener(object : Animator.AnimatorListener {
-                override fun onAnimationEnd(animation: Animator?) {
-                    previousTranslateX = translateX
-                    previousTranslateY = translateY
-                }
-
-                override fun onAnimationCancel(animation: Animator?) {
-                    previousTranslateX = translateX
-                    previousTranslateY = translateY
-                }
-
-                override fun onAnimationRepeat(animation: Animator?) {
-                }
-
-                override fun onAnimationStart(animation: Animator?) {
-                }
-            })
             snapBackAnimator.start()
         }
     }
@@ -389,7 +355,9 @@ class ZoomRotateImageView : View {
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
 
-        flingDetector.onTouchEvent(event)
+        if (pointers < 2 && !inZoomRefractoryPeriod.get()) {
+            flingDetector.onTouchEvent(event)
+        }
 
 
         when (event.action and MotionEvent.ACTION_MASK) {
@@ -399,22 +367,32 @@ class ZoomRotateImageView : View {
                     flingAnimator.cancel()
                     flingWasCancelled = true
                 }
+                snapBackAnimator.cancel()
 
-                downTime = System.currentTimeMillis()
                 pointers = 1
 
                 startX = event.x
                 startY = event.y
+                lastTouchX = event.x
+                lastTouchY = event.y
             }
 
             MotionEvent.ACTION_MOVE -> {
 
                 if (mode == DRAG) {
-                    translateX = (event.x - startX) / scaleFactor + previousTranslateX
-                    translateY = (event.y - startY) / scaleFactor + previousTranslateY
+
+                    if(!inZoomRefractoryPeriod.get()) {
+                        imageMatrix = imageMatrix.apply {
+                            postTranslate(event.x - lastTouchX, event.y - lastTouchY)
+                        }
+                        println("move")
+                    }
+
 
                     dragged = true
                 }
+                lastTouchX = event.x
+                lastTouchY = event.y
 
             }
 
@@ -429,7 +407,7 @@ class ZoomRotateImageView : View {
                 previousTranslateX = translateX;
                 previousTranslateY = translateY;
 
-                if(!flinging) {
+                if (!flinging) {
                     animateSnapBackIfNeeded()
                 }
 
@@ -442,11 +420,16 @@ class ZoomRotateImageView : View {
             MotionEvent.ACTION_POINTER_UP -> {
                 pointers--
 
-                // this is possible because can only zoom with 2 fingers
-                haveRecordedFocus = false
-
                 // leave as pointers == 1
                 if (pointers == 1) {
+
+                    inZoomRefractoryPeriod.set(true)
+                    launch{
+                        delay(300)
+                        inZoomRefractoryPeriod.set(false)
+                    }
+                    // this is possible because can only zoom with 2 fingers
+                    haveRecordedFocus = false
                     // get index of remaining finger and set coordinates
                     // if just use getX/getY, may default to first finger down, even if that finger is gone
 
@@ -459,9 +442,6 @@ class ZoomRotateImageView : View {
                     }
                 }
 
-                // this is necessary so can transition smoothly from zoom to drag
-                previousTranslateX = translateX;
-                previousTranslateY = translateY;
             }
         }
 
@@ -471,8 +451,10 @@ class ZoomRotateImageView : View {
                 mode = ZOOM
                 scaleDetector.onTouchEvent(event);
             }
-            else -> NONE
+            else -> {
+            }
         }
+
 
 
         //We redraw the canvas only in the following cases:
@@ -488,35 +470,15 @@ class ZoomRotateImageView : View {
         return true;
     }
 
-    // base distance (non scaled) from focus point should remain the same
-    // so first reverse previous operation to retrieve base distance
-    // calculate new scaled distance and offset required
-    // figure out scaled translation required to achieve offset
-    private fun getNewOffsetLeft(focusX: Float): Float {
-        val oldScaledDistance = focusX - translateX * oldScaleFactor
-        val baseDistance = oldScaledDistance / oldScaleFactor
-        val newScaledDistance = baseDistance * scaleFactor
-        val offsetRequired = focusX - newScaledDistance
-        val scaledTranslationRequired = offsetRequired / scaleFactor
-
-//        val total = focusX/scaleFactor - (focusX-translateX)/ oldScaleFactor
-
-//        return focusX - (focusX - offsetLeft) * scaleFactor / oldScaleFactor
-        return scaledTranslationRequired
+    private fun getOffsets() {
+        imageMatrix.getValues(matVal)
+        offsets[0] = matVal[Matrix.MTRANS_X]
+        offsets[1] = matVal[Matrix.MTRANS_Y]
+        offsets[2] = offsets[0] + originalWidth * scaleFactor - viewWidth
+        offsets[3] = offsets[1] + originalHeight * scaleFactor - viewHeight
     }
 
-    private fun getNewOffsetTop(focusY: Float): Float {
-        val oldScaledDistance = focusY - translateY * oldScaleFactor
-        val baseDistance = oldScaledDistance / oldScaleFactor
-        val newDistance = baseDistance * scaleFactor
-        val offsetRequired = focusY - newDistance
-        val scaledTranslationRequired = offsetRequired / scaleFactor
 
-//        val total = focusY/scaleFactor - (focusY-translateY)/ oldScaleFactor
-
-//        return focusX - (focusX - offsetLeft) * scaleFactor / oldScaleFactor
-        return scaledTranslationRequired
-    }
-
+    data class CoordinateHolder(var x: Float, var y: Float)
 
 }

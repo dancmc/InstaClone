@@ -66,30 +66,30 @@ class FilterSubFragment : BaseSubFragment(), RotateSubFragment.RotateImage {
         val displayWidth = displayDimen.x
 
         imageView = ZoomRotateImageView(context!!)
-//        imageView.scaleType = ImageView.ScaleType.MATRIX
+        imageView.scaleType = ImageView.ScaleType.MATRIX
         var scale = 1f
         if (finalImageHeight > finalImageWidth) {
             scale = displayWidth / finalImageHeight.toFloat()
             imageView.layoutParams = FrameLayout.LayoutParams(Math.min(Math.ceil(finalImageWidth * scale.toDouble()).toInt(), displayWidth),
                     FrameLayout.LayoutParams.MATCH_PARENT)
-//            imageView.imageMatrix = imageView.imageMatrix.apply {
-//
-//                postScale(scale, scale)
-//            }
+            imageView.imageMatrix = imageView.imageMatrix.apply {
+
+                postScale(scale, scale)
+            }
         } else if (finalImageHeight < finalImageWidth) {
             scale = displayWidth / finalImageWidth.toFloat()
             imageView.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                     Math.min(Math.ceil(finalImageHeight * scale.toDouble()).toInt(), displayWidth))
-//            imageView.imageMatrix = imageView.imageMatrix.apply {
-//                postScale(scale, scale)
-//            }
+            imageView.imageMatrix = imageView.imageMatrix.apply {
+                postScale(scale, scale)
+            }
         } else {
             scale = displayWidth / finalImageWidth.toFloat()
             imageView.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
-//            imageView.imageMatrix = imageView.imageMatrix.apply {
-//
-//                postScale(scale, scale)
-//            }
+            imageView.imageMatrix = imageView.imageMatrix.apply {
+
+                postScale(scale, scale)
+            }
         }
 
         layout.subfragment_filter_preview.addView(imageView)
@@ -114,11 +114,12 @@ class FilterSubFragment : BaseSubFragment(), RotateSubFragment.RotateImage {
                     rawIntendedRotation > 50f -> 50f
                     else -> rawIntendedRotation
                 }
+        val additionalRotation = absoluteIntendedRotation - currentRotation
         currentRotation = absoluteIntendedRotation
 
         display.text = "${floatFormat.format(absoluteIntendedRotation)}°"
 
-        rotateImage()
+        rotateImage(additionalRotation)
     }
 
     private fun rationaliseRotation(deg:Float):Float{
@@ -130,12 +131,17 @@ class FilterSubFragment : BaseSubFragment(), RotateSubFragment.RotateImage {
 
     override fun onRotateRightAngle(deg: Float) {
         val newBase = baseRotation+deg
-        baseRotation = rationaliseRotation(newBase)
+        baseRotation = when{
+            newBase<=-360f || newBase>=360f-> 0f
+            else -> newBase
+        }
 
-        rotateImage()
+        rotateImage(deg)
     }
 
-    private fun rotateImage() {
-        imageView.rotateImage(rationaliseRotation(baseRotation+currentRotation))
+    private fun rotateImage(deg: Float) {
+        imageView.rotateImage(deg)
+
+
     }
 }
