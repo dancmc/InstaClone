@@ -29,4 +29,6 @@ public class ActivityMainFragment extends BaseMainFragment {
         return layout;
     }
 
+
+
 }

@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import io.replicants.instaclone.R
 import io.replicants.instaclone.activities.LoginActivity
-import kotlinx.android.synthetic.main.mainfragment_login.view.*
+import kotlinx.android.synthetic.main.subfragment_login.view.*
 import android.view.inputmethod.EditorInfo
 import io.replicants.instaclone.utilities.Utils
 
@@ -27,7 +27,7 @@ class LoginSubFragment:BaseSubFragment(){
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.mainfragment_login, container, false)
+        val layout = inflater.inflate(R.layout.subfragment_login, container, false)
 
         layout.input_login_password.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {

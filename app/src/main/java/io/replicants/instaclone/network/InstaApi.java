@@ -396,18 +396,26 @@ public class InstaApi {
         return new Callback<String>(){
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
+
                 if(response!=null){
-                    try {
-                        JSONObject jsonResponse = new JSONObject(response.body());
-                        boolean success = jsonResponse.optBoolean("success");
-                        if(success){
-                            apiCallback.success(jsonResponse);
-                        }else {
-                            apiCallback.failure(context, jsonResponse);
+
+                    if(response.code() == 200) {
+
+                        try {
+                            String body = response.body();
+                            JSONObject jsonResponse = new JSONObject(body);
+                            boolean success = jsonResponse.optBoolean("success");
+                            if (success) {
+                                apiCallback.success(jsonResponse);
+                            } else {
+                                apiCallback.failure(context, jsonResponse);
+                            }
+                        } catch (Exception e) {
+                            Toast.makeText(context, "Invalid response from server", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, e.getMessage());
                         }
-                    }catch (JSONException e){
-                        Toast.makeText(context, "Invalid response from server", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, e.getMessage());
+                    } else {
+                        Toast.makeText(context, "HTTP "+response.code()+" error", Toast.LENGTH_SHORT).show();
                     }
                 } else {
 

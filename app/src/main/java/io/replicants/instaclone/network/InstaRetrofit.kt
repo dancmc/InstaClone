@@ -122,9 +122,11 @@ class InstaRetrofit {
         @GET("user/getDetails")
         fun getDetails(): Call<String>
 
+        @Multipart
         @POST("user/update")
         fun updateDetails(@Part("photo") file:MultipartBody.Part, @Part("json") json:RequestBody): Call<String>
 
+        @Multipart
         @POST("user/update")
         fun updateDetails(@Part("json") json:RequestBody): Call<String>
     }
