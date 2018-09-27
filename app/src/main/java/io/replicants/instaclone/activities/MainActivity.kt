@@ -17,7 +17,6 @@ import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.utilities.ExampleClass
 import io.replicants.instaclone.utilities.MyApplication
 import io.replicants.instaclone.utilities.Prefs
-import io.replicants.instaclone.utilities.Utils
 import org.jetbrains.anko.toast
 import org.json.JSONObject
 import retrofit2.Call
@@ -58,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         }
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
-        if (Prefs.getInstance().readString(Prefs.JWT, "").isBlank()) {
+        if (Prefs.getInstance().readString(Prefs.JWT,"").isBlank()) {
             logout()
         } else {
             if (savedInstanceState != null) {

@@ -19,6 +19,17 @@
         <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
     </style>
 
+    <style name="ProfileToolbarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:background">@color/white</item>
+        <item name="android:textColorPrimary">@android:color/black</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
+    </style>
+
+
     <style name="OverflowMenu" parent="Widget.AppCompat.PopupMenu.Overflow">
         <!-- Required for pre-Lollipop. -->
         <item name="overlapAnchor">false</item>

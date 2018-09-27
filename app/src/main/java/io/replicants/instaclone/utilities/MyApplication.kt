@@ -29,7 +29,7 @@ class MyApplication : Application() {
         super.onCreate()
 
         Prefs.init(this)
-        GlideHeader.setAuthorization(Prefs.getInstance().readString(Prefs.JWT, ""))
+        GlideHeader.setAuthorization(Prefs.getInstance().readString(Prefs.JWT,""))
         Realm.init(this)
 
         val config = RealmConfiguration.Builder().build()

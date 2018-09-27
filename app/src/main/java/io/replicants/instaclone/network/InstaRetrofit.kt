@@ -17,7 +17,7 @@ class InstaRetrofit {
                 .addInterceptor { chain ->
                     val originalRequest = chain.request()
 
-                    val jwt = Prefs.getInstance().readString(Prefs.JWT, "")
+                    val jwt = Prefs.getInstance().readString(Prefs.JWT,"")
                     val newRequest = originalRequest.newBuilder()
                             .addHeader("Authorization", jwt)
                             .build()

@@ -4,14 +4,12 @@ import android.content.Context
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import io.replicants.instaclone.R
 import io.replicants.instaclone.adapters.FeedAdapter
 import io.replicants.instaclone.network.InstaApi
@@ -23,11 +21,6 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
 import org.json.JSONArray
 import org.json.JSONObject
-import androidx.recyclerview.widget.SimpleItemAnimator
-import androidx.recyclerview.widget.DefaultItemAnimator
-
-
-
 
 
 class FeedSubFragment : BaseSubFragment() {
@@ -160,7 +153,7 @@ class FeedSubFragment : BaseSubFragment() {
                     feedItems.add(null)
                     adapter.notifyItemInserted(feedItems.lastIndex)
 
-                    if (Prefs.getInstance().readString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString()) == InstaApi.Sort.DATE.toString()) {
+                    if (Prefs.getInstance().readString(Prefs.FEED_SORT,InstaApi.Sort.DATE.toString()) == InstaApi.Sort.DATE.toString()) {
                         InstaApi.getFeed(InstaApi.Sort.DATE, null, null, lastPhotoID).enqueue(InstaApi.generateCallback(activity, loadMoreApiCallback()))
 
                     } else {
@@ -186,7 +179,7 @@ class FeedSubFragment : BaseSubFragment() {
         feedItems.clear()
         adapter.notifyDataSetChanged()
 
-        if (Prefs.getInstance().readString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString()) == InstaApi.Sort.DATE.toString()) {
+        if (Prefs.getInstance().readString(Prefs.FEED_SORT,InstaApi.Sort.DATE.toString()) == InstaApi.Sort.DATE.toString()) {
             InstaApi.getFeed(InstaApi.Sort.DATE, null, null, null).enqueue(InstaApi.generateCallback(activity, initialApiCallback()))
         } else {
             loadLocation()
@@ -226,7 +219,7 @@ class FeedSubFragment : BaseSubFragment() {
                 val photoArray = jsonResponse?.optJSONArray("photos") ?: JSONArray()
                 var photoList = Utils.photosFromJsonArray(photoArray)
 
-                if (Prefs.getInstance().readString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString()) == InstaApi.Sort.LOCATION.toString()) {
+                if (Prefs.getInstance().readString(Prefs.FEED_SORT,InstaApi.Sort.DATE.toString()) == InstaApi.Sort.LOCATION.toString()) {
                     photoList = photoList.filterNot { it.latitude == 999.0 || it.longitude == 999.0 }
                 }
 
@@ -256,7 +249,7 @@ class FeedSubFragment : BaseSubFragment() {
                 var photoList = Utils.photosFromJsonArray(photoArray)
 
                 // remove photos with invalid longitudes and latitudes (no location data when uploaded
-                if (Prefs.getInstance().readString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString()) == InstaApi.Sort.LOCATION.toString()) {
+                if (Prefs.getInstance().readString(Prefs.FEED_SORT,InstaApi.Sort.DATE.toString()) == InstaApi.Sort.LOCATION.toString()) {
                     photoList = photoList.filterNot { it.latitude == 999.0 || it.longitude == 999.0 }
                 }
 
