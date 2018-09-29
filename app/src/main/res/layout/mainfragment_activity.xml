@@ -1,12 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ToggleButton
+    android:id="@+id/following_toggle"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:background="@drawable/toggle_selector"
+    android:checked="false"
+    android:textAllCaps="false"
+    android:textOff="Following"
+    android:textOn="Following" />
+
+    <ToggleButton
+    android:id="@+id/you_toggle"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:background="@drawable/toggle_selector"
+    android:checked="true"
+    android:textAllCaps="false"
+    android:textOn="You"
+    android:textOff="You" />
+
+    </LinearLayout>
 
     <FrameLayout
-        android:id="@+id/fragment_overall_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+    android:id="@+id/fragment_activity_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+
+
+
 
 </LinearLayout>
