@@ -20,6 +20,7 @@ import io.replicants.instaclone.pojos.Comment
 import io.replicants.instaclone.pojos.Like
 import io.replicants.instaclone.pojos.Photo
 import io.replicants.instaclone.pojos.User
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
@@ -36,6 +37,8 @@ class Utils {
         val sdfWithYr = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
         @JvmField
         val sdf = SimpleDateFormat("dd MMM",Locale.ENGLISH)
+        @JvmField
+        val floatFormat = DecimalFormat("##0.0")
         @JvmField
         val oneDayMs = 1000*60*60*24
         @JvmField

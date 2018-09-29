@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat
 import io.realm.Realm
 import io.replicants.instaclone.R
 import io.replicants.instaclone.pojos.SavedPhoto
-import io.replicants.instaclone.subfragments.filter.FilterSubFragment
+import io.replicants.instaclone.subfragments.filter.EditPhotoSubFragment
 import io.replicants.instaclone.subfragments.GallerySubFragment
 import io.replicants.instaclone.subfragments.GetPhotoSubFragment
 import io.replicants.instaclone.utilities.Prefs
@@ -36,7 +36,7 @@ class AddPhotoActivity : AppCompatActivity() {
         getPhotoFragment.photoTakenListener = object : GetPhotoSubFragment.PhotoObtainedListener {
             override fun photoObtained(filename: String) {
                 val tx = supportFragmentManager.beginTransaction()
-                val filterFrag = FilterSubFragment.newInstance(filename)
+                val filterFrag = EditPhotoSubFragment.newInstance(filename)
                 tx.replace(R.id.add_photo_container, filterFrag)
                 tx.addToBackStack(null)
                 tx.commit()
@@ -119,5 +119,16 @@ class AddPhotoActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    override fun onBackPressed() {
+        var passToSuper = true
+        val frag = supportFragmentManager.findFragmentById(R.id.add_photo_container)
+        if(frag!=null && frag is EditPhotoSubFragment){
+            passToSuper = !frag.cancelCurrentEdit()
+        }
+        if(passToSuper) {
+            super.onBackPressed()
+        }
     }
 }

@@ -44,7 +44,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        ExampleClass(this)
+        println(1.2f in 1.2f..3.4f)
+        println(1.3f in 1.2f..3.4f)
 
         val menuView = navigation.getChildAt(0) as BottomNavigationMenuView
         for (i in 0 until menuView.childCount) {

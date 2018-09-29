@@ -6,20 +6,20 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
+import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.*
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import androidx.annotation.Nullable
 import io.replicants.instaclone.utilities.Easing
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
-import java.lang.Math.cos
-import java.lang.Math.sin
 import java.util.concurrent.atomic.AtomicBoolean
 
+/**
+ * 2018 Daniel Chan
+ */
 
 class ZoomRotateImageView : ImageView {
 
@@ -29,16 +29,14 @@ class ZoomRotateImageView : ImageView {
 
     constructor(context: Context, @Nullable attrs: AttributeSet, intDefStyle: Int) : super(context, attrs, intDefStyle) {}
 
-
+    @JvmField
     var minZoom = 0.5f
-        set(value) {
-            scaleFactor = value
-            oldScaleFactor = value
-            field = value
-        }
-    var maxZoom = 5f
+    var maxZoom = 6f
     private var scaleFactor = 1f
     private var oldScaleFactor = 1f
+    var extraScaleForRotate = 1f
+    var rotate = 0f
+
     private val scaleDetector = ScaleGestureDetector(context, ScaleListener())
 
     private val flingDetector = GestureDetector(context, FlingListener())
@@ -50,14 +48,8 @@ class ZoomRotateImageView : ImageView {
     private var initialFocusXReal: Float = 0f
     private var initialFocusYReal: Float = 0f
 
-    private val CLICK_TIME_THRESHOLD = 200
-    private val CLICK_DISTANCE_THRESHOLD = 200f
-
-    var bitmap: Bitmap? = null
-
     //These constants specify the mode that we're in
     private var mode = 0
-    private val NONE = 0
     private val DRAG = 1
     private val ZOOM = 2
     private val matVal = FloatArray(9)
@@ -77,26 +69,9 @@ class ZoomRotateImageView : ImageView {
     private var lastTouchX = 0f
     private var lastTouchY = 0f
 
-    private var previousRotationCentre = CoordinateHolder(0f, 0f)
-    private var coordinateHolder = CoordinateHolder(0f, 0f)
-
-    //These two variables keep track of the amount we need to translate the canvas along the X
-    //and the Y coordinate
-    private var translateX = 0f
-    private var translateY = 0f
-
-    //These two variables keep track of the amount we translated the X and Y coordinates, the last time we
-    //panned.
-    private var previousTranslateX = 0f
-    private var previousTranslateY = 0f
-
-
     var viewWidth: Int = 0
     var viewHeight: Int = 0
-    var viewLeft = 0
-    var viewTop = 0
 
-    var rotate = 0f
     val inZoomRefractoryPeriod = AtomicBoolean(false)
 
     init {
@@ -105,8 +80,11 @@ class ZoomRotateImageView : ImageView {
                 this@ZoomRotateImageView.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 viewWidth = this@ZoomRotateImageView.measuredWidth
                 viewHeight = this@ZoomRotateImageView.measuredHeight
-                viewTop = this@ZoomRotateImageView.top
-                viewLeft = this@ZoomRotateImageView.left
+
+                vp1.x = viewWidth.toFloat()
+                vp2.x = viewWidth.toFloat()
+                vp2.y = viewHeight.toFloat()
+                vp3.y = viewHeight.toFloat()
 
                 invalidate()
             }
@@ -122,6 +100,12 @@ class ZoomRotateImageView : ImageView {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
+    }
+
+    fun setMinZoom(min: Float) {
+        scaleFactor = min
+        oldScaleFactor = min
+        minZoom = min
     }
 
     private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -142,7 +126,7 @@ class ZoomRotateImageView : ImageView {
 
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             scaleFactor *= detector.scaleFactor
-            scaleFactor = Math.max(minZoom, Math.min(scaleFactor, maxZoom))
+//            scaleFactor = Math.max(minZoom, Math.min(scaleFactor, maxZoom))
 
             if (oldScaleFactor != scaleFactor) {
                 val scale = scaleFactor / oldScaleFactor
@@ -151,7 +135,9 @@ class ZoomRotateImageView : ImageView {
                 }
             }
 
+
             oldScaleFactor = scaleFactor
+            println("$oldScaleFactor, $scaleFactor")
 
             return true
         }
@@ -186,7 +172,7 @@ class ZoomRotateImageView : ImageView {
                 // v = ab^t, where say 0.05 = ab^ 2 - means v will become 5% in 2 seconds
                 // total distance in x secs = ab^x/ln(b)
                 dx = velocityX / 22f * Math.pow(speedBase, duration / 1000.0).toFloat() / -Math.log(speedBase).toFloat() * scaleFactor
-                dy = velocityY / 22f * Math.pow(speedBase, duration / 1000.0).toFloat() / -Math.log(speedBase).toFloat() *scaleFactor
+                dy = velocityY / 22f * Math.pow(speedBase, duration / 1000.0).toFloat() / -Math.log(speedBase).toFloat() * scaleFactor
 
 
                 flingAnimator = ValueAnimator.ofFloat(duration)
@@ -205,7 +191,7 @@ class ZoomRotateImageView : ImageView {
                     val translateXStep = targetTranslationXAtTime - cumulativeTranslationX
                     val translateYStep = targetTranslationYAtTime - cumulativeTranslationY
                     cumulativeTranslationX = targetTranslationXAtTime
-                    cumulativeTranslationY= targetTranslationYAtTime
+                    cumulativeTranslationY = targetTranslationYAtTime
 
                     imageMatrix = imageMatrix.apply {
                         postTranslate(translateXStep, translateYStep)
@@ -237,76 +223,134 @@ class ZoomRotateImageView : ImageView {
             return false;
         }
 
-
+        // TODO consider implementing doubletap to unzoom to minzoom
     }
 
+
+
     fun rotateImage(deg: Float) {
+
+        val forPostRotate = deg - rotate
         rotate = deg
 
-        imageMatrix = imageMatrix
-                .apply {
-                    postRotate(deg, viewWidth / 2f, viewHeight/ 2f)
-                }
+        //
 
+        // formula to scale past bounding box
+        // https://math.stackexchange.com/questions/438567/whats-the-formula-for-the-amount-to-scale-up-an-image-during-rotation-to-not-see
+
+        val newDeg = when (rotate) {
+            in 0f..90f -> rotate
+            in 90f..180f -> 180f - rotate
+            in 180f..270f -> rotate - 180f
+            in 270f..360f -> 360f - rotate
+            else -> rotate
+        }
+        val rad = Math.toRadians(newDeg.toDouble())
+        var hwRatio = viewHeight / viewWidth.toDouble()
+        if (hwRatio < 1) {
+            hwRatio = 1 / hwRatio
+        }
+        val requiredExtraScale = (Math.cos(rad) + hwRatio * Math.sin(rad)).toFloat()
+        val forPostScale = requiredExtraScale / extraScaleForRotate
+        extraScaleForRotate = requiredExtraScale
+        minZoom *= forPostScale
+        oldScaleFactor *= forPostScale
+        scaleFactor *= forPostScale
+
+        imageMatrix = imageMatrix.apply {
+            postRotate(forPostRotate, viewWidth / 2f, viewHeight / 2f)
+            postScale(forPostScale, forPostScale, viewWidth / 2f, viewHeight / 2f)
+        }
+
+        println("rotate scale $forPostScale $oldScaleFactor $scaleFactor")
 
         invalidate()
     }
 
+
+    fun getScaleFromMatrix(matrix: Matrix): Float {
+        matrix.getValues(matVal)
+
+        // calculate real scale
+        val scalex = matVal[Matrix.MSCALE_X]
+        val skewy = matVal[Matrix.MSKEW_Y]
+        return Math.sqrt((scalex * scalex + skewy * skewy).toDouble()).toFloat()
+    }
+
+    // https://judepereira.com/blog/calculate-the-real-scale-factor-and-the-angle-of-rotation-from-an-android-matrix/
+    fun getRotationFromMatrix(matrix: Matrix): Float {
+        matrix.getValues(matVal)
+        var rotation = (Math.atan2(matVal[Matrix.MSKEW_X].toDouble(), matVal[Matrix.MSCALE_X].toDouble()) * (180 / Math.PI)).toFloat()
+        if(rotation<0f){
+            rotation += 360f
+        }
+        // calculate the degree of rotation
+        return rotation
+    }
+
+    fun rotateFinished() {
+        animateSnapBackIfNeeded()
+    }
+
     private fun animateSnapBackIfNeeded() {
 
-        getOffsets()
+        snapBackAnimator.cancel()
 
+        getOffsets()
         var targetTranslationX = 0f
         var targetTranslationY = 0f
         var targetCorrectionZoom = 1f
         val duration = 500f
 
-        if (scaleFactor < minZoom || scaleFactor > maxZoom) {
+        if (scaleFactor < minZoom) {
             targetCorrectionZoom = minZoom / scaleFactor
-            // the target translation is figuring out the bounds after unshrinking, then translating accordingly
-            val unzoomedLeftOffset = initialFocusXReal - (initialFocusXReal - offsets[0]) * targetCorrectionZoom
-            val unzoomedTopOffset = initialFocusYReal - (initialFocusYReal - offsets[1]) * targetCorrectionZoom
-//            val unzoomedRightOffset = initialFocusXReal + (viewWidth + offsets[2] - initialFocusXReal) * targetCorrectionZoom - viewWidth
-//            val unzoomedBottomOffset = initialFocusYReal + (viewHeight + offsets[3] - initialFocusYReal) * targetCorrectionZoom - viewHeight
-
-            targetTranslationX = -unzoomedLeftOffset
-            targetTranslationY = -unzoomedTopOffset
-
         } else if (scaleFactor > maxZoom) {
-
             targetCorrectionZoom = maxZoom / scaleFactor
+        }
 
-            val unzoomedLeftOffset = initialFocusXReal - (initialFocusXReal - offsets[0]) * targetCorrectionZoom
-            val unzoomedTopOffset = initialFocusYReal - (initialFocusYReal - offsets[1]) * targetCorrectionZoom
-            val unzoomedRightOffset = initialFocusXReal + (viewWidth + offsets[2] - initialFocusXReal) * targetCorrectionZoom - viewWidth
-            val unzoomedBottomOffset = initialFocusYReal + (viewHeight + offsets[3] - initialFocusYReal) * targetCorrectionZoom - viewHeight
+        if (rotate % 90 == 0f) {
 
-            if (unzoomedLeftOffset > 0) {
-                targetTranslationX = -unzoomedLeftOffset
+            // populate the projected image corner coordinates
+            populateFutureImagePoints(targetCorrectionZoom)
+
+            // figure out the height and width of testMatrix
+            val targetImageHeight = getImageHeight()
+            val targetImageWidth = getImageWidth()
+            val imageOrigin = ip0
+
+            when (rotate) {
+                0f, 360f -> {
+                    if(ip0.x > 0)targetTranslationX = -ip0.x
+                    if(ip0.x < vp1.x - targetImageWidth) targetTranslationX = vp1.x - (ip0.x + targetImageWidth)
+                    if(ip0.y > 0) targetTranslationY = -ip0.y
+                    if(ip0.y < vp3.y - targetImageHeight) targetTranslationY = vp3.y - (ip0.y + targetImageHeight)
+                }
+                90f -> {
+                    if(ip0.x < vp1.x ) targetTranslationX = vp1.x - ip0.x
+                    if(ip0.x > targetImageHeight ) targetTranslationX = targetImageHeight - ip0.x
+                    if(ip0.y > 0 ) targetTranslationY = -ip0.y
+                    if(ip0.y < vp2.y - targetImageWidth ) targetTranslationY = vp2.y - (ip0.y + targetImageWidth)
+                }
+                180f -> {
+                    if(ip0.x < vp2.x ) targetTranslationX = vp2.x - ip0.x
+                    if(ip0.x > targetImageWidth ) targetTranslationX = targetImageWidth - ip0.x
+                    if(ip0.y < vp2.y ) targetTranslationY = vp2.y - ip0.y
+                    if(ip0.y > targetImageHeight ) targetTranslationY = targetImageHeight - ip0.y
+                }
+                270f -> {
+                    if(ip0.x > 0 ) targetTranslationX = -ip0.x
+                    if(ip0.x < vp2.x - targetImageHeight ) targetTranslationX = vp2.x - (targetImageHeight + ip0.x)
+                    if(ip0.y < vp3.y ) targetTranslationY = vp3.y - ip0.y
+                    if(ip0.y > targetImageWidth ) targetTranslationY = targetImageWidth - ip0.y
+                }
             }
-            if (unzoomedTopOffset > 0) {
-                targetTranslationY = -unzoomedTopOffset
-            }
-            if (unzoomedRightOffset < 0) {
-                targetTranslationX = -unzoomedRightOffset
-            }
-            if (unzoomedBottomOffset < 0) {
-                targetTranslationY = -unzoomedBottomOffset
-            }
+
 
         } else {
-            if (offsets[0] > 0) {
-                targetTranslationX = -offsets[0]
-            }
-            if (offsets[1] > 0) {
-                targetTranslationY = -offsets[1]
-            }
-            if (offsets[2] < 0) {
-                targetTranslationX = -offsets[2]
-            }
-            if (offsets[3] < 0) {
-                targetTranslationY = -offsets[3]
-            }
+            val orphanedViewCorners = getRealOrphanedViewPoints(targetCorrectionZoom)
+            val c = getTranslationFromOrphanedViewPoints(orphanedViewCorners, targetCorrectionZoom)
+            targetTranslationX = c.x
+            targetTranslationY = c.y
         }
 
         var focusXSoFar = initialFocusXReal
@@ -360,7 +404,7 @@ class ZoomRotateImageView : ImageView {
         }
 
 
-        when (event.action and MotionEvent.ACTION_MASK) {
+        when (event.actionMasked) {
 
             MotionEvent.ACTION_DOWN -> {
                 if (flinging) {
@@ -381,7 +425,7 @@ class ZoomRotateImageView : ImageView {
 
                 if (mode == DRAG) {
 
-                    if(!inZoomRefractoryPeriod.get()) {
+                    if (!inZoomRefractoryPeriod.get()) {
                         imageMatrix = imageMatrix.apply {
                             postTranslate(event.x - lastTouchX, event.y - lastTouchY)
                         }
@@ -404,13 +448,10 @@ class ZoomRotateImageView : ImageView {
                 dragged = false
                 pointers = 0
 
-                previousTranslateX = translateX;
-                previousTranslateY = translateY;
 
                 if (!flinging) {
                     animateSnapBackIfNeeded()
                 }
-
 
                 // this variable prevents a click from registering if touch cancelled a fling
                 flingWasCancelled = false
@@ -424,7 +465,7 @@ class ZoomRotateImageView : ImageView {
                 if (pointers == 1) {
 
                     inZoomRefractoryPeriod.set(true)
-                    launch{
+                    launch {
                         delay(300)
                         inZoomRefractoryPeriod.set(false)
                     }
@@ -456,7 +497,6 @@ class ZoomRotateImageView : ImageView {
         }
 
 
-
         //We redraw the canvas only in the following cases:
         //
         // o The mode is ZOOM
@@ -471,14 +511,278 @@ class ZoomRotateImageView : ImageView {
     }
 
     private fun getOffsets() {
-        imageMatrix.getValues(matVal)
-        offsets[0] = matVal[Matrix.MTRANS_X]
-        offsets[1] = matVal[Matrix.MTRANS_Y]
-        offsets[2] = offsets[0] + originalWidth * scaleFactor - viewWidth
-        offsets[3] = offsets[1] + originalHeight * scaleFactor - viewHeight
+
+        offsets[0] = 0f
+        offsets[1] = 0f
+        offsets[2] = originalWidth.toFloat()
+        offsets[3] = originalHeight.toFloat()
+        imageMatrix.mapPoints(offsets)
+//        offsets[0] = matVal[Matrix.MTRANS_X]
+//        offsets[1] = matVal[Matrix.MTRANS_Y]
+//        offsets[2] = offsets[0] + originalWidth * scaleFactor - viewWidth
+//        offsets[3] = offsets[1] + originalHeight * scaleFactor - viewHeight
+        offsets[2] = offsets[2] - viewWidth
+        offsets[3] = offsets[3] - viewHeight
+
     }
 
 
-    data class CoordinateHolder(var x: Float, var y: Float)
+    data class CoordinateHolder(var x: Float, var y: Float, var tag: Int = 0)
 
+    // ip0-4 are corners of image from origin clockwise
+    var ip0 = CoordinateHolder(0f, 0f, 0)
+    var ip1 = CoordinateHolder(0f, 0f, 1)
+    var ip2 = CoordinateHolder(0f, 0f, 2)
+    var ip3 = CoordinateHolder(0f, 0f, 3)
+    val ipArray = FloatArray(8)
+    val drawableRect = Rect()
+
+    var vp0 = CoordinateHolder(0f, 0f)
+    var vp1 = CoordinateHolder(0f, 0f)
+    var vp2 = CoordinateHolder(0f, 0f)
+    var vp3 = CoordinateHolder(0f, 0f)
+    val vpArray = arrayListOf(vp0, vp1, vp2, vp3)
+    val vpFloatArray = FloatArray(2)
+
+    var pointsList = ArrayList<CoordinateHolder>()
+    var testPointsList = ArrayList<CoordinateHolder>()
+    var pointArray = Array(2) { CoordinateHolder(0f, 0f) }
+    var testMatrix = Matrix()
+    var tmpMatrix = Matrix()
+
+
+    enum class Side {
+        TOP, LEFT, RIGHT, BOTTOM
+    }
+
+    fun populateFutureImagePoints(zoomFix: Float) {
+        ipArray[0] = 0f
+        ipArray[1] = 0f
+        ipArray[2] = originalWidth.toFloat()
+        ipArray[3] = 0f
+        ipArray[4] = originalWidth.toFloat()
+        ipArray[5] = originalHeight.toFloat()
+        ipArray[6] = 0f
+        ipArray[7] = originalHeight.toFloat()
+        testMatrix.set(imageMatrix)
+        testMatrix.apply {
+            postScale(zoomFix, zoomFix, initialFocusXReal, initialFocusYReal)
+        }
+        testMatrix.mapPoints(ipArray)
+        ip0.x = ipArray[0]
+        ip0.y = ipArray[1]
+        ip1.x = ipArray[2]
+        ip1.y = ipArray[3]
+        ip2.x = ipArray[4]
+        ip2.y = ipArray[5]
+        ip3.x = ipArray[6]
+        ip3.y = ipArray[7]
+
+    }
+
+    // populateFutureImagePoints should be called first
+    fun getImageWidth(): Float {
+        return when (rotate) {
+            0f, 360f -> ip1.x - ip0.x
+            90f -> ip1.y - ip0.y
+            180f -> ip0.x - ip1.x
+            270f -> ip0.y - ip1.y
+            else -> originalWidth * scaleFactor
+        }
+    }
+
+    fun getImageHeight(): Float {
+        return when (rotate) {
+            0f, 360f -> ip2.y - ip1.y
+            90f -> ip1.x - ip2.x
+            180f -> ip1.y - ip2.y
+            270f -> ip2.x - ip1.x
+            else -> originalHeight * scaleFactor
+        }
+    }
+
+    fun getRealOrphanedViewPoints(zoomFix: Float): ArrayList<CoordinateHolder> {
+        testMatrix.set(imageMatrix)
+        testMatrix.apply {
+            postScale(zoomFix, zoomFix, initialFocusXReal, initialFocusYReal)
+        }
+        return getOrphanedViewPoints(testMatrix, pointsList)
+    }
+
+    // this is to run simulations on the final chosen translation and ensure no points are left out
+    fun getHypotheticalOrphanedViewPoints(transX: Float, transY: Float, zoomFix: Float): ArrayList<CoordinateHolder> {
+        testMatrix.set(imageMatrix)
+        testMatrix.apply {
+            postScale(zoomFix, zoomFix, initialFocusXReal, initialFocusYReal)
+            postTranslate(transX, transY)
+        }
+        return getOrphanedViewPoints(testMatrix, testPointsList)
+    }
+
+    // should not be called directly
+    fun getOrphanedViewPoints(imMatrix: Matrix, resultsHolder: ArrayList<CoordinateHolder>): ArrayList<CoordinateHolder> {
+
+        tmpMatrix.reset()
+        imMatrix.invert(tmpMatrix)
+
+        resultsHolder.clear()
+        vpArray.forEach {
+            vpFloatArray[0] = it.x
+            vpFloatArray[1] = it.y
+            tmpMatrix.mapPoints(vpFloatArray)
+            drawable.copyBounds(drawableRect)
+            drawableRect.right += 1
+            drawableRect.bottom += 1
+            if (!drawableRect.contains(vpFloatArray[0].toInt(), vpFloatArray[1].toInt())) {
+                resultsHolder.add(it)
+            }
+        }
+        return resultsHolder
+    }
+
+
+    fun getTranslationFromOrphanedViewPoints(points: ArrayList<CoordinateHolder>, zoomFix: Float): CoordinateHolder {
+
+        populateFutureImagePoints(zoomFix)
+        points.sortBy { it.tag }
+
+        return when (points.size) {
+            0 -> CoordinateHolder(0f, 0f)
+            1 -> {
+                val side = when (points[0]) {
+                    vp0 -> Side.TOP
+                    vp1 -> Side.RIGHT
+                    vp2 -> Side.BOTTOM
+                    else -> Side.LEFT
+                }
+                val targetPoint = getTrianglePeakCoordinates(side)
+                val imagePoint = getImagePointForViewSide(side)!!
+                CoordinateHolder(targetPoint.x - imagePoint.x, targetPoint.y - imagePoint.y)
+
+            }
+            else -> {
+                // for each combination of points, determine the view side
+                // then calculate the triangle's peak
+                // then retrieve the image point corresponding to view side
+                // then calculate translation and distance & return the smallest distance
+                val resultTranslate = CoordinateHolder(0f, 0f)
+                var resultDistance = Double.MAX_VALUE
+
+                while (points.size > 1) {
+                    val p = points.removeAt(points.lastIndex)
+                    points.forEach {
+                        pointArray[0] = p
+                        pointArray[1] = it
+                        val side = getSideFromViewPoints(pointArray) ?: return@forEach
+                        val targetPoint = getTrianglePeakCoordinates(side)
+                        val imagePoint = getImagePointForViewSide(side)!!
+                        val transX = targetPoint.x - imagePoint.x
+                        val transY = targetPoint.y - imagePoint.y
+                        val distance = Math.sqrt(Math.pow(transX.toDouble(), 2.0) + Math.pow(transY.toDouble(), 2.0))
+                        if (distance < resultDistance) {
+                            if (getHypotheticalOrphanedViewPoints(transX, transY, zoomFix).size == 0) {
+                                resultTranslate.x = transX
+                                resultTranslate.y = transY
+                                resultDistance = distance
+                            }
+                        }
+                    }
+                }
+                resultTranslate
+            }
+        }
+    }
+
+    fun getTrianglePeakCoordinates(viewSide: Side): CoordinateHolder {
+
+        val rot = Math.toRadians(rotate.toDouble() % 90)
+
+        val knownSideLength = when (viewSide) {
+            Side.TOP, Side.BOTTOM -> viewWidth
+            Side.LEFT, Side.RIGHT -> viewHeight
+        }
+        val alternateHypotenuseLength = Math.sin(rot) * knownSideLength
+        val normalLength = (Math.cos(rot) * alternateHypotenuseLength).toFloat()
+        val parallelLength = (Math.sin(rot) * alternateHypotenuseLength).toFloat()
+
+        return when (viewSide) {
+            Side.TOP -> CoordinateHolder(vp0.x + parallelLength, vp0.y - normalLength)
+            Side.RIGHT -> CoordinateHolder(vp1.x + normalLength, vp1.y + parallelLength)
+            Side.BOTTOM -> CoordinateHolder(vp2.x - parallelLength, vp2.y + normalLength)
+            Side.LEFT -> CoordinateHolder(vp3.x - normalLength, vp3.y - parallelLength)
+        }
+    }
+
+    fun getSideFromViewPoints(points: Array<CoordinateHolder>): Side? {
+        val p1 = points[0]
+        val p2 = points[1]
+        return when {
+            p1.x != p2.x && p1.y == p2.y && p1.y == 0f -> Side.TOP
+            p1.x == p2.x && p1.y != p2.y && p1.x == 0f -> Side.LEFT
+            p1.x != p2.x && p1.y == p2.y && p1.y != 0f -> Side.BOTTOM
+            p1.x == p2.x && p1.y != p2.y && p1.x != 0f -> Side.RIGHT
+            else -> null
+        }
+    }
+
+    fun getImagePointForViewSide(side: Side): CoordinateHolder? {
+
+
+        rotate.let {
+            return when (side) {
+
+                Side.TOP -> {
+                    when {
+                        it > 0f && it < 90f -> ip0
+                        it > 90f && it < 180f -> ip3
+                        it > 180f && it < 270f -> ip2
+                        it > 270f && it < 360f -> ip1
+                        else -> null
+                    }
+                }
+                Side.BOTTOM -> {
+                    when {
+                        it > 0f && it < 90f -> ip2
+                        it > 90f && it < 180f -> ip1
+                        it > 180f && it < 270f -> ip0
+                        it > 270f && it < 360f -> ip3
+                        else -> null
+                    }
+                }
+                Side.LEFT -> {
+                    when {
+                        it > 0f && it < 90f -> ip3
+                        it > 90f && it < 180f -> ip2
+                        it > 180f && it < 270f -> ip1
+                        it > 270f && it < 360f -> ip0
+                        else -> null
+                    }
+                }
+                Side.RIGHT -> {
+                    when {
+                        it > 0f && it < 90f -> ip1
+                        it > 90f && it < 180f -> ip0
+                        it > 180f && it < 270f -> ip3
+                        it > 270f && it < 360f -> ip2
+                        else -> null
+                    }
+                }
+            }
+        }
+    }
+
+    fun saveState():State{
+        return State(minZoom, maxZoom, scaleFactor, oldScaleFactor, extraScaleForRotate, rotate)
+    }
+
+    fun restoreState(state:State){
+        minZoom = state.minZoom
+        maxZoom = state.maxZoom
+        scaleFactor = state.scaleFactor
+        oldScaleFactor = state.oldScaleFactor
+        extraScaleForRotate = state.extraScaleForRotate
+        rotate = state.rotate
+    }
+
+    data class State(var minZoom:Float, var maxZoom:Float, var scaleFactor:Float, var oldScaleFactor:Float, var extraScaleForRotate:Float, var rotate:Float)
 }
