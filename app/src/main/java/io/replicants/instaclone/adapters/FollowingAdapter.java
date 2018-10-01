@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import io.replicants.instaclone.R;
 import io.replicants.instaclone.pojos.Following;
 import io.replicants.instaclone.utilities.FollowingBaseViewHolder;
+import io.replicants.instaclone.utilities.GlideHeader;
 import io.replicants.instaclone.utilities.Utils;
 
 
@@ -153,7 +154,7 @@ public class FollowingAdapter extends RecyclerView.Adapter<FollowingBaseViewHold
 
         public void bind(ArrayList<Following> followingActivityList, int position, Context context) {
             Following feeditem = followingActivityList.get(position);
-            Glide.with(left_image_url.getContext()).load(feeditem.profile_image).into(left_image_url);
+            Glide.with(left_image_url.getContext()).load(GlideHeader.getUrlWithHeaders(feeditem.profile_image)).into(left_image_url);
 
             String timeDiff = Utils.formatDate(feeditem.timestamp);
             String followerName = feeditem.display_name;
@@ -167,43 +168,43 @@ public class FollowingAdapter extends RecyclerView.Adapter<FollowingBaseViewHold
             for (Map.Entry<String, String> photo : feeditem.somePhotosLiked_url.entrySet()) {
                 switch (numPhoto) {
                     case 1:
-                        Glide.with(postImage1.getContext()).load(photo.getValue()).into(postImage1);
+                        Glide.with(postImage1.getContext()).load(GlideHeader.getUrlWithHeaders(photo.getValue())).into(postImage1);
                         numPhoto++;
                         break;
                     case 2:
-                        Glide.with(postImage2.getContext()).load(photo.getValue()).into(postImage2);
+                        Glide.with(postImage2.getContext()).load(GlideHeader.getUrlWithHeaders(photo.getValue())).into(postImage2);
                         numPhoto++;
                         break;
                     case 3:
-                        Glide.with(postImage4.getContext()).load(photo.getValue()).into(postImage4);
+                        Glide.with(postImage4.getContext()).load(GlideHeader.getUrlWithHeaders(photo.getValue())).into(postImage4);
                         numPhoto++;
                         break;
                     case 4:
-                        Glide.with(postImage4.getContext()).load(photo.getValue()).into(postImage4);
+                        Glide.with(postImage4.getContext()).load(GlideHeader.getUrlWithHeaders(photo.getValue())).into(postImage4);
                         numPhoto++;
                         break;
                     case 5:
-                        Glide.with(postImage5.getContext()).load(photo.getValue()).into(postImage5);
+                        Glide.with(postImage5.getContext()).load(GlideHeader.getUrlWithHeaders(photo.getValue())).into(postImage5);
                         numPhoto++;
                         break;
                     case 6:
-                        Glide.with(postImage6.getContext()).load(photo.getValue()).into(postImage6);
+                        Glide.with(postImage6.getContext()).load(GlideHeader.getUrlWithHeaders(photo.getValue())).into(postImage6);
                         numPhoto++;
                         break;
                     case 7:
-                        Glide.with(postImage7.getContext()).load(photo.getValue()).into(postImage7);
+                        Glide.with(postImage7.getContext()).load(GlideHeader.getUrlWithHeaders(photo.getValue())).into(postImage7);
                         numPhoto++;
                         break;
                     case 8:
-                        Glide.with(postImage8.getContext()).load(photo.getValue()).into(postImage8);
+                        Glide.with(postImage8.getContext()).load(GlideHeader.getUrlWithHeaders(photo.getValue())).into(postImage8);
                         numPhoto++;
                         break;
                     case 9:
-                        Glide.with(postImage9.getContext()).load(photo.getValue()).into(postImage9);
+                        Glide.with(postImage9.getContext()).load(GlideHeader.getUrlWithHeaders(photo.getValue())).into(postImage9);
                         numPhoto++;
                         break;
                     case 10:
-                        Glide.with(postImage10.getContext()).load(photo.getValue()).into(postImage10);
+                        Glide.with(postImage10.getContext()).load(GlideHeader.getUrlWithHeaders(photo.getValue())).into(postImage10);
                         numPhoto++;
                         break;
                     default:
@@ -231,7 +232,7 @@ public class FollowingAdapter extends RecyclerView.Adapter<FollowingBaseViewHold
         public void bind(ArrayList<Following> followingActivityList, int position, Context context) {
             Following feeditem = followingActivityList.get(position);
 
-            Glide.with(left_image_url.getContext()).load(feeditem.previewUser_profileImg).into(left_image_url);
+            Glide.with(left_image_url.getContext()).load(GlideHeader.getUrlWithHeaders(feeditem.previewUser_profileImg)).into(left_image_url);
 
             String timeDiff = Utils.formatDate(feeditem.timestamp);
             String followerName = feeditem.previewUser_displayName;
@@ -240,7 +241,7 @@ public class FollowingAdapter extends RecyclerView.Adapter<FollowingBaseViewHold
             textDisplay.setSpan(b, 0, followerName.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
             post_text.setText(textDisplay);
 
-            Glide.with(right_image_url.getContext()).load(feeditem.photoLiked_url).into(right_image_url);
+            Glide.with(right_image_url.getContext()).load(GlideHeader.getUrlWithHeaders(feeditem.photoLiked_url)).into(right_image_url);
 
         }
     }
@@ -263,7 +264,7 @@ public class FollowingAdapter extends RecyclerView.Adapter<FollowingBaseViewHold
         public void bind(ArrayList<Following> followingActivityList, int position, Context context) {
             Following feeditem = followingActivityList.get(position);
 
-            Glide.with(left_image_url.getContext()).load(feeditem.profile_image).into(left_image_url);
+            Glide.with(left_image_url.getContext()).load(GlideHeader.getUrlWithHeaders(feeditem.profile_image)).into(left_image_url);
 
             String timeDiff = Utils.formatDate(feeditem.timestamp);
             String followerName = feeditem.display_name;
@@ -276,7 +277,7 @@ public class FollowingAdapter extends RecyclerView.Adapter<FollowingBaseViewHold
             textDisplay2.setSpan(b2, 0, followingName.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
             post_text.setText(TextUtils.concat(textDisplay1, textDisplay2));
 
-            Glide.with(right_image_url.getContext()).load(feeditem.usersFollowed_profileImg).into(right_image_url);
+            Glide.with(right_image_url.getContext()).load(GlideHeader.getUrlWithHeaders(feeditem.usersFollowed_profileImg)).into(right_image_url);
 
 
         }

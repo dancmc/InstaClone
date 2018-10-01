@@ -3,10 +3,7 @@ package io.replicants.instaclone.views
 import android.animation.Animator
 import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Matrix
-import android.graphics.Rect
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.*
 import android.view.animation.LinearInterpolator
@@ -32,7 +29,7 @@ class ZoomRotateImageView : ImageView {
     @JvmField
     var minZoom = 0.5f
     var maxZoom = 6f
-    private var scaleFactor = 1f
+    var scaleFactor = 1f
     private var oldScaleFactor = 1f
     var extraScaleForRotate = 1f
     var rotate = 0f
@@ -53,7 +50,7 @@ class ZoomRotateImageView : ImageView {
     private val DRAG = 1
     private val ZOOM = 2
     private val matVal = FloatArray(9)
-    private val offsets = FloatArray(4)
+//    private val offsets = FloatArray(4)
 
     private var dragged = false
     private var flinging = false
@@ -262,6 +259,9 @@ class ZoomRotateImageView : ImageView {
             postScale(forPostScale, forPostScale, viewWidth / 2f, viewHeight / 2f)
         }
 
+        val a = FloatArray(2)
+        imageMatrix.mapPoints(a)
+
         println("rotate scale $forPostScale $oldScaleFactor $scaleFactor")
 
         invalidate()
@@ -296,7 +296,7 @@ class ZoomRotateImageView : ImageView {
 
         snapBackAnimator.cancel()
 
-        getOffsets()
+//        getOffsets()
         var targetTranslationX = 0f
         var targetTranslationY = 0f
         var targetCorrectionZoom = 1f
@@ -316,7 +316,6 @@ class ZoomRotateImageView : ImageView {
             // figure out the height and width of testMatrix
             val targetImageHeight = getImageHeight()
             val targetImageWidth = getImageWidth()
-            val imageOrigin = ip0
 
             when (rotate) {
                 0f, 360f -> {
@@ -510,21 +509,23 @@ class ZoomRotateImageView : ImageView {
         return true;
     }
 
-    private fun getOffsets() {
-
-        offsets[0] = 0f
-        offsets[1] = 0f
-        offsets[2] = originalWidth.toFloat()
-        offsets[3] = originalHeight.toFloat()
-        imageMatrix.mapPoints(offsets)
-//        offsets[0] = matVal[Matrix.MTRANS_X]
-//        offsets[1] = matVal[Matrix.MTRANS_Y]
-//        offsets[2] = offsets[0] + originalWidth * scaleFactor - viewWidth
-//        offsets[3] = offsets[1] + originalHeight * scaleFactor - viewHeight
-        offsets[2] = offsets[2] - viewWidth
-        offsets[3] = offsets[3] - viewHeight
-
-    }
+//    private fun getOffsets() {
+//
+//        offsets[0] = 0f
+//        offsets[1] = 0f
+//        offsets[2] = originalWidth.toFloat()
+//        offsets[3] = originalHeight.toFloat()
+//        imageMatrix.mapPoints(offsets)
+////        offsets[0] = matVal[Matrix.MTRANS_X]
+////        offsets[1] = matVal[Matrix.MTRANS_Y]
+////        offsets[2] = offsets[0] + originalWidth * scaleFactor - viewWidth
+////        offsets[3] = offsets[1] + originalHeight * scaleFactor - viewHeight
+//
+//        // this part only works
+//        offsets[2] = offsets[2] - viewWidth
+//        offsets[3] = offsets[3] - viewHeight
+//
+//    }
 
 
     data class CoordinateHolder(var x: Float, var y: Float, var tag: Int = 0)
@@ -555,7 +556,9 @@ class ZoomRotateImageView : ImageView {
         TOP, LEFT, RIGHT, BOTTOM
     }
 
+    // enhanced version of static method in Utils to avoid allocating new arrays all the time
     fun populateFutureImagePoints(zoomFix: Float) {
+        // todo this should actually be set at the beginning instead of every time
         ipArray[0] = 0f
         ipArray[1] = 0f
         ipArray[2] = originalWidth.toFloat()
@@ -564,6 +567,7 @@ class ZoomRotateImageView : ImageView {
         ipArray[5] = originalHeight.toFloat()
         ipArray[6] = 0f
         ipArray[7] = originalHeight.toFloat()
+
         testMatrix.set(imageMatrix)
         testMatrix.apply {
             postScale(zoomFix, zoomFix, initialFocusXReal, initialFocusYReal)
@@ -579,6 +583,8 @@ class ZoomRotateImageView : ImageView {
         ip3.y = ipArray[7]
 
     }
+
+
 
     // populateFutureImagePoints should be called first
     fun getImageWidth(): Float {
@@ -771,18 +777,29 @@ class ZoomRotateImageView : ImageView {
         }
     }
 
-    fun saveState():State{
-        return State(minZoom, maxZoom, scaleFactor, oldScaleFactor, extraScaleForRotate, rotate)
+    fun saveState():ZoomRotateImageViewState{
+        return ZoomRotateImageViewState().apply {
+            this.minZoom = this@ZoomRotateImageView.minZoom
+            this.maxZoom = this@ZoomRotateImageView.maxZoom
+            this.scaleFactor = this@ZoomRotateImageView.scaleFactor
+            this.oldScaleFactor = this@ZoomRotateImageView.oldScaleFactor
+            this.extraScaleForRotate = this@ZoomRotateImageView.extraScaleForRotate
+            this.rotate = this@ZoomRotateImageView.rotate
+            this.viewHeight = this@ZoomRotateImageView.viewHeight
+            this.viewWidth = this@ZoomRotateImageView.viewWidth
+        }
     }
 
-    fun restoreState(state:State){
-        minZoom = state.minZoom
-        maxZoom = state.maxZoom
-        scaleFactor = state.scaleFactor
-        oldScaleFactor = state.oldScaleFactor
-        extraScaleForRotate = state.extraScaleForRotate
-        rotate = state.rotate
+    fun restoreState(state:ZoomRotateImageViewState?){
+        state?.let {
+            minZoom = it.minZoom
+            maxZoom = it.maxZoom
+            scaleFactor = it.scaleFactor
+            oldScaleFactor = it.oldScaleFactor
+            extraScaleForRotate = it.extraScaleForRotate
+            rotate = it.rotate
+        }
     }
 
-    data class State(var minZoom:Float, var maxZoom:Float, var scaleFactor:Float, var oldScaleFactor:Float, var extraScaleForRotate:Float, var rotate:Float)
+
 }

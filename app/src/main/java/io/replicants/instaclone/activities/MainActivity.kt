@@ -14,7 +14,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.*
 import io.replicants.instaclone.network.InstaApi
-import io.replicants.instaclone.utilities.ExampleClass
 import io.replicants.instaclone.utilities.MyApplication
 import io.replicants.instaclone.utilities.Prefs
 import org.jetbrains.anko.toast
@@ -94,7 +93,7 @@ class MainActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_add_photo -> {
-                val intent = Intent(this, AddPhotoActivity::class.java)
+                val intent = Intent(this, UploadPhotoActivity::class.java)
                 startActivity(intent)
                 return@OnNavigationItemSelectedListener false
             }

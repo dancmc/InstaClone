@@ -14,8 +14,8 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="icon_brightness" />
-                            <entry key="sourceFile" value="$PROJECT_DIR$/../outline-brightness_low-24px.svg" />
+                            <entry key="outputName" value="icon_back_grey" />
+                            <entry key="sourceFile" value="$PROJECT_DIR$/../outline-arrow_back-24px.svg" />
                           </map>
                         </option>
                       </PersistentState>

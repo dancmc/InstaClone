@@ -1,17 +1,12 @@
-package io.replicants.instaclone.subfragments
+package io.replicants.instaclone.subfragments.upload.pickphoto
 
 import androidx.fragment.app.Fragment
 import com.theartofdev.edmodo.cropper.CropImageView
 import android.widget.Toast
-import com.theartofdev.edmodo.cropper.CropImage
 import android.content.Intent
-import io.replicants.instaclone.activities.MainActivity
-import android.app.Activity
 import android.os.Bundle
 import android.view.ViewGroup
 import android.view.LayoutInflater
-import android.R.attr.scaleType
-import android.content.Context
 import android.graphics.Rect
 import android.net.Uri
 import android.util.Log
@@ -22,11 +17,10 @@ import io.replicants.instaclone.R
 
 class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener{
 
-
+// todo remember to constrain crop ratio to 2:1 on either side
     private var mCropImageView: CropImageView? = null
     var onCropImageCompleteListener:CropImageView.OnCropImageCompleteListener? = null
     lateinit var rootView : View
-    // endregion
 
 
     /** Set the image to show for cropping.  */

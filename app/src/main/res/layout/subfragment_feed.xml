@@ -10,10 +10,10 @@
         android:id="@+id/subfragment_feed_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-
-        android:elevation="4dp"
+        style="@style/AppTheme"
+        android:elevation="2dp"
         app:title="@string/app_name"
-        android:theme="@style/ToolbarTheme"
+
         app:popupTheme="@style/OverflowMenu"/>
 
     <Button

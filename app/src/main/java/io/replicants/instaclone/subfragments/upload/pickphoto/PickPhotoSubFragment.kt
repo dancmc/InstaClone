@@ -1,4 +1,4 @@
-package io.replicants.instaclone.subfragments
+package io.replicants.instaclone.subfragments.upload.pickphoto
 
 import android.os.Bundle
 import android.util.Log
@@ -8,29 +8,29 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import io.replicants.instaclone.R
-import kotlinx.android.synthetic.main.subfragment_get_photo.view.*
-import androidx.fragment.app.FragmentPagerAdapter
+import kotlinx.android.synthetic.main.subfragment_pick_photo.view.*
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.google.android.material.tabs.TabLayout
+import io.replicants.instaclone.subfragments.BaseSubFragment
 
 
-class GetPhotoSubFragment:BaseSubFragment() {
+class PickPhotoSubFragment: BaseSubFragment() {
 
     lateinit var layout:View
     var photoTakenListener: PhotoObtainedListener? = null
-    lateinit var adapter :MyAdapter
+    lateinit var adapter : MyAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        layout = inflater.inflate(R.layout.subfragment_get_photo, container, false)
+        layout = inflater.inflate(R.layout.subfragment_pick_photo, container, false)
 
         adapter = MyAdapter(childFragmentManager, photoTakenListener)
-        layout.subfragment_get_photo_viewpager.adapter = adapter
-        (layout.subfragment_get_photo_tabs as TabLayout).setupWithViewPager(layout.subfragment_get_photo_viewpager)
-        layout.subfragment_get_photo_viewpager.currentItem = 1
+        layout.subfragment_pick_photo_viewpager.adapter = adapter
+        (layout.subfragment_pick_photo_tabs as TabLayout).setupWithViewPager(layout.subfragment_pick_photo_viewpager)
+        layout.subfragment_pick_photo_viewpager.currentItem = 1
 
         return layout
     }
@@ -44,11 +44,11 @@ class GetPhotoSubFragment:BaseSubFragment() {
         override fun getItem(position: Int): Fragment {
 
             if(position==0){
-                val galleryFragment = GallerySubFragment()
+                val galleryFragment = GalleryPagerFragment()
                 galleryFragment.photoObtainedListener = photoObtainedListener
                 return galleryFragment
             } else {
-                val camFragment = CameraSubFragment()
+                val camFragment = CameraPagerFragment()
                 camFragment.photoObtainedListener = photoObtainedListener
                 return camFragment
             }
@@ -65,7 +65,7 @@ class GetPhotoSubFragment:BaseSubFragment() {
 
     fun permissionGranted(){
         try {
-            (adapter.getItem(1) as CameraSubFragment).permissionGranted()
+            (adapter.getItem(1) as CameraPagerFragment).permissionGranted()
         }catch (e:ClassCastException){
             Log.d("GetPhotoFragment", e.message)
         }
@@ -73,13 +73,13 @@ class GetPhotoSubFragment:BaseSubFragment() {
 
     fun permissionDenied(){
         try {
-            (adapter.getItem(1) as CameraSubFragment).permissionDenied()
+            (adapter.getItem(1) as CameraPagerFragment).permissionDenied()
         }catch (e:ClassCastException){
             Log.d("GetPhotoFragment", e.message)
         }
     }
 
     interface PhotoObtainedListener {
-        fun photoObtained(filename: String)
+        fun photoObtained(photoID:String, filename: String)
     }
 }

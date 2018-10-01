@@ -7,17 +7,17 @@
     >
 
     <androidx.viewpager.widget.ViewPager
-        android:id="@+id/subfragment_get_photo_viewpager"
+        android:id="@+id/subfragment_pick_photo_viewpager"
         android:layout_width="match_parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/subfragment_get_photo_tabs"
+        app:layout_constraintBottom_toTopOf="@id/subfragment_pick_photo_tabs"
         android:layout_height="0dp"/>
 
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/subfragment_get_photo_tabs"
+        android:id="@+id/subfragment_pick_photo_tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/subfragment_get_photo_viewpager"
+        app:layout_constraintTop_toBottomOf="@id/subfragment_pick_photo_viewpager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:tabGravity="fill"
         app:tabMode="fixed"/>

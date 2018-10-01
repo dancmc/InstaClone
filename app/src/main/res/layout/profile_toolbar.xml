@@ -5,5 +5,5 @@
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
     android:elevation="4dp"
-    android:theme="@style/ProfileToolbarTheme"
+
     app:popupTheme="@style/OverflowMenu"/>

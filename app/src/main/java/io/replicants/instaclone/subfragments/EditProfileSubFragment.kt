@@ -14,6 +14,7 @@ import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.ProfileMainFragment
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
+import io.replicants.instaclone.utilities.GlideHeader
 import io.replicants.instaclone.utilities.Prefs
 import io.replicants.instaclone.utilities.Prefs.DISPLAY_NAME
 import io.replicants.instaclone.utilities.Utils
@@ -88,7 +89,7 @@ class EditProfileSubFragment : BaseSubFragment() {
 
 
                 var profileImage = jsonResponse.optString("profile_image")
-                Glide.with(context!!).load(profileImage).into(layout.profile_image)
+                Glide.with(context!!).load(GlideHeader.getUrlWithHeaders(profileImage)).into(layout.profile_image)
 
                 // back button
                 var toolbar = layout.edit_profile_toolbar

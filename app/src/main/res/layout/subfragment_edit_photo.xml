@@ -6,11 +6,32 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".activities.AddPhotoActivity">
+    tools:context=".activities.UploadPhotoActivity">
 
-    <include
-        android:id="@+id/subfragment_filter_toolbar"
-        layout="@layout/toolbar_basic"/>
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/subfragment_edit_photo_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        app:contentInsetLeft="0dp"
+        app:contentInsetStart="0dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/subfragment_edit_photo_toolbar_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="8dp"
+            android:src="@drawable/icon_back_grey"/>
+        <TextView
+            android:id="@+id/subfragment_edit_photo_toolbar_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:text="Next"
+            android:layout_marginRight="16dp"
+            android:layout_gravity="right"/>
+    </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
         android:orientation="vertical"
@@ -20,7 +41,7 @@
         android:layout_height="0dp"
         android:background="@color/grey200"
         app:layout_constraintDimensionRatio="1"
-        app:layout_constraintTop_toBottomOf="@id/subfragment_filter_toolbar"
+        app:layout_constraintTop_toBottomOf="@id/subfragment_edit_photo_toolbar"
         />
 
     <FrameLayout

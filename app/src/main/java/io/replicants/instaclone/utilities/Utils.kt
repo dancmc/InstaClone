@@ -9,6 +9,7 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.ColorMatrix
 import android.graphics.Matrix
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -22,9 +23,8 @@ import io.replicants.instaclone.pojos.Photo
 import io.replicants.instaclone.pojos.User
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
-import java.time.Instant
-import java.time.LocalDateTime
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class Utils {
@@ -295,6 +295,48 @@ class Utils {
                     }
                 }
             }
+        }
+
+        // https://stackoverflow.com/questions/12891520/how-to-programmatically-change-contrast-of-a-bitmap-in-android
+        @JvmStatic
+        fun setBrightnessOnColorMatrix(cm:ColorMatrix, brightness:Int){
+            brightness.toFloat().let {
+                cm.array[4] = it
+                cm.array[9] = it
+                cm.array[14] = it
+            }
+        }
+
+        @JvmStatic
+        fun setContrastOnColorMatrix(cm:ColorMatrix, contrast:Float){
+            contrast.let {
+                cm.array[0] = it
+                cm.array[6] = it
+                cm.array[12] = it
+            }
+
+        }
+
+        @JvmStatic
+        fun getMappedImagePoints(matrix:Matrix, originalHeight:Int, originalWidth:Int):ArrayList<Pair<Float,Float>>{
+            val result = ArrayList<Pair<Float,Float>>()
+            val originalPoints = FloatArray(8)
+            val mappedPoints = FloatArray(8)
+            originalPoints[0] = 0f
+            originalPoints[1] = 0f
+            originalPoints[2] = originalWidth.toFloat()
+            originalPoints[3] = 0f
+            originalPoints[4] = originalWidth.toFloat()
+            originalPoints[5] = originalHeight.toFloat()
+            originalPoints[6] = 0f
+            originalPoints[7] = originalHeight.toFloat()
+            matrix.mapPoints(mappedPoints, originalPoints)
+
+            (0..3).forEach {
+                result.add(Pair(mappedPoints[it*2], mappedPoints[it*2+1]))
+            }
+
+            return result
         }
     }
 

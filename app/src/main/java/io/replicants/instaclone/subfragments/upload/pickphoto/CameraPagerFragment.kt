@@ -1,10 +1,11 @@
-package io.replicants.instaclone.subfragments
+package io.replicants.instaclone.subfragments.upload.pickphoto
 
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.hardware.Camera
 import android.hardware.Camera.CameraInfo
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.view.LayoutInflater
@@ -19,11 +20,13 @@ import io.fotoapparat.parameter.Resolution
 import io.fotoapparat.parameter.ScaleType
 import io.fotoapparat.selector.*
 import io.replicants.instaclone.R
+import io.replicants.instaclone.subfragments.BaseSubFragment
 import io.replicants.instaclone.utilities.Prefs
 import io.replicants.instaclone.utilities.rotate
 import kotlinx.android.synthetic.main.subfragment_camera.view.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.sdk27.coroutines.onClick
+import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
 import java.io.File
 import java.io.FileOutputStream
@@ -31,7 +34,7 @@ import java.io.IOException
 import java.util.*
 
 
-class CameraSubFragment : BaseSubFragment() {
+class CameraPagerFragment : BaseSubFragment() {
 
     companion object {
         @JvmField
@@ -42,7 +45,7 @@ class CameraSubFragment : BaseSubFragment() {
 
     lateinit var layout: View
     var fotoapparat: Fotoapparat? = null
-    var photoObtainedListener: GetPhotoSubFragment.PhotoObtainedListener? = null
+    var photoObtainedListener: PickPhotoSubFragment.PhotoObtainedListener? = null
     var frontWidth = 0
     var frontHeight = 0
     var backWidth = 0
@@ -83,7 +86,7 @@ class CameraSubFragment : BaseSubFragment() {
                 val side = Prefs.getInstance().readInt(Prefs.CAMERA_SIDE, SIDE_BACK)
 
                 fotoapparat = Fotoapparat(
-                        context = context!!,
+                        context = activity!!,
                         view = layout.subfragment_camera_cameraview,                   // view which will draw the camera preview
                         focusView = layout.subfragment_camera_focusview,
                         scaleType = ScaleType.CenterCrop,    // (optional) we want the preview to fill the view
@@ -106,7 +109,8 @@ class CameraSubFragment : BaseSubFragment() {
                     if (!photoFolder.exists()) {
                         photoFolder.mkdir()
                     }
-                    val file = File(photoFolder, "${UUID.randomUUID()}.jpg")
+                    val photoID = UUID.randomUUID().toString()
+                    val file = File(photoFolder, "$photoID.jpg")
                     result?.toBitmap()?.whenAvailable {
                         layout.subfragment_camera_photo_btn.isEnabled = true
                         if (it != null) {
@@ -114,7 +118,7 @@ class CameraSubFragment : BaseSubFragment() {
                             try {
                                 FileOutputStream(file).use { out ->
                                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
-                                    photoObtainedListener?.photoObtained(file.absolutePath)
+                                    photoObtainedListener?.photoObtained(photoID, file.absolutePath)
                                 }
                             } catch (e: IOException) {
                                 e.printStackTrace()
@@ -146,7 +150,7 @@ class CameraSubFragment : BaseSubFragment() {
                     layout.subfragment_camera_flash.isSelected = flashStatus
 
                     fotoapparat?.switchTo(
-                            if(newSide ==SIDE_FRONT) front() else back(),getConfig(newSide, flashStatus)
+                            if(newSide == SIDE_FRONT) front() else back(),getConfig(newSide, flashStatus)
                     )
                 }
 
@@ -170,12 +174,11 @@ class CameraSubFragment : BaseSubFragment() {
 
     override fun onStart() {
         super.onStart()
-        //TODO probably should save resolution in preferences
         Handler().postDelayed({
-            if (ContextCompat.checkSelfPermission(activity as AppCompatActivity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(context!!, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 initialiseCameraPreview()
             } else {
-                ActivityCompat.requestPermissions(activity as AppCompatActivity, arrayOf(Manifest.permission.CAMERA), Prefs.CAMERA_REQUEST_CODE)
+                requestPermissions(arrayOf(Manifest.permission.CAMERA), Prefs.CAMERA_REQUEST_CODE)
             }
         }, 500)
 
@@ -228,7 +231,7 @@ class CameraSubFragment : BaseSubFragment() {
 
         arrayListOf(SIDE_FRONT, SIDE_BACK).forEach {
             when(it){
-                SIDE_FRONT->{
+                SIDE_FRONT ->{
 
                     frontWidth = Prefs.getInstance().readInt(Prefs.CAMERA_FRONT_WIDTH, 0)
                     frontHeight = Prefs.getInstance().readInt(Prefs.CAMERA_FRONT_HEIGHT, 0)
@@ -241,7 +244,7 @@ class CameraSubFragment : BaseSubFragment() {
                         Prefs.getInstance().writeInt(Prefs.CAMERA_FRONT_HEIGHT, frontHeight)
                     }
                 }
-                SIDE_BACK->{
+                SIDE_BACK ->{
 
                     backWidth = Prefs.getInstance().readInt(Prefs.CAMERA_BACK_WIDTH, 0)
                     backHeight = Prefs.getInstance().readInt(Prefs.CAMERA_BACK_HEIGHT, 0)
@@ -283,5 +286,22 @@ class CameraSubFragment : BaseSubFragment() {
         )
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if(requestCode==Prefs.CAMERA_REQUEST_CODE ){
+            if (permissions.size == 1 && permissions[0] == Manifest.permission.CAMERA) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    permissionGranted()
+                    context?.toast("Camera permission granted")
+                } else {
+                    // check if user checked never show again
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        Prefs.getInstance().writeBoolean(Prefs.CAMERA_DENIED_FOREVER, !shouldShowRequestPermissionRationale(permissions[0]))
+                    }
+                    permissionDenied()
 
+                    context?.toast("Camera permission not granted")
+                }
+            }
+        }
+    }
 }

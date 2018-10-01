@@ -11,13 +11,34 @@
         android:id="@+id/subfragment_gallery_toolbar"
         android:layout_width="match_parent"
         android:layout_height="48dp"
+        app:contentInsetLeft="0dp"
+        app:contentInsetStart="0dp"
         app:layout_constraintTop_toTopOf="parent">
-        <androidx.appcompat.widget.AppCompatSpinner
-            android:id="@+id/subfragment_gallery_directory_spinner"
-            android:layout_width="wrap_content"
 
+        <ImageView
+            android:id="@+id/subfragment_gallery_toolbar_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="8dp"
+            android:layout_marginRight="4dp"
+            android:src="@drawable/icon_close_grey"/>
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/subfragment_gallery_toolbar_directory_spinner"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"/>
+
+        <TextView
+            android:id="@+id/subfragment_gallery_toolbar_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:text="Next"
+            android:layout_marginRight="16dp"
+            android:layout_gravity="right"/>
     </androidx.appcompat.widget.Toolbar>
+
     <LinearLayout
         android:id="@+id/subfragment_gallery_image_container"
         android:layout_width="match_parent"

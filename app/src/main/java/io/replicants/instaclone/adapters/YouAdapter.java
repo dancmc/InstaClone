@@ -24,6 +24,7 @@ import io.replicants.instaclone.R;
 import io.replicants.instaclone.pojos.Following;
 import io.replicants.instaclone.pojos.You;
 import io.replicants.instaclone.utilities.FollowingBaseViewHolder;
+import io.replicants.instaclone.utilities.GlideHeader;
 import io.replicants.instaclone.utilities.Utils;
 import io.replicants.instaclone.utilities.YouBaseViewHolder;
 
@@ -151,7 +152,7 @@ public class YouAdapter extends RecyclerView.Adapter<YouBaseViewHolder> {
             You feeditem = followingActivityList.get(position);
 
             if (feeditem.unknownFollower_profileImg != null) {
-                Glide.with(left_image_url.getContext()).load(feeditem.unknownFollower_profileImg).into(left_image_url);
+                Glide.with(left_image_url.getContext()).load(GlideHeader.getUrlWithHeaders(feeditem.unknownFollower_profileImg)).into(left_image_url);
             }
             String timeDiff = Utils.formatDate(feeditem.timestamp);
             String unknownFollowerName = feeditem.unknownFollower_displayName;
@@ -180,7 +181,7 @@ public class YouAdapter extends RecyclerView.Adapter<YouBaseViewHolder> {
             You feeditem = followingActivityList.get(position);
 
             if (feeditem.previewUser_profileImg != null) {
-                Glide.with(left_image_url.getContext()).load(feeditem.previewUser_profileImg).into(left_image_url);
+                Glide.with(left_image_url.getContext()).load(GlideHeader.getUrlWithHeaders(feeditem.previewUser_profileImg)).into(left_image_url);
             }
             String timeDiff = Utils.formatDate(feeditem.timestamp);
             String followerName = feeditem.previewUser_displayName;
@@ -189,7 +190,7 @@ public class YouAdapter extends RecyclerView.Adapter<YouBaseViewHolder> {
             textDisplay.setSpan(b, 0, followerName.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
             post_text.setText(textDisplay);
             if (feeditem.photoLiked_url != null) {
-                Glide.with(right_image_url.getContext()).load(feeditem.photoLiked_url).into(right_image_url);
+                Glide.with(right_image_url.getContext()).load(GlideHeader.getUrlWithHeaders(feeditem.photoLiked_url)).into(right_image_url);
             }
         }
     }
@@ -211,7 +212,7 @@ public class YouAdapter extends RecyclerView.Adapter<YouBaseViewHolder> {
             You feeditem = followingActivityList.get(position);
 
             if (feeditem.previewComment_profileImg != null) {
-                Glide.with(left_image_url.getContext()).load(feeditem.previewComment_profileImg).into(left_image_url);
+                Glide.with(left_image_url.getContext()).load(GlideHeader.getUrlWithHeaders(feeditem.previewComment_profileImg)).into(left_image_url);
             }
             String timeDiff = Utils.formatDate(feeditem.timestamp);
             String followerName = feeditem.previewComment_displayName;
@@ -220,7 +221,7 @@ public class YouAdapter extends RecyclerView.Adapter<YouBaseViewHolder> {
             textDisplay.setSpan(b, 0, followerName.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
             post_text.setText(textDisplay);
             if (feeditem.photoLiked_url != null) {
-                Glide.with(right_image_url.getContext()).load(feeditem.photoLiked_url).into(right_image_url);
+                Glide.with(right_image_url.getContext()).load(GlideHeader.getUrlWithHeaders(feeditem.photoLiked_url)).into(right_image_url);
             }
         }
     }
@@ -242,7 +243,7 @@ public class YouAdapter extends RecyclerView.Adapter<YouBaseViewHolder> {
             You feeditem = followingActivityList.get(position);
 
             if (feeditem.request_profileImg != null) {
-                Glide.with(left_image_url.getContext()).load(feeditem.request_profileImg).into(left_image_url);
+                Glide.with(left_image_url.getContext()).load(GlideHeader.getUrlWithHeaders(feeditem.request_profileImg)).into(left_image_url);
             }
             String timeDiff = Utils.formatDate(feeditem.timestamp);
             String requestHead = "Follow Request";

@@ -1,11 +1,12 @@
-package io.replicants.instaclone.subfragments
+package io.replicants.instaclone.subfragments.upload.pickphoto
 
 import android.Manifest
-import android.content.Intent
+import android.content.Context
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
@@ -13,25 +14,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.github.chrisbanes.photoview.PhotoView
 import com.theartofdev.edmodo.cropper.CropImageView
 import io.replicants.instaclone.R
 import io.replicants.instaclone.adapters.GalleryCursorAdapter
+import io.replicants.instaclone.subfragments.BaseSubFragment
 import io.replicants.instaclone.utilities.Prefs
-import kotlinx.android.synthetic.main.adapter_feed_item_grid.view.*
-import kotlinx.android.synthetic.main.subfragment_crop.view.*
 import kotlinx.android.synthetic.main.subfragment_gallery.view.*
-import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.sdk27.coroutines.onItemSelectedListener
-import org.jetbrains.anko.sdk27.coroutines.onSeekBarChangeListener
+import org.jetbrains.anko.sdk27.coroutines.onClick
+import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
 import java.io.File
 import java.io.FileOutputStream
@@ -40,21 +36,22 @@ import java.util.*
 import kotlin.collections.HashSet
 
 
-class GallerySubFragment : BaseSubFragment() {
-
+class GalleryPagerFragment : BaseSubFragment() {
 
 
     private lateinit var layout: View
     private var directoryList = ArrayList<ImageDirectory>()
     lateinit var adapter: GalleryCursorAdapter
     lateinit var recyclerView: RecyclerView
-    var photoObtainedListener:GetPhotoSubFragment.PhotoObtainedListener? = null
+    var photoObtainedListener: PickPhotoSubFragment.PhotoObtainedListener? = null
     var firstLoad = true
+    var activityRef :Context? = null
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        if(firstLoad) {
-        layout = inflater.inflate(R.layout.subfragment_gallery, container, false)
+        activityRef = activity
+        if (firstLoad) {
+            layout = inflater.inflate(R.layout.subfragment_gallery, container, false)
 
             recyclerView = layout.subfragment_gallery_recyclerview
             recyclerView.setHasFixedSize(true)
@@ -63,16 +60,12 @@ class GallerySubFragment : BaseSubFragment() {
             val layoutManager = GridLayoutManager(activity, 4);
             recyclerView.layoutManager = layoutManager
 
-            layout.subfragment_gallery_toolbar.inflateMenu(R.menu.menu_gallery_fragment)
-            layout.subfragment_gallery_toolbar.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.action_next -> {
-                        (childFragmentManager.findFragmentById(R.id.subfragment_gallery_image_container) as CropSubFragment).getImageAsync()
-                        true
-                    }
-                    else -> false
-                }
+            layout.subfragment_gallery_toolbar_back.onClick {
+                activity?.finish()
+            }
 
+            layout.subfragment_gallery_toolbar_next.onClick {
+                (childFragmentManager.findFragmentById(R.id.subfragment_gallery_image_container) as CropSubFragment).getImageAsync()
             }
 
 
@@ -81,10 +74,14 @@ class GallerySubFragment : BaseSubFragment() {
                 val cropFrag = CropSubFragment()
                 cropFrag.onCropImageCompleteListener = CropImageView.OnCropImageCompleteListener { view: CropImageView?, result: CropImageView.CropResult? ->
                     val photoFolder = File(activity!!.filesDir, "photos")
-                    val newPhotoFile = File(photoFolder, UUID.randomUUID().toString() + ".jpg")
+                    if (!photoFolder.exists()) {
+                        photoFolder.mkdir()
+                    }
+                    val photoID = UUID.randomUUID().toString()
+                    val newPhotoFile = File(photoFolder, "$photoID.jpg")
                     FileOutputStream(newPhotoFile).use { out ->
                         result?.bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, out)
-                        photoObtainedListener?.photoObtained(newPhotoFile.absolutePath)
+                        photoObtainedListener?.photoObtained(photoID, newPhotoFile.absolutePath)
                     }
                 }
                 tx.add(R.id.subfragment_gallery_image_container, cropFrag, null)
@@ -92,12 +89,11 @@ class GallerySubFragment : BaseSubFragment() {
             }
 
 
-            if (ContextCompat.checkSelfPermission(activity as AppCompatActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(context!!, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 populateDirectory()
 
-
             } else {
-                ActivityCompat.requestPermissions(activity as AppCompatActivity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), Prefs.EXTERNAL_STORAGE_CODE)
+                requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), Prefs.EXTERNAL_STORAGE_CODE)
             }
 
             firstLoad = false
@@ -105,7 +101,6 @@ class GallerySubFragment : BaseSubFragment() {
 
         return layout
     }
-
 
 
     fun permissionGranted() {
@@ -128,8 +123,8 @@ class GallerySubFragment : BaseSubFragment() {
                 val spinnerAdapter = ArrayAdapter<String>(context, android.R.layout.simple_spinner_dropdown_item, dirListString).apply {
                     setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 }
-                layout.subfragment_gallery_directory_spinner.adapter = spinnerAdapter
-                layout.subfragment_gallery_directory_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                layout.subfragment_gallery_toolbar_directory_spinner.adapter = spinnerAdapter
+                layout.subfragment_gallery_toolbar_directory_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
 
                     override fun onNothingSelected(parent: AdapterView<*>?) {
                     }
@@ -140,7 +135,7 @@ class GallerySubFragment : BaseSubFragment() {
                 }
                 val initialCursor = getDirectoryCursor(directoryList[0])
                 adapter = GalleryCursorAdapter(context!!, initialCursor, object : GalleryCursorAdapter.Listener {
-                    override fun onClick(filePath: String, position:Int) {
+                    override fun onClick(filePath: String, position: Int) {
 //                        Glide.with(context!!).load(filePath).into(layout.subfragment_gallery_image)
                         (childFragmentManager.findFragmentById(R.id.subfragment_gallery_image_container) as CropSubFragment).setImageUri(Uri.fromFile(File(filePath)))
                     }
@@ -164,9 +159,9 @@ class GallerySubFragment : BaseSubFragment() {
         return cursor
     }
 
-    private fun getImageDirectories() :ArrayList<ImageDirectory>{
-        val projection = arrayOf("DISTINCT "+MediaStore.Images.Media.BUCKET_ID, MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
-        val cursor = MediaStore.Images.Media.query(context?.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null)
+    private fun getImageDirectories(): ArrayList<ImageDirectory> {
+        val projection = arrayOf("DISTINCT " + MediaStore.Images.Media.BUCKET_ID, MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
+        val cursor = MediaStore.Images.Media.query(activityRef?.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null)
 
         cursor.moveToFirst()
         val albumName = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
@@ -185,7 +180,7 @@ class GallerySubFragment : BaseSubFragment() {
     }
 
 
-    data class ImageDirectory(var id: Int, var albumName: String):Serializable {
+    data class ImageDirectory(var id: Int, var albumName: String) : Serializable {
         override fun hashCode(): Int {
             return id.hashCode()
         }
@@ -195,4 +190,27 @@ class GallerySubFragment : BaseSubFragment() {
         }
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if(requestCode == Prefs.EXTERNAL_STORAGE_CODE){
+            if (permissions.size == 1 && permissions[0] == Manifest.permission.READ_EXTERNAL_STORAGE) {
+
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), Prefs.EXTERNAL_STORAGE_CODE)
+
+                    permissionGranted()
+
+                    context?.toast("Storage permission granted")
+                } else {
+                    // check if user checked never show again
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        Prefs.getInstance().writeBoolean(Prefs.EXTERNAL_STORAGE_DENIED_FOREVER, !shouldShowRequestPermissionRationale(permissions[0]))
+                    }
+                    permissionDenied()
+
+
+                    context?.toast("Storage permission not granted")
+                }
+            }
+        }
+    }
 }
