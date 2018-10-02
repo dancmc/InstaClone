@@ -49,7 +49,7 @@ class UploadPhotoActivity : AppCompatActivity(), PickPhotoSubFragment.PhotoObtai
         val editFrag = EditPhotoSubFragment.newInstance(photoID, filename)
         editFrag.listener = this
         tx.replace(R.id.add_photo_container, editFrag)
-        tx.addToBackStack(null)
+        tx.addToBackStack("photoObtained")
         tx.commit()
     }
 
@@ -58,7 +58,7 @@ class UploadPhotoActivity : AppCompatActivity(), PickPhotoSubFragment.PhotoObtai
     }
 
     override fun editCancelled() {
-        supportFragmentManager.popBackStack("getPhoto", 0)
+        supportFragmentManager.popBackStack("photoObtained", FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 
 

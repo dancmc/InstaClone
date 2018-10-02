@@ -33,6 +33,7 @@ class ZoomRotateImageView : ImageView {
     private var oldScaleFactor = 1f
     var extraScaleForRotate = 1f
     var rotate = 0f
+    var canTouch = false
 
     private val scaleDetector = ScaleGestureDetector(context, ScaleListener())
 
@@ -397,6 +398,7 @@ class ZoomRotateImageView : ImageView {
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
+        if (!canTouch) return true
 
         if (pointers < 2 && !inZoomRefractoryPeriod.get()) {
             flingDetector.onTouchEvent(event)
@@ -503,10 +505,10 @@ class ZoomRotateImageView : ImageView {
         // o The mode is DRAG and the scale factor is not equal to 1 (meaning we have zoomed) and dragged is
         //   set to true (meaning the finger has actually moved)
         if ((mode == DRAG && dragged) || mode == ZOOM) {
-            invalidate();
+            invalidate()
         }
 
-        return true;
+        return true
     }
 
 //    private fun getOffsets() {
@@ -637,8 +639,10 @@ class ZoomRotateImageView : ImageView {
             vpFloatArray[1] = it.y
             tmpMatrix.mapPoints(vpFloatArray)
             drawable.copyBounds(drawableRect)
-            drawableRect.right += 1
-            drawableRect.bottom += 1
+            drawableRect.right += 2
+            drawableRect.bottom += 2
+            drawableRect.top=-1
+            drawableRect.left=-1
             if (!drawableRect.contains(vpFloatArray[0].toInt(), vpFloatArray[1].toInt())) {
                 resultsHolder.add(it)
             }
@@ -686,7 +690,8 @@ class ZoomRotateImageView : ImageView {
                         val transY = targetPoint.y - imagePoint.y
                         val distance = Math.sqrt(Math.pow(transX.toDouble(), 2.0) + Math.pow(transY.toDouble(), 2.0))
                         if (distance < resultDistance) {
-                            if (getHypotheticalOrphanedViewPoints(transX, transY, zoomFix).size == 0) {
+                            val postTranslateOrphans = getHypotheticalOrphanedViewPoints(transX, transY, zoomFix)
+                            if (postTranslateOrphans.size == 0) {
                                 resultTranslate.x = transX
                                 resultTranslate.y = transY
                                 resultDistance = distance

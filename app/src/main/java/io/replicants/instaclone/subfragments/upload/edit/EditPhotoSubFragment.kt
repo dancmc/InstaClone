@@ -18,6 +18,7 @@ import io.replicants.instaclone.utilities.Utils
 import io.replicants.instaclone.views.ZoomRotateImageView
 import io.replicants.instaclone.views.ZoomRotateImageViewState
 import kotlinx.android.synthetic.main.subfragment_edit_photo.view.*
+import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.windowManager
 import java.io.File
@@ -29,13 +30,13 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
     companion object {
 
         @JvmField
-        val TAG_ADJUST = "ADJUST"
+        val TAG_ADJUST = "Adjust"
         @JvmField
-        val TAG_BRIGHTNESS = "BRIGHTNESS"
+        val TAG_BRIGHTNESS = "Brightness"
         @JvmField
-        val TAG_CONTRAST = "CONTRAST"
+        val TAG_CONTRAST = "Contrast"
         @JvmField
-        val TAG_FILTER = "FILTER"
+        val TAG_FILTER = "Filter"
 
         @JvmStatic
         fun newInstance(photoID: String, tempFileName: String): EditPhotoSubFragment {
@@ -104,6 +105,8 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
         val displayWidth = displayDimen.x
 
         imageView = ZoomRotateImageView(context!!)
+        imageView.backgroundColor = Color.rgb(255, 255, 255)
+
         imageView.scaleType = ImageView.ScaleType.MATRIX
         val scale: Float
         if (sampleImageHeight > sampleImageWidth) {
@@ -156,7 +159,6 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
                 photoFolder.mkdir()
             }
             val file = File(photoFolder, "$photoID.jpg")
-            val scaled = File(photoFolder, "$photoID-scaled.jpg")
 
             // we need to scale by the original sample scale
             val finalMatrix = Matrix(imageView.imageMatrix)
@@ -172,7 +174,7 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
             val finalBitmapHeight = newOptions.outHeight
 
             // the insample inverse size makes it confusing
-            val ratioToSample = (1/sampleSize.toFloat())/(1/finalSampleSize.toFloat())
+            val ratioToSample = (1 / sampleSize.toFloat()) / (1 / finalSampleSize.toFloat())
 
             // prescale our final matrix by the difference in previous *sample* size and current *sample* size to create an exact replica of the imageview pixel representation
             finalMatrix.preScale(ratioToSample, ratioToSample)
@@ -188,9 +190,9 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
             // we find the bitmap's top left coordinates wrt viewport 0,0 by taking the smallest X and smallest Y (will likely be negative wrt viewport's top left)
             var smallestX = Float.MAX_VALUE
             var smallestY = Float.MAX_VALUE
-            mappedPoints.forEach { point->
-                if(smallestX>point.first) smallestX = point.first
-                if(smallestY>point.second) smallestY = point.second
+            mappedPoints.forEach { point ->
+                if (smallestX > point.first) smallestX = point.first
+                if (smallestY > point.second) smallestY = point.second
             }
 
             // take bitmap's top left as invariant now, find the relative coordinates of viewport's top left
@@ -198,55 +200,63 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
             val rectLeft = -smallestX
 
             // can now calculate the rect of viewport wrt to final bitmap
-            val rectRight = rectLeft+scale*sampleImageWidth
-            val rectBottom = rectTop+scale*sampleImageHeight
+            val rectRight = rectLeft + scale * sampleImageWidth
+            val rectBottom = rectTop + scale * sampleImageHeight
 
             // this is actually the imageview width and height too
-            val rowWidth = rectRight-rectLeft
-            val columnHeight = rectBottom-rectTop
+            val rowWidth = rectRight - rectLeft
+            val columnHeight = rectBottom - rectTop
 
             // we want to make sure final cropped image is 1080 pixels or less in width, depending on raw image width
             // if original raw width = 100, insample size was 4, imageview scale is 1.5, then scale is 1.5 * 1/4 to the raw image
             // if new insample size is 2, imageview scale to this new sample size is rawscale * insample = 1.5/4*2
-            val imageViewScaleToFinalSampleSize = imageView.scaleFactor/sampleSize.toFloat()*finalSampleSize.toFloat()
-            val imageViewScaleAt1080 = 1080/rowWidth * imageViewScaleToFinalSampleSize
+            val imageViewScaleToFinalSampleSize = imageView.scaleFactor / sampleSize.toFloat() * finalSampleSize.toFloat()
+            val imageViewScaleAt1080 = 1080 / rowWidth * imageViewScaleToFinalSampleSize
 
             // if scale value is >1, then we would need to scale the bitmap past intrinsic size (undesirable)
             // if scale value <1, then scale down bitmap
             var finalMatrixPostScale = 1f
-            if(imageViewScaleAt1080<1f) {
+            if (imageViewScaleAt1080 < 1f) {
                 // if scaling cropped width to 1080 would not involve scaling newSampledImage past 1, then scale
-                finalMatrixPostScale = 1080/rowWidth
-            }else {
+                finalMatrixPostScale = 1080 / rowWidth
+            } else {
                 // if it is already overscaled compared to the newSampledImage intrinsic size, scale down to original scale
                 // or if scaling to 1080 would overscale it, scale up to original size
-                finalMatrixPostScale = 1f/imageViewScaleToFinalSampleSize
+                finalMatrixPostScale = 1f / imageViewScaleToFinalSampleSize
             }
 
             // if we want to apply a final postscale, we postscale from the bitmap's top left coordinates
             // the new wanted rect is simply scale*rect
-            finalMatrix.postScale(finalMatrixPostScale,finalMatrixPostScale,smallestX, smallestY)
+            finalMatrix.postScale(finalMatrixPostScale, finalMatrixPostScale, smallestX, smallestY)
             val finalBitmapTransformed = Bitmap.createBitmap(finalBitmapRaw, 0, 0, finalBitmapWidth, finalBitmapHeight, finalMatrix, true)
-            if(finalBitmapTransformed!==finalBitmapRaw) {
+            if (finalBitmapTransformed !== finalBitmapRaw) {
                 finalBitmapRaw.recycle()
             }
 
-            val finalRectTop = Math.max((rectTop*finalMatrixPostScale).toInt(), 0)
-            val finalRectLeft = Math.max((rectLeft*finalMatrixPostScale).toInt(), 0)
+            val finalRectTop = Math.max((rectTop * finalMatrixPostScale).toInt(), 0)
+            val finalRectLeft = Math.max((rectLeft * finalMatrixPostScale).toInt(), 0)
             val maxWidth = finalBitmapWidth - finalRectLeft
             val maxHeight = finalBitmapHeight - finalRectTop
-            val finalRowWidth = Math.min((rowWidth*finalMatrixPostScale).toInt(), maxWidth)
-            val finalColumnHeight = Math.min((columnHeight*finalMatrixPostScale).toInt(), maxHeight)
+            val finalRowWidth = Math.min((rowWidth * finalMatrixPostScale).toInt(), maxWidth)
+            val finalColumnHeight = Math.min((columnHeight * finalMatrixPostScale).toInt(), maxHeight)
             val finalBitmap = Bitmap.createBitmap(finalBitmapTransformed, finalRectLeft, finalRectTop, finalRowWidth, finalColumnHeight)
 //            val finalBitmap = Bitmap.createBitmap(finalBitmapTransformed, rectLeft.toInt(), rectTop.toInt(), rowWidth.toInt(), columnHeight.toInt())
 
-            if(finalBitmapTransformed!==finalBitmap) {
+            if (finalBitmapTransformed !== finalBitmap) {
                 finalBitmapTransformed.recycle()
             }
 
+            val mutableBitmap = finalBitmap.copy(Bitmap.Config.ARGB_8888, true)
+            finalBitmap.recycle()
+            val canvas = Canvas(mutableBitmap)
+            val paint = Paint()
+            paint.colorFilter = colorFilter
+            canvas.drawBitmap(mutableBitmap, 0f, 0f, paint)
+
+
             try {
                 FileOutputStream(file).use { out ->
-                    finalBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out)
+                    mutableBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -303,6 +313,8 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
 
     private fun startNewEdit(frag: Fragment, tag: String) {
 
+        switchToEditingToolbar(tag)
+
         // save current edits
         when (tag) {
             TAG_ADJUST -> {
@@ -310,6 +322,8 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
                 savedState = imageView.saveState()
                 savedBaseRotation = baseRotation
                 savedCurrentRotation = currentRotation
+                imageView.canTouch = true
+
             }
             TAG_FILTER -> {
             }
@@ -328,6 +342,19 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
         tx.add(R.id.subfragment_filter_controls, frag)
         tx.addToBackStack(tag)
         tx.commit()
+    }
+
+    fun switchToEditingToolbar(title: String) {
+        layout.subfragment_edit_photo_toolbar_back.visibility = View.GONE
+        layout.subfragment_edit_photo_toolbar_next.visibility = View.GONE
+        layout.subfragment_edit_photo_toolbar_title.visibility = View.VISIBLE
+        layout.subfragment_edit_photo_toolbar_title.text = title
+    }
+
+    fun switchToOverallToolbar() {
+        layout.subfragment_edit_photo_toolbar_back.visibility = View.VISIBLE
+        layout.subfragment_edit_photo_toolbar_next.visibility = View.VISIBLE
+        layout.subfragment_edit_photo_toolbar_title.visibility = View.GONE
     }
 
     override fun goToFilter() {
@@ -362,9 +389,12 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
 
     override fun cancelCurrentEdit(): Boolean {
 
+        switchToOverallToolbar()
+
         if (childFragmentManager.backStackEntryCount > 0) {
             when (childFragmentManager.getBackStackEntryAt(0).name) {
                 TAG_ADJUST -> {
+                    imageView.canTouch = false
                     imageView.imageMatrix.set(savedMatrix)
                     imageView.restoreState(savedState)
                     currentRotation = savedCurrentRotation
@@ -394,6 +424,8 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
     }
 
     override fun done() {
+        switchToOverallToolbar()
+        imageView.canTouch = false
         savedMatrix.set(imageView.imageMatrix)
         savedColorMatrix.set(colorMatrix)
         savedState = imageView.saveState()

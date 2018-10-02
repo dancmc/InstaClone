@@ -24,6 +24,7 @@ import io.replicants.instaclone.subfragments.BaseSubFragment
 import io.replicants.instaclone.utilities.Prefs
 import io.replicants.instaclone.utilities.rotate
 import kotlinx.android.synthetic.main.subfragment_camera.view.*
+import kotlinx.android.synthetic.main.subfragment_gallery.view.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
@@ -55,6 +56,9 @@ class CameraPagerFragment : BaseSubFragment() {
         //TODO check somewhere that camera actually exists
         layout = inflater.inflate(R.layout.subfragment_camera, container, false)
 
+        layout.subfragment_camera_toolbar.onClick {
+            activity?.finish()
+        }
 
 
         return layout
@@ -101,7 +105,7 @@ class CameraPagerFragment : BaseSubFragment() {
                     layout.subfragment_camera_photo_btn.isEnabled = false
                     val result = fotoapparat?.takePicture()
 
-                    if(result==null){
+                    if (result == null) {
                         layout.subfragment_camera_photo_btn.isEnabled = true
                     }
 
@@ -142,32 +146,29 @@ class CameraPagerFragment : BaseSubFragment() {
                 layout.subfragment_camera_flip.onClick {
 
                     val currentSide = Prefs.getInstance().readInt(Prefs.CAMERA_SIDE, SIDE_BACK)
-                    val newSide = if(currentSide== SIDE_FRONT) SIDE_BACK else SIDE_FRONT
+                    val newSide = if (currentSide == SIDE_FRONT) SIDE_BACK else SIDE_FRONT
                     val flashStatus = Prefs.getInstance().readBoolean(Prefs.CAMERA_FLASH_STATUS, false)
                     Prefs.getInstance().writeInt(Prefs.CAMERA_SIDE, newSide)
 
-                    layout.subfragment_camera_flash.isEnabled = newSide== SIDE_BACK
+                    layout.subfragment_camera_flash.isEnabled = newSide == SIDE_BACK
                     layout.subfragment_camera_flash.isSelected = flashStatus
 
                     fotoapparat?.switchTo(
-                            if(newSide == SIDE_FRONT) front() else back(),getConfig(newSide, flashStatus)
+                            if (newSide == SIDE_FRONT) front() else back(), getConfig(newSide, flashStatus)
                     )
                 }
 
                 println("TIME2 ${System.currentTimeMillis() - time2}")
 
                 val time3 = System.currentTimeMillis()
-                try{
+                try {
                     fotoapparat?.start()
                     println("TIME3 ${System.currentTimeMillis() - time3}")
-                } catch (e:IllegalStateException){
+                } catch (e: IllegalStateException) {
                     println(e.message)
                 }
             }
         }
-
-
-
 
 
     }
@@ -212,7 +213,7 @@ class CameraPagerFragment : BaseSubFragment() {
     }
 
     // determine smallest resolution with shortest side >= 1080 closest to a square
-    private fun getFilteredCameraResolution(side:Int):Pair<Int, Int>{
+    private fun getFilteredCameraResolution(side: Int): Pair<Int, Int> {
         val camResolution = getCameraResolutions(side).sortedBy {
             it.first * it.second
         }
@@ -222,21 +223,21 @@ class CameraPagerFragment : BaseSubFragment() {
                 it.first >= 1080 && it.second >= 1080
             }
         } catch (e: Exception) {
-            desiredRes = Pair(1080,1080)
+            desiredRes = Pair(1080, 1080)
         }
         return desiredRes
     }
 
-    private fun setCameraResolutions(){
+    private fun setCameraResolutions() {
 
         arrayListOf(SIDE_FRONT, SIDE_BACK).forEach {
-            when(it){
-                SIDE_FRONT ->{
+            when (it) {
+                SIDE_FRONT -> {
 
                     frontWidth = Prefs.getInstance().readInt(Prefs.CAMERA_FRONT_WIDTH, 0)
                     frontHeight = Prefs.getInstance().readInt(Prefs.CAMERA_FRONT_HEIGHT, 0)
 
-                    if(frontHeight==0 || frontWidth==0) {
+                    if (frontHeight == 0 || frontWidth == 0) {
                         val result = getFilteredCameraResolution(it)
                         frontWidth = result.first
                         frontHeight = result.second
@@ -244,12 +245,12 @@ class CameraPagerFragment : BaseSubFragment() {
                         Prefs.getInstance().writeInt(Prefs.CAMERA_FRONT_HEIGHT, frontHeight)
                     }
                 }
-                SIDE_BACK ->{
+                SIDE_BACK -> {
 
                     backWidth = Prefs.getInstance().readInt(Prefs.CAMERA_BACK_WIDTH, 0)
                     backHeight = Prefs.getInstance().readInt(Prefs.CAMERA_BACK_HEIGHT, 0)
 
-                    if(backHeight==0 || backWidth==0) {
+                    if (backHeight == 0 || backWidth == 0) {
                         val result = getFilteredCameraResolution(it)
                         backWidth = result.first
                         backHeight = result.second
@@ -261,12 +262,12 @@ class CameraPagerFragment : BaseSubFragment() {
         }
     }
 
-    private fun getConfig(side:Int, flashStatus: Boolean): CameraConfiguration {
-        val desiredRes = if(side== SIDE_BACK) Resolution(backWidth, backHeight) else Resolution(frontWidth, frontHeight)
+    private fun getConfig(side: Int, flashStatus: Boolean): CameraConfiguration {
+        val desiredRes = if (side == SIDE_BACK) Resolution(backWidth, backHeight) else Resolution(frontWidth, frontHeight)
 
         return CameraConfiguration(
                 pictureResolution = firstAvailable(
-                        { desiredRes},
+                        { desiredRes },
                         highestResolution()
                 ),
                 focusMode = firstAvailable(
@@ -275,7 +276,7 @@ class CameraPagerFragment : BaseSubFragment() {
                         autoFocus(),                       // if continuous focus is not available on device, auto focus will be used
                         fixed()                            // if even auto focus is not available - fixed focus mode will be used
                 ),
-                flashMode = if (flashStatus && side== SIDE_BACK) on() else off(),
+                flashMode = if (flashStatus && side == SIDE_BACK) on() else off(),
                 antiBandingMode = firstAvailable(       // (optional) similar to how it is done for focus mode & flash, now for anti banding
                         auto(),
                         hz50(),
@@ -287,7 +288,7 @@ class CameraPagerFragment : BaseSubFragment() {
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if(requestCode==Prefs.CAMERA_REQUEST_CODE ){
+        if (requestCode == Prefs.CAMERA_REQUEST_CODE) {
             if (permissions.size == 1 && permissions[0] == Manifest.permission.CAMERA) {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     permissionGranted()

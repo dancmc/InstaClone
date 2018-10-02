@@ -14,8 +14,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -45,7 +43,7 @@ class GalleryPagerFragment : BaseSubFragment() {
     lateinit var recyclerView: RecyclerView
     var photoObtainedListener: PickPhotoSubFragment.PhotoObtainedListener? = null
     var firstLoad = true
-    var activityRef :Context? = null
+    var activityRef: Context? = null
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -191,7 +189,7 @@ class GalleryPagerFragment : BaseSubFragment() {
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if(requestCode == Prefs.EXTERNAL_STORAGE_CODE){
+        if (requestCode == Prefs.EXTERNAL_STORAGE_CODE) {
             if (permissions.size == 1 && permissions[0] == Manifest.permission.READ_EXTERNAL_STORAGE) {
 
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
