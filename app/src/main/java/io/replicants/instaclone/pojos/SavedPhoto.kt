@@ -16,10 +16,12 @@ open class SavedPhoto():RealmObject(){
         var latitude: Double = 0.0
         var editPhotoState:EditPhotoState?=null
         var imageViewState: ZoomRotateImageViewState?=null
+        var temp = true
 
 
-    constructor(photoID:String, photoFile:String, caption:String, locationName:String,
+    constructor(temp:Boolean, photoID:String, photoFile:String, caption:String, locationName:String,
                   longitude:Double, latitude:Double, editPhotoState:EditPhotoState, imageViewState:ZoomRotateImageViewState):this(){
+        this.temp = temp
         this.photoID = photoID
         this.photoFile = photoFile
         this.caption = caption

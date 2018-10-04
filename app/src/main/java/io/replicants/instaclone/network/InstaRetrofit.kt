@@ -63,7 +63,7 @@ class InstaRetrofit {
 
         @Multipart
         @POST("photo/upload")
-        fun photoUpload(@Part("photo") file:MultipartBody.Part, @Part("json") json:RequestBody): Call<String>
+        fun photoUpload(@Part("photo") file:RequestBody, @Part("json") json:RequestBody): Call<String>
 
         @POST("photo/specific")
         fun specificPhotos(@Body json: String): Call<String>
@@ -124,7 +124,7 @@ class InstaRetrofit {
 
         @Multipart
         @POST("user/update")
-        fun updateDetails(@Part("photo") file:MultipartBody.Part, @Part("json") json:RequestBody): Call<String>
+        fun updateDetails(@Part("photo") file:RequestBody, @Part("json") json:RequestBody): Call<String>
 
         @Multipart
         @POST("user/update")

@@ -1,12 +1,15 @@
 package io.replicants.instaclone.subfragments
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.view.*
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -187,7 +190,7 @@ class FeedSubFragment : BaseSubFragment() {
     }
 
 
-    fun loadLocation() {
+    private fun loadLocation() {
         MyApplication.instance.getLocation(activity as AppCompatActivity, object : LocationCallback {
             override fun execute(location: Location?) {
                 locationRequestButton.visibility = View.GONE
@@ -202,22 +205,25 @@ class FeedSubFragment : BaseSubFragment() {
             override fun permissionFailed() {
                 locationRequestButton.visibility = View.VISIBLE
                 locationRequestButton.onClick {
-                    if (!Prefs.getInstance().readBoolean(Prefs.LOCATION_DENIED_FOREVER, false)) {
-                        loadLocation()
+                    if(ContextCompat.checkSelfPermission(context!!, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                            Prefs.getInstance().readBoolean(Prefs.LOCATION_DENIED_FOREVER, false)){
+                        context?.let{ c ->
+                            Utils.redirectToSettings(R.string.request_location_title, R.string.request_location_text, c)
+                        }
                     } else {
-                        // TODO sigh have to navigate user through settings to enable location manually
-                        activity?.toast("Will have to navigate to settings manually to enable")
+                        loadLocation()
                     }
+
                 }
             }
         })
     }
 
-    val initialApiCallback = fun(): InstaApiCallback {
+    private fun initialApiCallback(): InstaApiCallback {
         return object : InstaApiCallback() {
             override fun success(jsonResponse: JSONObject?) {
                 val photoArray = jsonResponse?.optJSONArray("photos") ?: JSONArray()
-                var photoList = Utils.photosFromJsonArray(photoArray)
+                var photoList :List<Photo> = Utils.photosFromJsonArray(photoArray)
 
                 if (Prefs.getInstance().readString(Prefs.FEED_SORT,InstaApi.Sort.DATE.toString()) == InstaApi.Sort.LOCATION.toString()) {
                     photoList = photoList.filterNot { it.latitude == 999.0 || it.longitude == 999.0 }
@@ -242,11 +248,11 @@ class FeedSubFragment : BaseSubFragment() {
         }
     }
 
-    val loadMoreApiCallback = fun(): InstaApiCallback {
+    private fun loadMoreApiCallback(): InstaApiCallback {
         return object : InstaApiCallback() {
             override fun success(jsonResponse: JSONObject?) {
                 val photoArray = jsonResponse?.optJSONArray("photos") ?: JSONArray()
-                var photoList = Utils.photosFromJsonArray(photoArray)
+                var photoList:List<Photo> = Utils.photosFromJsonArray(photoArray)
 
                 // remove photos with invalid longitudes and latitudes (no location data when uploaded
                 if (Prefs.getInstance().readString(Prefs.FEED_SORT,InstaApi.Sort.DATE.toString()) == InstaApi.Sort.LOCATION.toString()) {

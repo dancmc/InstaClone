@@ -23,10 +23,27 @@
     <string name="sort_date">Date</string>
 
     <string name="request_location">Request Location Permission</string>
+    <string name="request_location_failed">Failed to get location permission</string>
     <string name="posts">posts</string>
     <string name="followers">followers</string>
     <string name="following">following</string>
 
     <string name="confirm">Confirm</string>
+    <string name="save_draft_text">Do you want to save your draft?</string>
+    <string name="save_draft_title">Save Draft</string>
+    <string name="go_to_settings">Go to Settings</string>
+    <string name="cancel">Cancel</string>
+    <string name="save_draft">Save Draft</string>
+    <string name="discard">Discard</string>
+    <string name="edit_photo">Edit Photo</string>
+
+    <string name="request_storage_text">Previously ticked never ask again, please go to settings and allow Storage in Permissions.</string>
+    <string name="request_storage_title">Request Storage</string>
+
+    <string name="request_camera_text">Previously ticked never ask again, please go to settings and allow Canera in Permissions.</string>
+    <string name="request_camera_title">Request Camera</string>
+
+    <string name="request_location_text">Previously ticked never ask again, please go to settings and allow Location in Permissions.</string>
+    <string name="request_location_title">Request Location</string>
 
 </resources>

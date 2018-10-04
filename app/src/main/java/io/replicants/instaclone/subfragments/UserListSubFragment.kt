@@ -99,7 +99,7 @@ class UserListSubFragment : BaseSubFragment() {
             }
         }
 
-        adapter.onLoadMoreListener = object : FeedAdapter.OnLoadMoreListener {
+        adapter.onLoadMoreListener = object : UserListAdapter.OnLoadMoreListener {
             override fun onLoadMore() {
 
                 if(callType==null){

@@ -129,6 +129,7 @@ class ProfileSubFragment : BaseSubFragment() {
 
                 override fun permissionFailed() {
                     context?.toast("Failed to get location")
+                    // todo show some button to request location
                 }
             })
         }

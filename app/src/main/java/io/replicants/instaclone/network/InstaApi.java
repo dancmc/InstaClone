@@ -137,8 +137,8 @@ public class InstaApi {
             Log.d(TAG, j.getMessage());
         }
 
-        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-        MultipartBody.Part photo = MultipartBody.Part.createFormData("photo", file.getName(), requestFile);
+        RequestBody photo = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+//        MultipartBody.Part photo = MultipartBody.Part.createFormData("photo", file.getName(), requestFile);
 
         RequestBody jsonBody = RequestBody.create(MediaType.parse("multipart/form-data"), jsonObject.toString());
 
@@ -382,9 +382,9 @@ public class InstaApi {
 
         if(profileImageFile!=null){
 
-            RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), profileImageFile);
-            MultipartBody.Part photo = MultipartBody.Part.createFormData("photo", profileImageFile.getName(), requestFile);
-            return InstaRetrofit.api.updateDetails(photo,jsonBody);
+            RequestBody photoFile = RequestBody.create(MediaType.parse("multipart/form-data"), profileImageFile);
+//            MultipartBody.Part photo = MultipartBody.Part.createFormData("photo", profileImageFile.getName(), requestFile);
+            return InstaRetrofit.api.updateDetails(photoFile,jsonBody);
         } else {
             return InstaRetrofit.api.updateDetails(jsonBody);
         }

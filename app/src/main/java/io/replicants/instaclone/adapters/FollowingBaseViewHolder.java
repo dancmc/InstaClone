@@ -1,4 +1,4 @@
-package io.replicants.instaclone.utilities;
+package io.replicants.instaclone.adapters;
 
 import android.content.Context;
 import android.view.View;

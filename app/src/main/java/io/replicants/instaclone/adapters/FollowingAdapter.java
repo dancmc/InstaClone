@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.replicants.instaclone.R;
 import io.replicants.instaclone.pojos.Following;
-import io.replicants.instaclone.utilities.FollowingBaseViewHolder;
 import io.replicants.instaclone.utilities.GlideHeader;
 import io.replicants.instaclone.utilities.Utils;
 

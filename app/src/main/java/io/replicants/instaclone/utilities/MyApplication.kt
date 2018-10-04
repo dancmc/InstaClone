@@ -1,6 +1,7 @@
 package io.replicants.instaclone.utilities
 
 import android.Manifest
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
@@ -71,7 +72,7 @@ class MyApplication : Application() {
         }
     }
 
-    fun getLocation(activity: AppCompatActivity, callback: LocationCallback) {
+    fun getLocation(activity: Activity, callback: LocationCallback) {
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             if(locationManager==null){
                 listenForLocation()
@@ -101,7 +102,7 @@ class MyApplication : Application() {
             callback.execute(latestLocation)
         } else {
             locationCallback = callback
-            ActivityCompat.requestPermissions(activity as AppCompatActivity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), Prefs.LOCATION_REQUEST_CODE)
+            ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), Prefs.LOCATION_REQUEST_CODE)
         }
     }
 

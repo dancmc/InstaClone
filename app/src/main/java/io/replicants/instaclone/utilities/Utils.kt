@@ -1,26 +1,31 @@
 package io.replicants.instaclone.utilities
 
-import com.javadocmd.simplelatlng.LatLng
-import com.javadocmd.simplelatlng.LatLngTool
-import com.javadocmd.simplelatlng.util.LengthUnit
-import org.json.JSONArray
-import org.json.JSONObject
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ColorMatrix
 import android.graphics.Matrix
+import android.net.Uri
+import android.provider.Settings
 import android.text.Spannable
 import android.text.SpannableStringBuilder
+import android.text.TextPaint
 import android.text.style.ClickableSpan
+import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.text.TextPaint
-import io.replicants.instaclone.pojos.Comment
-import io.replicants.instaclone.pojos.Like
-import io.replicants.instaclone.pojos.Photo
-import io.replicants.instaclone.pojos.User
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
+import com.javadocmd.simplelatlng.LatLng
+import com.javadocmd.simplelatlng.LatLngTool
+import com.javadocmd.simplelatlng.util.LengthUnit
+import io.replicants.instaclone.R
+import io.replicants.instaclone.pojos.*
+import org.json.JSONArray
+import org.json.JSONObject
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -36,35 +41,35 @@ class Utils {
         @JvmField
         val sdfWithYr = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
         @JvmField
-        val sdf = SimpleDateFormat("dd MMM",Locale.ENGLISH)
+        val sdf = SimpleDateFormat("dd MMM", Locale.ENGLISH)
         @JvmField
         val floatFormat = DecimalFormat("##0.0")
         @JvmField
-        val oneDayMs = 1000*60*60*24
+        val oneDayMs = 1000 * 60 * 60 * 24
         @JvmField
-        val oneWeekMs = 1000*60*60*24*7
+        val oneWeekMs = 1000 * 60 * 60 * 24 * 7
 
         @JvmField
-        val oneHrMs = 1000*60*60
+        val oneHrMs = 1000 * 60 * 60
 
         @JvmField
-        val oneMinMs = 1000*60
+        val oneMinMs = 1000 * 60
 
         @JvmField
-        val oneMonthMs = 1000L*60*60*24*30
+        val oneMonthMs = 1000L * 60 * 60 * 24 * 30
 
         @JvmField
-        val oneYrMs = 1000L*60*60*24*365
+        val oneYrMs = 1000L * 60 * 60 * 24 * 365
 
         @JvmStatic
-        fun distance(lat1:Double, long1:Double, lat2:Double, long2:Double):Double{
+        fun distance(lat1: Double, long1: Double, lat2: Double, long2: Double): Double {
             val point1 = LatLng(lat1, long1)
             val point2 = LatLng(lat2, long2)
             return LatLngTool.distance(point1, point2, LengthUnit.KILOMETER)
         }
 
         @JvmStatic
-        fun photoFromJson(jsonObject:JSONObject): Photo {
+        fun photoFromJson(jsonObject: JSONObject): Photo {
             val photo = Photo()
             photo.displayName = jsonObject.optString("display_name")
             photo.profileImage = jsonObject.optString("profile_image")
@@ -74,15 +79,16 @@ class Utils {
             val smallUrlObject = urlObject.optJSONObject("small") ?: JSONObject()
             val thumbUrlObject = urlObject.optJSONObject("thumb") ?: JSONObject()
             photo.regularUrl = regularUrlObject.optString("link")
-            photo.smallUrl =smallUrlObject.optString("link")
+            photo.smallUrl = smallUrlObject.optString("link")
             photo.thumbUrl = thumbUrlObject.optString("link")
             val previewCommentObject = jsonObject.optJSONObject("preview_comments") ?: JSONObject()
-            val previewCommentsJsonArray = previewCommentObject.optJSONArray("preview_text") ?: JSONArray()
+            val previewCommentsJsonArray = previewCommentObject.optJSONArray("preview_text")
+                    ?: JSONArray()
 
             val previewCommentsList = ArrayList<Pair<String, String>>()
-            for(i in 0 until previewCommentsJsonArray.length()){
+            for (i in 0 until previewCommentsJsonArray.length()) {
                 val previewTextObject = previewCommentsJsonArray.optJSONObject(i)
-                if(previewTextObject!=null){
+                if (previewTextObject != null) {
                     val displayName = previewCommentObject.optString("display_name")
                     val text = previewCommentObject.optString("text")
                     previewCommentsList.add(Pair(displayName, text))
@@ -93,12 +99,13 @@ class Utils {
             photo.caption = jsonObject.optString("caption")
             photo.isLiked = jsonObject.optBoolean("is_liked")
             val previewLikesObject = jsonObject.optJSONObject("preview_likes") ?: JSONObject()
-            val previewLikesJsonArray = previewLikesObject.optJSONArray("preview_names") ?: JSONArray()
+            val previewLikesJsonArray = previewLikesObject.optJSONArray("preview_names")
+                    ?: JSONArray()
 
             val previewLikesList = ArrayList<String>()
-            for(i in 0 until previewLikesJsonArray.length()){
+            for (i in 0 until previewLikesJsonArray.length()) {
                 val name = previewLikesJsonArray.getString(i)
-                if(name!=null){
+                if (name != null) {
                     previewLikesList.add(name)
                 }
             }
@@ -111,22 +118,22 @@ class Utils {
             photo.longitude = locationObject.optDouble("longitude")
             photo.timestamp = jsonObject.optLong("timestamp")
             photo.distance = jsonObject.optDouble("distance", Double.MIN_VALUE)
-            photo.thumbHeight =thumbUrlObject.optInt("height")
-            photo.thumbWidth =thumbUrlObject.optInt("width")
-            photo.smallHeight =smallUrlObject.optInt("height")
-            photo.smallWidth =smallUrlObject.optInt("width")
-            photo.regularHeight =regularUrlObject.optInt("height")
-            photo.regularWidth =regularUrlObject.optInt("width")
+            photo.thumbHeight = thumbUrlObject.optInt("height")
+            photo.thumbWidth = thumbUrlObject.optInt("width")
+            photo.smallHeight = smallUrlObject.optInt("height")
+            photo.smallWidth = smallUrlObject.optInt("width")
+            photo.regularHeight = regularUrlObject.optInt("height")
+            photo.regularWidth = regularUrlObject.optInt("width")
 
             return photo
         }
 
         @JvmStatic
-        fun photosFromJsonArray(array:JSONArray):List<Photo>{
+        fun photosFromJsonArray(array: JSONArray): ArrayList<Photo> {
             val results = ArrayList<Photo>()
-            for (i in 0 until array.length()){
+            for (i in 0 until array.length()) {
                 val photoOb = array.getJSONObject(i)
-                if(photoOb!=null){
+                if (photoOb != null) {
                     results.add(photoFromJson(photoOb))
                 }
             }
@@ -149,15 +156,15 @@ class Utils {
             val followingArray = jsonObject.optJSONArray("following_who_follow") ?: JSONArray()
             val followingList = ArrayList<String>()
 
-            for (i in 0 until followingArray.length()){
+            for (i in 0 until followingArray.length()) {
                 val name = followingArray.optString(i)
-                if(name.isNotBlank()){
+                if (name.isNotBlank()) {
                     followingList.add(name)
                 }
             }
             user.followingWhoFollow = followingList
             user.areFollowing = jsonObject.optBoolean("are_following")
-            if(user.areFollowing){
+            if (user.areFollowing) {
                 user.followStatusToThem = 1
             }
             user.reason = jsonObject.optString("reason")
@@ -166,11 +173,11 @@ class Utils {
         }
 
         @JvmStatic
-        fun usersFromJsonArray(jsonArray:JSONArray):ArrayList<User>{
+        fun usersFromJsonArray(jsonArray: JSONArray): ArrayList<User> {
             val results = ArrayList<User>()
-            for (i in 0 until jsonArray.length()){
+            for (i in 0 until jsonArray.length()) {
                 val userOb = jsonArray.getJSONObject(i)
-                if(userOb!=null){
+                if (userOb != null) {
                     results.add(userFromJson(userOb))
                 }
             }
@@ -190,11 +197,11 @@ class Utils {
         }
 
         @JvmStatic
-        fun commentsFromJsonArray(jsonArray:JSONArray):ArrayList<Comment>{
+        fun commentsFromJsonArray(jsonArray: JSONArray): ArrayList<Comment> {
             val results = ArrayList<Comment>()
-            for (i in 0 until jsonArray.length()){
+            for (i in 0 until jsonArray.length()) {
                 val commentOb = jsonArray.getJSONObject(i)
-                if(commentOb!=null){
+                if (commentOb != null) {
                     results.add(commentFromJson(commentOb))
                 }
             }
@@ -214,11 +221,11 @@ class Utils {
         }
 
         @JvmStatic
-        fun likesFromJsonArray(jsonArray:JSONArray):ArrayList<Like>{
+        fun likesFromJsonArray(jsonArray: JSONArray): ArrayList<Like> {
             val results = ArrayList<Like>()
-            for (i in 0 until jsonArray.length()){
+            for (i in 0 until jsonArray.length()) {
                 val likeOb = jsonArray.getJSONObject(i)
-                if(likeOb!=null){
+                if (likeOb != null) {
                     results.add(likeFromJson(likeOb))
                 }
             }
@@ -232,30 +239,35 @@ class Utils {
         }
 
         @JvmStatic
-        fun formatDistance(distanceInMetres:Double):String{
+        fun formatDistance(distanceInMetres: Double): String {
             val d = Math.round(distanceInMetres)
-            return if(distanceInMetres<=999)"$d m" else "${d/1000} km"
+            return if (distanceInMetres <= 999) "$d m" else "${d / 1000} km"
         }
 
         @JvmStatic
-        fun formatDate(time:Long):String{
-            val diff = System.currentTimeMillis()-time
-            return when{
-                diff < oneHrMs ->{
-                    "${diff/ oneMinMs} minutes ago"
+        fun validateLatLng(latitude:Double, longitude:Double): Boolean {
+            return latitude>=-90.0 && latitude<=90.0 && longitude>=-180.0 && longitude<=180.0
+        }
+
+        @JvmStatic
+        fun formatDate(time: Long): String {
+            val diff = System.currentTimeMillis() - time
+            return when {
+                diff < oneHrMs -> {
+                    "${diff / oneMinMs} minutes ago"
                 }
-                diff< oneDayMs ->{
-                    "${diff/oneHrMs} hours ago"
+                diff < oneDayMs -> {
+                    "${diff / oneHrMs} hours ago"
                 }
-                diff< oneWeekMs->{
-                    "${diff/ oneDayMs} days ago"
+                diff < oneWeekMs -> {
+                    "${diff / oneDayMs} days ago"
                 }
-                else ->{
+                else -> {
                     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
                     val timeCalendar = Calendar.getInstance()
                     timeCalendar.timeInMillis = time
                     val timeYear = timeCalendar.get(Calendar.YEAR)
-                    if(timeYear<currentYear){
+                    if (timeYear < currentYear) {
                         sdfWithYr.format(Date(time))
                     } else {
                         sdf.format(Date(time))
@@ -265,30 +277,30 @@ class Utils {
         }
 
         @JvmStatic
-        fun formatDateForActivity(time:Long):String{
-            val diff = System.currentTimeMillis()-time
-            return when{
-                diff < oneHrMs ->{
-                    "${diff/ oneMinMs}m"
+        fun formatDateForActivity(time: Long): String {
+            val diff = System.currentTimeMillis() - time
+            return when {
+                diff < oneHrMs -> {
+                    "${diff / oneMinMs}m"
                 }
-                diff< oneDayMs ->{
-                    "${diff/oneHrMs}h"
+                diff < oneDayMs -> {
+                    "${diff / oneHrMs}h"
                 }
-                diff< oneWeekMs->{
-                    "${diff/ oneDayMs}d"
+                diff < oneWeekMs -> {
+                    "${diff / oneDayMs}d"
                 }
-                diff< oneMonthMs->{
-                    "${diff/ oneWeekMs}w"
+                diff < oneMonthMs -> {
+                    "${diff / oneWeekMs}w"
                 }
-                diff< oneYrMs->{
-                    "${diff/ oneMonthMs}M"
+                diff < oneYrMs -> {
+                    "${diff / oneMonthMs}M"
                 }
-                else ->{
+                else -> {
                     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
                     val timeCalendar = Calendar.getInstance()
                     timeCalendar.timeInMillis = time
                     val timeYear = timeCalendar.get(Calendar.YEAR)
-                    if(timeYear<currentYear){
+                    if (timeYear < currentYear) {
                         sdfWithYr.format(Date(time))
                     } else {
                         sdf.format(Date(time))
@@ -299,7 +311,7 @@ class Utils {
 
         // https://stackoverflow.com/questions/12891520/how-to-programmatically-change-contrast-of-a-bitmap-in-android
         @JvmStatic
-        fun setBrightnessOnColorMatrix(cm:ColorMatrix, brightness:Int){
+        fun setBrightnessOnColorMatrix(cm: ColorMatrix, brightness: Int) {
             brightness.toFloat().let {
                 cm.array[4] = it
                 cm.array[9] = it
@@ -308,7 +320,7 @@ class Utils {
         }
 
         @JvmStatic
-        fun setContrastOnColorMatrix(cm:ColorMatrix, contrast:Float){
+        fun setContrastOnColorMatrix(cm: ColorMatrix, contrast: Float) {
             contrast.let {
                 cm.array[0] = it
                 cm.array[6] = it
@@ -318,8 +330,8 @@ class Utils {
         }
 
         @JvmStatic
-        fun getMappedImagePoints(matrix:Matrix, originalHeight:Int, originalWidth:Int):ArrayList<Pair<Float,Float>>{
-            val result = ArrayList<Pair<Float,Float>>()
+        fun getMappedImagePoints(matrix: Matrix, originalHeight: Int, originalWidth: Int): ArrayList<Pair<Float, Float>> {
+            val result = ArrayList<Pair<Float, Float>>()
             val originalPoints = FloatArray(8)
             val mappedPoints = FloatArray(8)
             originalPoints[0] = 0f
@@ -333,17 +345,37 @@ class Utils {
             matrix.mapPoints(mappedPoints, originalPoints)
 
             (0..3).forEach {
-                result.add(Pair(mappedPoints[it*2], mappedPoints[it*2+1]))
+                result.add(Pair(mappedPoints[it * 2], mappedPoints[it * 2 + 1]))
             }
 
             return result
+        }
+
+        @JvmStatic
+        fun redirectToSettings(@StringRes title:Int, @StringRes text:Int, context: Context) {
+            val builder = AlertDialog.Builder(context)
+            builder.setTitle(title)
+                    .setMessage(text)
+            builder.apply {
+                setNegativeButton(R.string.cancel){ dialog, id ->
+
+                }
+                setPositiveButton(R.string.go_to_settings) { dialog, id ->
+                    val intent =  Intent()
+                    intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                    val uri = Uri.fromParts ("package", context.packageName, null)
+                    intent.data = uri
+                    context.startActivity(intent)
+                }
+            }
+            builder.show()
         }
     }
 
 
 }
 
-fun SpannableStringBuilder.setClickableSpan(textToClick:String, index:Int=-1, color:Int = Utils.colorBlack, onClickListener : ()->Unit):SpannableStringBuilder{
+fun SpannableStringBuilder.setClickableSpan(textToClick: String, index: Int = -1, color: Int = Utils.colorBlack, onClickListener: () -> Unit): SpannableStringBuilder {
     val clickableSpan = object : ClickableSpan() {
         override fun onClick(widget: View?) = onClickListener.invoke()
         override fun updateDrawState(ds: TextPaint) {
@@ -353,13 +385,24 @@ fun SpannableStringBuilder.setClickableSpan(textToClick:String, index:Int=-1, co
 
         }
     }
-    val start = if(index!=-1)index else indexOf(textToClick)
+    val start = if (index != -1) index else indexOf(textToClick)
     setSpan(clickableSpan,
             start,
             start + textToClick.length,
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
     return this
 }
+
+fun SpannableStringBuilder.setColorSpan(textToColor: String,index: Int = -1,color: Int = Utils.colorBlack):SpannableStringBuilder{
+    val colorSpan = ForegroundColorSpan(color)
+    val start = if (index != -1) index else indexOf(textToColor)
+    setSpan(colorSpan,
+            start,
+            start + textToColor.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+    return this
+}
+
 fun Bitmap.rotate(degrees: Float): Bitmap {
     val matrix = Matrix().apply { postRotate(degrees) }
     return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)

@@ -32,7 +32,7 @@ import retrofit2.Callback;
 import static io.replicants.instaclone.pojos.You.youFromJsonArray;
 
 
-public class YouSubFragment extends BaseSubFragment {
+public class YouSubFragment2 extends BaseSubFragment {
 
     private ArrayList<You> youFeedItems;
     private YouAdapter youAdapter;
@@ -40,8 +40,8 @@ public class YouSubFragment extends BaseSubFragment {
 //    private ProgressBar you_progressbar;
 
 
-    public static YouSubFragment newInstance() {
-        YouSubFragment fragment = new YouSubFragment();
+    public static YouSubFragment2 newInstance() {
+        YouSubFragment2 fragment = new YouSubFragment2();
 
         Bundle args = new Bundle();
         fragment.setArguments(args);

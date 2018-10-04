@@ -12,7 +12,7 @@
         android:title="Discover"/>
 
     <item
-        android:id="@+id/navigation_add_photo"
+        android:id="@+id/navigation_upload_photo"
         android:icon="@drawable/icon_nav_add_photo"
         android:title="Add Photo"/>
 

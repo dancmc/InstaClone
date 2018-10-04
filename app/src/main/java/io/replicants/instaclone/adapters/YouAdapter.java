@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -21,12 +20,9 @@ import java.util.ArrayList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.replicants.instaclone.R;
-import io.replicants.instaclone.pojos.Following;
 import io.replicants.instaclone.pojos.You;
-import io.replicants.instaclone.utilities.FollowingBaseViewHolder;
 import io.replicants.instaclone.utilities.GlideHeader;
 import io.replicants.instaclone.utilities.Utils;
-import io.replicants.instaclone.utilities.YouBaseViewHolder;
 
 
 public class YouAdapter extends RecyclerView.Adapter<YouBaseViewHolder> {

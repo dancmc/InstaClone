@@ -177,6 +177,10 @@ class GalleryPagerFragment : BaseSubFragment() {
         return resultList
     }
 
+    private fun refresh(){
+        //todo
+    }
+
 
     data class ImageDirectory(var id: Int, var albumName: String) : Serializable {
         override fun hashCode(): Int {

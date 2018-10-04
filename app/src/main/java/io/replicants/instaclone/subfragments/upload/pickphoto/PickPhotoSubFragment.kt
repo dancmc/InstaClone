@@ -18,16 +18,13 @@ class PickPhotoSubFragment: BaseSubFragment() {
 
     lateinit var layout:View
     var photoTakenListener: PhotoObtainedListener? = null
-    lateinit var adapter : MyAdapter
+    lateinit var adapter : PickPhotoVPAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         layout = inflater.inflate(R.layout.subfragment_pick_photo, container, false)
 
-        adapter = MyAdapter(childFragmentManager, photoTakenListener)
+        adapter = PickPhotoVPAdapter(childFragmentManager, photoTakenListener)
         layout.subfragment_pick_photo_viewpager.adapter = adapter
         (layout.subfragment_pick_photo_tabs as TabLayout).setupWithViewPager(layout.subfragment_pick_photo_viewpager)
         layout.subfragment_pick_photo_viewpager.currentItem = 1
@@ -35,7 +32,7 @@ class PickPhotoSubFragment: BaseSubFragment() {
         return layout
     }
 
-    class MyAdapter(fm:FragmentManager, var photoObtainedListener: PhotoObtainedListener?) : FragmentStatePagerAdapter(fm) {
+    class PickPhotoVPAdapter(fm:FragmentManager, var photoObtainedListener: PhotoObtainedListener?) : FragmentStatePagerAdapter(fm) {
 
         override fun getCount(): Int {
             return 2

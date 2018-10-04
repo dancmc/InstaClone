@@ -29,7 +29,7 @@ import org.json.JSONObject
 class UserListAdapter(private val context: Activity, private val dataset: ArrayList<User?>, private val recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var clickListeners: BaseMainFragment.ClickListeners? = null
-    var onLoadMoreListener: FeedAdapter.OnLoadMoreListener? = null
+    var onLoadMoreListener: UserListAdapter.OnLoadMoreListener? = null
     var currentlyLoading = false
     var canLoadMore = true
 
@@ -149,6 +149,10 @@ class UserListAdapter(private val context: Activity, private val dataset: ArrayL
                 }
             }
         }))
+    }
+
+    interface OnLoadMoreListener {
+        fun onLoadMore()
     }
 
 }

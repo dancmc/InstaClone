@@ -213,7 +213,9 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
 
                 holder.tvProfileName.text = displayNameBuilder
 
-                holder.tvDistance.text = if (feedItem.distance > 0) Utils.formatDistance(feedItem.distance) else ""
+                holder.tvDistance.text = if (
+                        Utils.validateLatLng(feedItem.latitude, feedItem.longitude) &&
+                        feedItem.distance >= 0) Utils.formatDistance(feedItem.distance) else ""
 
                 if (feedItem.locationName.isNotBlank()) {
                     holder.tvLocationName.visibility = View.VISIBLE
@@ -305,14 +307,12 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
 
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(feedItem.profileImage))
-//                .placeholder(R.drawable.icon_android)
                         .into(holder.ivProfileHead)
 
 
                 if (feedItem.regularUrl.isNotBlank()) {
                     Glide.with(context)
                             .load(GlideHeader.getUrlWithHeaders(feedItem.regularUrl))
-//                    .placeholder(R.drawable.icon_placeholder)
                             .listener(object : RequestListener<Drawable> {
                                 override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
                                     return false

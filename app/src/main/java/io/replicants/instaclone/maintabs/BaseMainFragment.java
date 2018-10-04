@@ -61,7 +61,7 @@ public class BaseMainFragment extends Fragment {
             ProfileSubFragment fragment = ProfileSubFragment.newInstance(displayName);
 
             Toolbar toolbar = (Toolbar)LayoutInflater.from(getContext()).inflate(R.layout.toolbar_basic, null, false);
-            toolbar.setTitle(R.string.app_name);
+            toolbar.setTitle(displayName);
             fragment.setToolbar(toolbar);
 
             changeFragment(fragment);

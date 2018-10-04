@@ -1,21 +1,22 @@
 package io.replicants.instaclone.activities
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_main.*
 import android.util.TypedValue
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.*
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.utilities.MyApplication
 import io.replicants.instaclone.utilities.Prefs
+import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.toast
 import org.json.JSONObject
 import retrofit2.Call
@@ -31,13 +32,14 @@ class MainActivity : AppCompatActivity() {
         private val TAG_DISCOVER = "discover"
         private val TAG_ACTIVITY = "activity"
         private val TAG_PROFILE = "profile"
+        private val UPLOAD_PHOTO_REQUEST = 3123
     }
 
 
     private var backStack = ArrayList<String>()
     private var currentFragment = ""
     private var backPressed = false
-
+    private var finishedUploading = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,6 +82,8 @@ class MainActivity : AppCompatActivity() {
                 }
             })
         }
+
+
     }
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
@@ -92,9 +96,9 @@ class MainActivity : AppCompatActivity() {
                 switchFragment(TAG_DISCOVER)
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_add_photo -> {
+            R.id.navigation_upload_photo -> {
                 val intent = Intent(this, UploadPhotoActivity::class.java)
-                startActivity(intent)
+                startActivityForResult(intent, UPLOAD_PHOTO_REQUEST)
                 return@OnNavigationItemSelectedListener false
             }
             R.id.navigation_activity -> {
@@ -211,5 +215,28 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(requestCode== UPLOAD_PHOTO_REQUEST && resultCode == Activity.RESULT_OK){
+
+            toast("Successfully uploaded photo!")
+            finishedUploading = true
+
+
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if(finishedUploading){
+            switchFragment(TAG_PROFILE)
+            finishedUploading = false
+
+            // todo refresh profile
+
+//            (supportFragmentManager.findFragmentByTag(currentFragment) as? ProfileMainFragment?)?.refresh()
+        }
+
     }
 }

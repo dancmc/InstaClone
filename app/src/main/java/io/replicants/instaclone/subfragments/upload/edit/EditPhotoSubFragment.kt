@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import io.realm.Realm
 import io.replicants.instaclone.R
@@ -53,6 +54,10 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
 
     lateinit var layout: View
     lateinit var imageView: ZoomRotateImageView
+    val realm = Realm.getDefaultInstance()
+    var filepath = ""
+    var photoID = ""
+    lateinit var saveDialog : AlertDialog
 
     var currentRotation = 0f
     var savedCurrentRotation = 0f
@@ -72,20 +77,45 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
     var savedFilter = ""
     lateinit var savedState: ZoomRotateImageViewState
 
-    var listener: PhotoEditedListener? = null
+    var listener: PhotoEditListener? = null
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         layout = inflater.inflate(R.layout.subfragment_edit_photo, container, false)
 
-        val filename = arguments!!.getString("fileName") ?: ""
-        val photoID = arguments!!.getString("photoID") ?: ""
+        filepath = arguments?.getString("fileName") ?: ""
+        photoID = arguments?.getString("photoID") ?: ""
+
+        context?.let {
+            val builder = AlertDialog.Builder(it)
+            builder.setTitle(R.string.save_draft_title)
+                    .setMessage(R.string.save_draft_text)
+            builder.apply {
+                setNegativeButton(R.string.discard){ dialog, id ->
+                    listener?.editCancelled()
+                }
+                setPositiveButton(R.string.save_draft) { dialog, id ->
+                    realm.beginTransaction()
+                    val savedPhoto = realm.where(SavedPhoto::class.java).equalTo("photoID", photoID).findFirst() ?:
+                    SavedPhoto()
+                    savedPhoto.photoID = photoID
+                    savedPhoto.temp = false
+                    savedPhoto.photoFile = filepath
+                    savedPhoto.editPhotoState = saveState()
+                    savedPhoto.imageViewState = imageView.saveState()
+                    realm.copyToRealmOrUpdate(savedPhoto)
+                    realm.commitTransaction()
+                    listener?.editCancelled()
+                }
+            }
+            saveDialog = builder.create()
+        }
 
 
         //create the overall bitmap
         var options = BitmapFactory.Options()
         options.inJustDecodeBounds = true
-        BitmapFactory.decodeFile(filename, options)
+        BitmapFactory.decodeFile(filepath, options)
         val rawWidth = options.outWidth
         val rawHeight = options.outHeight
         val rawShortestSide = Math.min(options.outHeight, options.outWidth)
@@ -95,7 +125,7 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
         // somewhat arbitrary - but insamplesize only takes powers of 2 so just have to choose a number
         val sampleSize = if (rawShortestSide <= 1200) 1 else rawShortestSide / 1200 + 1
         options.inSampleSize = sampleSize
-        val bitmap = BitmapFactory.decodeFile(filename, options)
+        val bitmap = BitmapFactory.decodeFile(filepath, options)
         val sampleImageWidth = options.outWidth
         val sampleImageHeight = options.outHeight
 
@@ -126,11 +156,12 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
         imageView.setImageBitmap(bitmap)
 
         // set variables depending on whether loading draft or new photo
-        val draft = Realm.getDefaultInstance().where(SavedPhoto::class.java).equalTo("photoID", photoID).findFirst()
+        val draft = realm.where(SavedPhoto::class.java).equalTo("photoID", photoID).findFirst()
         if (draft == null) {
             savedMatrix.postScale(scale, scale)
             imageView.setMinZoom(scale)
         } else {
+            filepath = draft.photoFile
             restoreState(draft.editPhotoState)
             imageView.restoreState(draft.imageViewState)
         }
@@ -150,7 +181,7 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
 
         // Setup the toolbar
         layout.subfragment_edit_photo_toolbar_back.onClick {
-            listener?.editCancelled()
+            saveDialog.show()
         }
 
         layout.subfragment_edit_photo_toolbar_next.onClick {
@@ -169,7 +200,7 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
             val finalSampleSize = if (rawLongestSide <= 2160) 1 else rawLongestSide / 2160 + 1
             val newOptions = BitmapFactory.Options()
             newOptions.inSampleSize = finalSampleSize
-            val finalBitmapRaw = BitmapFactory.decodeFile(filename, newOptions)
+            val finalBitmapRaw = BitmapFactory.decodeFile(filepath, newOptions)
             val finalBitmapWidth = newOptions.outWidth
             val finalBitmapHeight = newOptions.outHeight
 
@@ -263,11 +294,12 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
             }
 
 
-            listener?.photoEdited(photoID, filename)
+            listener?.photoEdited(photoID, filepath)
         }
 
         return layout
     }
+
 
     override fun onRotateRatchetScrolled(centre: Float, current: Float, max: Float, display: TextView) {
         val rawIntendedRotation = (current - centre) / (max - centre) * 50f
@@ -283,7 +315,7 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
         rotateImage()
     }
 
-    fun rationaliseRotation(deg: Float): Float {
+    private fun rationaliseRotation(deg: Float): Float {
 
         var newRotate = (deg) % 360
         newRotate = if (newRotate < 0f) newRotate + 360f else newRotate
@@ -344,17 +376,16 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
         tx.commit()
     }
 
-    fun switchToEditingToolbar(title: String) {
+    private fun switchToEditingToolbar(title: String) {
         layout.subfragment_edit_photo_toolbar_back.visibility = View.GONE
         layout.subfragment_edit_photo_toolbar_next.visibility = View.GONE
-        layout.subfragment_edit_photo_toolbar_title.visibility = View.VISIBLE
         layout.subfragment_edit_photo_toolbar_title.text = title
     }
 
-    fun switchToOverallToolbar() {
+    private fun switchToOverallToolbar() {
         layout.subfragment_edit_photo_toolbar_back.visibility = View.VISIBLE
         layout.subfragment_edit_photo_toolbar_next.visibility = View.VISIBLE
-        layout.subfragment_edit_photo_toolbar_title.visibility = View.GONE
+        layout.subfragment_edit_photo_toolbar_title.text = getString(R.string.edit_photo)
     }
 
     override fun goToFilter() {
@@ -387,7 +418,7 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
         imageView.colorFilter = colorFilter
     }
 
-    override fun cancelCurrentEdit(): Boolean {
+    override fun cancelCurrentEdit():Boolean {
 
         switchToOverallToolbar()
 
@@ -418,10 +449,12 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
             }
             childFragmentManager.popBackStack()
 
-            return true
+        } else {
+            if(saveDialog.isShowing) saveDialog.cancel() else saveDialog.show()
         }
         return false
     }
+
 
     override fun done() {
         switchToOverallToolbar()
@@ -436,8 +469,8 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
         }
     }
 
-    interface PhotoEditedListener {
-        fun photoEdited(photoID: String, fileName: String)
+    interface PhotoEditListener {
+        fun photoEdited(photoID: String, postFilepath: String)
 
         fun editCancelled()
     }

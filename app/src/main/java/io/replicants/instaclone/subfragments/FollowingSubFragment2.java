@@ -31,7 +31,7 @@ import retrofit2.Callback;
 
 import static io.replicants.instaclone.pojos.Following.followingFromJsonArray;
 
-public class FollowingSubFragment extends BaseSubFragment {
+public class FollowingSubFragment2 extends BaseSubFragment {
 
     private ArrayList<Following> followingFeedItems;
     FollowingAdapter followingAdapter;
@@ -39,8 +39,8 @@ public class FollowingSubFragment extends BaseSubFragment {
 //    ProgressBar progressbar;
 
 
-    public static FollowingSubFragment newInstance() {
-        FollowingSubFragment fragment = new FollowingSubFragment();
+    public static FollowingSubFragment2 newInstance() {
+        FollowingSubFragment2 fragment = new FollowingSubFragment2();
 
         Bundle args = new Bundle();
         fragment.setArguments(args);
