@@ -26,6 +26,7 @@ class CommentsSubFragment : BaseSubFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = inflater.inflate(R.layout.subfragment_comments, container, false)
 
+        //todo
         return layout
     }
 }

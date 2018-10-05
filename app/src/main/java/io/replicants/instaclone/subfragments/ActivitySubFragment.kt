@@ -73,4 +73,8 @@ class ActivitySubFragment : BaseSubFragment() {
             }
         }
     }
+
+    fun refreshRequests(){
+        (adapter.getItem(1) as? ActivitySelfSubFragment)?.refresh()
+    }
 }

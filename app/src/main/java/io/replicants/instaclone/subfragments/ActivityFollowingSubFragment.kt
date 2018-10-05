@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.replicants.instaclone.R
@@ -13,6 +12,8 @@ import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.pojos.*
 import kotlinx.android.synthetic.main.subfragment_activity_following.view.*
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -34,7 +35,7 @@ class ActivityFollowingSubFragment : BaseSubFragment() {
     lateinit var layout:View
     lateinit var recyclerView:RecyclerView
     lateinit var adapter:ActivityFollowingAdapter
-    private val activityItems = ArrayList<ActivityFollowing>()
+    private val activityItems = ArrayList<ActivityBase>()
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -67,16 +68,22 @@ class ActivityFollowingSubFragment : BaseSubFragment() {
     private fun initialLoad(){
         InstaApi.getFollowingActivity().enqueue(InstaApi.generateCallback(context, object:InstaApiCallback(){
             override fun success(jsonResponse: JSONObject?) {
-                val activityArray = jsonResponse?.optJSONArray("activities")?: JSONArray()
-                activityItems.addAll(processJsonArray(activityArray))
-                adapter.notifyDataSetChanged()
-                layout.subfragment_activity_following_refresh.isRefreshing = false
+                doAsync {
+                    val activityArray = jsonResponse?.optJSONArray("activities")?: JSONArray()
+                    val processedItems = processJsonArray(activityArray)
+                    uiThread {
+                        activityItems.clear()
+                        activityItems.addAll(processedItems)
+                        adapter.notifyDataSetChanged()
+                        layout.subfragment_activity_following_refresh.isRefreshing = false
+                    }
+                }
             }
         }))
     }
 
-    private fun processJsonArray(jsonArray:JSONArray):ArrayList<ActivityFollowing>{
-        val list = ArrayList<ActivityFollowing>()
+    private fun processJsonArray(jsonArray:JSONArray):ArrayList<ActivityBase>{
+        val list = ArrayList<ActivityBase>()
         for (i in 0 until jsonArray.length()){
             val activityObject = jsonArray.getJSONObject(i)
             val type = activityObject.getInt("type")

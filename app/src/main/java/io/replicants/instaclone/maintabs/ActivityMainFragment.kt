@@ -9,10 +9,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.google.android.material.tabs.TabLayout
 import io.replicants.instaclone.R
-import io.replicants.instaclone.subfragments.ActivityFollowingSubFragment
-import io.replicants.instaclone.subfragments.ActivitySelfSubFragment
-import io.replicants.instaclone.subfragments.ActivitySubFragment
-import io.replicants.instaclone.subfragments.FeedSubFragment
+import io.replicants.instaclone.subfragments.*
 import io.replicants.instaclone.subfragments.upload.pickphoto.CameraPagerFragment
 import io.replicants.instaclone.subfragments.upload.pickphoto.GalleryPagerFragment
 import io.replicants.instaclone.subfragments.upload.pickphoto.PickPhotoSubFragment
@@ -34,6 +31,7 @@ class ActivityMainFragment : BaseMainFragment() {
         }
     }
 
+    var comingFromRequestList = false
     lateinit var layout: View
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -50,6 +48,20 @@ class ActivityMainFragment : BaseMainFragment() {
         return layout
     }
 
+    override fun beforeFragmentPopped() {
+        for (frag in childFragmentManager.fragments) {
+            if (frag.isVisible && frag is ApproveListSubFragment) {
+                comingFromRequestList = true
+            }
+        }
+    }
 
-
+    override fun afterFragmentPopped() {
+        for (frag in childFragmentManager.fragments) {
+            if (frag.isVisible && frag is ActivitySubFragment && comingFromRequestList) {
+                frag.refreshRequests()
+                comingFromRequestList = false
+            }
+        }
+    }
 }

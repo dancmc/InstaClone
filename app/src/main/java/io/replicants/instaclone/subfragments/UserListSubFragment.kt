@@ -27,6 +27,7 @@ class UserListSubFragment : BaseSubFragment() {
 
     var users = ArrayList<User?>()
     var callType : CallType? = null
+    var title = ""
     var id :String? = null
     var recent:Int? = null
     lateinit var recyclerView: RecyclerView
@@ -65,6 +66,7 @@ class UserListSubFragment : BaseSubFragment() {
             users.clear()
             when(callType){
                 CallType.FOLLOWERS->{
+                    title = "Followers"
                     InstaApi.getFollowers(id, null).enqueue(InstaApi.generateCallback(context, object:InstaApiCallback(){
                         override fun success(jsonResponse: JSONObject?) {
                             users.addAll(Utils.usersFromJsonArray(jsonResponse?.optJSONArray("followers")?: JSONArray()))
@@ -73,6 +75,7 @@ class UserListSubFragment : BaseSubFragment() {
                     }))
                 }
                 CallType.FOLLOWING->{
+                    title = "Following"
                     InstaApi.getFollowing(id, null).enqueue(InstaApi.generateCallback(context, object:InstaApiCallback(){
                         override fun success(jsonResponse: JSONObject?) {
                             users.addAll(Utils.usersFromJsonArray(jsonResponse?.optJSONArray("following")?: JSONArray()))
@@ -81,6 +84,7 @@ class UserListSubFragment : BaseSubFragment() {
                     }))
                 }
                 CallType.FOLLOWINGWHOFOLLOW->{
+                    title = "Users"
                     InstaApi.getFollowingWhoFollow(id, null).enqueue(InstaApi.generateCallback(context, object:InstaApiCallback(){
                         override fun success(jsonResponse: JSONObject?) {
                             users.addAll(Utils.usersFromJsonArray(jsonResponse?.optJSONArray("users")?: JSONArray()))
@@ -89,6 +93,7 @@ class UserListSubFragment : BaseSubFragment() {
                     }))
                 }
                 CallType.LIKES->{
+                    title = "Likes"
                     InstaApi.getLikes(id, recent, null).enqueue(InstaApi.generateCallback(context, object:InstaApiCallback(){
                         override fun success(jsonResponse: JSONObject?) {
                             users.addAll(Utils.usersFromJsonArray(jsonResponse?.optJSONArray("likes")?: JSONArray()))
@@ -98,6 +103,8 @@ class UserListSubFragment : BaseSubFragment() {
                 }
             }
         }
+
+        layout.subfragment_user_list_toolbar.title = title
 
         adapter.onLoadMoreListener = object : UserListAdapter.OnLoadMoreListener {
             override fun onLoadMore() {
@@ -166,8 +173,9 @@ class UserListSubFragment : BaseSubFragment() {
         adapter.currentlyLoading = false
     }
 
-    fun setUserList(users : ArrayList<User?>){
+    fun setUserList(users : ArrayList<User?>, title:String){
         this.users = users
+        this.title = title
     }
 
     fun setCall(callType:CallType, id:String, recent:Int?=null){

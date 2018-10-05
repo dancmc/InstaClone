@@ -161,10 +161,11 @@ class MainActivity : AppCompatActivity() {
         val fm = supportFragmentManager
         for (frag in fm.fragments) {
             if (frag.isVisible) {
-                val childFm = frag.childFragmentManager
-                if (childFm.backStackEntryCount > 0) {
-                    childFm.popBackStack()
-                    return
+                // give opportunity for mainfragment to consume back press
+                if(frag is BaseMainFragment){
+                    if(frag.handleBackPress()){
+                        return
+                    }
                 }
             }
         }

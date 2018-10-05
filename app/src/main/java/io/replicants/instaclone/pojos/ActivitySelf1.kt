@@ -4,7 +4,7 @@ import io.replicants.instaclone.utilities.Utils
 import org.json.JSONArray
 import org.json.JSONObject
 
-class ActivitySelf1 :ActivityFollowing{
+class ActivitySelf1 :ActivityBase{
 
     var timestamp = 0L
     var users = ArrayList<User>()

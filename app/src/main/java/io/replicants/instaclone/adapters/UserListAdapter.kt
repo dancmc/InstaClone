@@ -97,7 +97,7 @@ class UserListAdapter(private val context: Activity, private val dataset: ArrayL
                     1 -> {
                         holder.btnFollow.text = "Following"
                         holder.btnFollow.onClick {
-                            unfollow(holder.btnFollow, userItem!!)
+                            unfollow(holder.btnFollow, userItem)
                         }
                     }
                     2 -> {

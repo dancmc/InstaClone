@@ -245,6 +245,10 @@ class FeedSubFragment : BaseSubFragment() {
                 layout.subfragment_feed_refresh.isRefreshing = false
                 // TODO consider displaying reload button
             }
+
+            override fun networkFailure(context: Context?) {
+                layout.subfragment_feed_refresh.isRefreshing = false
+            }
         }
     }
 

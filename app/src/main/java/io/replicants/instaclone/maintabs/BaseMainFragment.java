@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import io.replicants.instaclone.R;
 import io.replicants.instaclone.pojos.User;
+import io.replicants.instaclone.subfragments.ApproveListSubFragment;
 import io.replicants.instaclone.subfragments.BaseSubFragment;
 import io.replicants.instaclone.subfragments.CommentsSubFragment;
 import io.replicants.instaclone.subfragments.EditProfileSubFragment;
@@ -27,9 +28,9 @@ public class BaseMainFragment extends Fragment {
     ClickListeners clickListeners = new ClickListeners() {
 
         @Override
-        public void moveToUserListSubFragmentWithList(ArrayList<User> users) {
+        public void moveToUserListSubFragmentWithList(ArrayList<User> users, String title) {
             UserListSubFragment frag = UserListSubFragment.newInstance();
-            frag.setUserList(users);
+            frag.setUserList(users, title);
             changeFragment(frag);
         }
 
@@ -72,7 +73,10 @@ public class BaseMainFragment extends Fragment {
             changeFragment(EditProfileSubFragment.Companion.newInstance(displayName));
         }
 
-
+        @Override
+        public void moveToApproveListSubFragment(ArrayList<User> users) {
+            changeFragment(ApproveListSubFragment.Companion.newInstance(users));
+        }
     };
 
     private void changeFragment(BaseSubFragment fragment) {
@@ -93,8 +97,28 @@ public class BaseMainFragment extends Fragment {
 
     }
 
+    // return true if did custom handle otherwise false
+    public boolean handleBackPress(){
+        FragmentManager childFm = getChildFragmentManager();
+        if (childFm.getBackStackEntryCount() > 0) {
+            beforeFragmentPopped();
+            childFm.popBackStackImmediate();
+            afterFragmentPopped();
+            return true;
+        }
+        return false;
+    }
+
+    void beforeFragmentPopped(){
+
+    }
+
+    void afterFragmentPopped(){
+
+    }
+
     public interface ClickListeners {
-        public void moveToUserListSubFragmentWithList(ArrayList<User> users);
+        public void moveToUserListSubFragmentWithList(ArrayList<User> users, String title);
 
         public void moveToUserListSubFragmentWithCall(UserListSubFragment.CallType callType, String id);
 
@@ -107,6 +131,8 @@ public class BaseMainFragment extends Fragment {
         public void moveToProfileSubFragment(String displayName);
 
         public void moveToEditProfileSubFragment(String displayName);
+
+        public void moveToApproveListSubFragment(ArrayList<User> users);
 
     }
 }

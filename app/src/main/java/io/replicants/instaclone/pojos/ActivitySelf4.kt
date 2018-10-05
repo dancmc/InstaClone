@@ -4,7 +4,7 @@ import io.replicants.instaclone.utilities.Utils
 import org.json.JSONArray
 import org.json.JSONObject
 
-class ActivitySelf4 :ActivityFollowing{
+class ActivitySelf4 :ActivityBase{
 
     var requests = ArrayList<User>()
 

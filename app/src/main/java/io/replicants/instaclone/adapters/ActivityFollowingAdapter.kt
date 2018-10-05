@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.BaseMainFragment
-import io.replicants.instaclone.pojos.ActivityFollowing
+import io.replicants.instaclone.pojos.ActivityBase
 import io.replicants.instaclone.pojos.ActivityFollowing1
 import io.replicants.instaclone.pojos.ActivityFollowing2
 import io.replicants.instaclone.pojos.ActivityFollowing3
@@ -26,7 +26,7 @@ import kotlinx.android.synthetic.main.adapter_activityfollowing3.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.util.*
 
-class ActivityFollowingAdapter(private val context: Activity, private val dataset: ArrayList<ActivityFollowing>, private val recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ActivityFollowingAdapter(private val context: Activity, private val dataset: ArrayList<ActivityBase>, private val recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var clickListeners: BaseMainFragment.ClickListeners? = null
 
@@ -168,9 +168,11 @@ class ActivityFollowingAdapter(private val context: Activity, private val datase
                 val time = Utils.formatDateForActivity(item.timestamp)
                 if (item.totalLiked > item.previewUsers.size) {
                     val num = item.totalLiked - item.previewUsers.size
-                    textBuilder.append(" and $num ${if (num == 1) "other" else "others"}")
+                    textBuilder.append(" and ")
+                    textBuilder.bold { append("$num ${if (num == 1) "other" else "others"}") }
                 }
                 textBuilder.append(" liked a photo. $time")
+                        .setColorSpan(time, color = ContextCompat.getColor(context, R.color.grey400))
 
                 item.previewUsers.forEach{
                     textBuilder.setClickableSpan(it.displayName){
@@ -202,7 +204,8 @@ class ActivityFollowingAdapter(private val context: Activity, private val datase
                         .bold { append(item.usersFollowed[0].displayName) }
                 if (item.usersFollowed.size != 1) {
                     val remaining = item.usersFollowed.size - 1
-                    textBuilder.append(" and $remaining ${if (remaining == 1) "other" else "others"}")
+                    textBuilder.append(" and ")
+                    textBuilder.bold { append("$remaining ${if (remaining == 1) "other" else "others"}") }
                 }
                 val time = Utils.formatDateForActivity(item.timestamp)
                 textBuilder.append(". $time")
@@ -210,7 +213,7 @@ class ActivityFollowingAdapter(private val context: Activity, private val datase
                 holder.tvText.text = textBuilder
 
                 holder.tvText.onClick {
-                    clickListeners?.moveToUserListSubFragmentWithList(item.usersFollowed)
+                    clickListeners?.moveToUserListSubFragmentWithList(item.usersFollowed, "${item.usersFollowed.size} users")
                 }
             }
         }

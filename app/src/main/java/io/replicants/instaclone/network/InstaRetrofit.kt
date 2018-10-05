@@ -46,7 +46,7 @@ class InstaRetrofit {
         @POST("user/login")
         fun userLogin(@Body json: String): Call<String>
 
-        @GET("validate")
+        @GET("user/validate")
         fun validate(): Call<String>
 
         @GET("feed")

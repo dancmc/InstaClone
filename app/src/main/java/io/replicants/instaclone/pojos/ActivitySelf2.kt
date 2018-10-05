@@ -4,7 +4,7 @@ import io.replicants.instaclone.utilities.Utils
 import org.json.JSONArray
 import org.json.JSONObject
 
-class ActivitySelf2 :ActivityFollowing{
+class ActivitySelf2 :ActivityBase{
 
     var timestamp = 0L
     var photo = Photo()
