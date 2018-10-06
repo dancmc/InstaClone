@@ -11,7 +11,7 @@ import com.google.android.material.tabs.TabLayout
 import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.ActivityMainFragment
 import io.replicants.instaclone.maintabs.BaseMainFragment
-import kotlinx.android.synthetic.main.mainfragment_activity.view.*
+import kotlinx.android.synthetic.main.mainfragment_activity.*
 import kotlinx.android.synthetic.main.subfragment_activity_pager.view.*
 
 class ActivitySubFragment : BaseSubFragment() {
@@ -33,16 +33,15 @@ class ActivitySubFragment : BaseSubFragment() {
     lateinit var adapter : ActivitySubFragment.ActivityVPAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        layout = inflater.inflate(R.layout.subfragment_activity_pager, container, false)
+        if(!this::layout.isInitialized) {
+            layout = inflater.inflate(R.layout.subfragment_activity_pager, container, false)
 
+            adapter = ActivityVPAdapter(childFragmentManager, clickListeners)
+            layout.subfragment_activity_viewpager.adapter = adapter
+            (layout.subfragment_activity_tabs as TabLayout).setupWithViewPager(layout.subfragment_activity_viewpager)
+            layout.subfragment_activity_viewpager.currentItem = 1
 
-
-        adapter = ActivityVPAdapter(childFragmentManager, clickListeners)
-        layout.subfragment_activity_viewpager.adapter = adapter
-        (layout.subfragment_activity_tabs as TabLayout).setupWithViewPager(layout.subfragment_activity_viewpager)
-        layout.subfragment_activity_viewpager.currentItem = 1
-
-
+        }
         return layout
     }
 

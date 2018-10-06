@@ -36,12 +36,15 @@
         <TextView
             android:id="@+id/subfragment_post_photo_toolbar_post"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="right"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
             android:layout_marginRight="16dp"
             android:text="Post"
             android:textSize="18sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:gravity="center"/>
     </androidx.appcompat.widget.Toolbar>
 
     <ImageView
@@ -50,7 +53,7 @@
         android:layout_height="0dp"
         android:background="@color/white"
         app:layout_constraintDimensionRatio="1"
-        android:scaleType="center"
+        android:scaleType="fitCenter"
         app:layout_constraintTop_toBottomOf="@id/subfragment_post_photo_toolbar"/>
 
     <com.google.android.material.textfield.TextInputLayout

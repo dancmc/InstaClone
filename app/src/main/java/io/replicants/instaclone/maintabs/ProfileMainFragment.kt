@@ -7,12 +7,17 @@ import android.view.ViewGroup
 
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import io.replicants.instaclone.R
+import io.replicants.instaclone.network.InstaApi
+import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.subfragments.EditProfileSubFragment
 import io.replicants.instaclone.subfragments.ProfileSubFragment
 import io.replicants.instaclone.utilities.Prefs
+import io.replicants.instaclone.utilities.Utils
+import org.json.JSONObject
 
 class ProfileMainFragment : BaseMainFragment(), EditProfileSubFragment.EditProfileFinished {
 
@@ -30,7 +35,7 @@ class ProfileMainFragment : BaseMainFragment(), EditProfileSubFragment.EditProfi
     }
 
     lateinit var manager: FragmentManager
-
+    lateinit var toolbar:Toolbar
 
     @Nullable
     override fun onCreateView(@NonNull inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -39,14 +44,14 @@ class ProfileMainFragment : BaseMainFragment(), EditProfileSubFragment.EditProfi
         val displayName = Prefs.getInstance().readString(Prefs.DISPLAY_NAME,"")
 
         // stand alone toolbar for profile
-        val toolbar = LayoutInflater.from(context).inflate(R.layout.profile_toolbar, null, false) as androidx.appcompat.widget.Toolbar
+        toolbar = LayoutInflater.from(context).inflate(R.layout.profile_toolbar, null, false) as androidx.appcompat.widget.Toolbar
         toolbar.title = displayName
 
         manager = childFragmentManager
         val tx = manager.beginTransaction()
         val profileFrag = ProfileSubFragment.newInstance(displayName)
 
-        profileFrag.changeToolbar(toolbar)
+        profileFrag.toolbar = toolbar
         profileFrag.clickListeners = this.clickListeners
 
         tx.add(R.id.fragment_overall_container, profileFrag, "profile_base")
@@ -56,21 +61,16 @@ class ProfileMainFragment : BaseMainFragment(), EditProfileSubFragment.EditProfi
     }
 
     override fun editProfileFinished() {
-        var fragment: Fragment?=null
-        manager.fragments.forEach {
-            if(it is EditProfileSubFragment){
-                fragment = it
-            }
-        }
-        val tx = manager.beginTransaction()
-        if(fragment!=null){
-            tx.remove(fragment!!)
-        }
-        tx.commit()
+        manager.popBackStack()
 
-        val baseFrag = manager.findFragmentByTag("profile_base")
-        if(baseFrag!=null){
-            (baseFrag as ProfileSubFragment).reload()
+    }
+
+    fun showUploaded(){
+        childFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        childFragmentManager.fragments.forEach {
+            if(it.isVisible && it is ProfileSubFragment){
+                it.load()
+            }
         }
 
     }

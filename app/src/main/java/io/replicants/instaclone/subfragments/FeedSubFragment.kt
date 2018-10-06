@@ -54,122 +54,125 @@ class FeedSubFragment : BaseSubFragment() {
     var lastLocation: Location? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        layout = inflater.inflate(R.layout.subfragment_feed, container, false)
 
-        locationRequestButton = layout.fragment_feed_button_request_location
-        locationManager = activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+        if(!this::layout.isInitialized) {
+            layout = inflater.inflate(R.layout.subfragment_feed, container, false)
 
-        // deal with toolbar
-        layout.subfragment_feed_toolbar.inflateMenu(R.menu.menu_feed_fragment)
-        layout.subfragment_feed_toolbar.setOnClickListener {
-            if (adapter.itemCount > 0) {
-                // TODO find a way to scroll a bit more slowly
-                recyclerView.scrollToPosition(0)
+            locationRequestButton = layout.subfragment_feed_button_request_location
+            locationManager = activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+
+            // deal with toolbar
+            layout.subfragment_feed_toolbar.inflateMenu(R.menu.menu_feed_fragment)
+            layout.subfragment_feed_toolbar.setOnClickListener {
+                if (adapter.itemCount > 0) {
+                    // TODO find a way to scroll a bit more slowly
+                    recyclerView.scrollToPosition(0)
+                }
             }
-        }
-        layout.subfragment_feed_toolbar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.action_wifi -> {
-                    if (parentFragment is FeedFragmentInterface) {
-                        (parentFragment as FeedFragmentInterface).moveToAdhoc()
-                    }
-                    true
-                }
-                R.id.action_settings -> {
-                    if (parentFragment is FeedFragmentInterface) {
-                        (parentFragment as FeedFragmentInterface).moveToSettings()
-                    }
-                    true
-                }
-                R.id.action_sort_date -> {
-                    Prefs.getInstance().writeString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString())
-                    initialLoad()
-                    true
-                }
-                R.id.action_sort_location -> {
-                    Prefs.getInstance().writeString(Prefs.FEED_SORT, InstaApi.Sort.LOCATION.toString())
-                    initialLoad()
-                    true
-                }
-                R.id.action_sort_grid -> {
-                    layoutManager = GridLayoutManager(activity, 3);
-                    (layoutManager as GridLayoutManager).spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                        override fun getSpanSize(position: Int): Int {
-                            return if (position == 0) 3 else 1
+            layout.subfragment_feed_toolbar.setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.action_wifi -> {
+                        if (parentFragment is FeedFragmentInterface) {
+                            (parentFragment as FeedFragmentInterface).moveToAdhoc()
                         }
+                        true
                     }
-                    recyclerView.setLayoutManager(layoutManager)
-                    true
-                }
-                R.id.action_linear -> {
-                    layoutManager = LinearLayoutManager(activity)
-                    recyclerView.setLayoutManager(layoutManager)
-                    true
-                }
-                else -> {
-                    true
+                    R.id.action_settings -> {
+                        if (parentFragment is FeedFragmentInterface) {
+                            (parentFragment as FeedFragmentInterface).moveToSettings()
+                        }
+                        true
+                    }
+                    R.id.action_sort_date -> {
+                        Prefs.getInstance().writeString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString())
+                        initialLoad()
+                        true
+                    }
+                    R.id.action_sort_location -> {
+                        Prefs.getInstance().writeString(Prefs.FEED_SORT, InstaApi.Sort.LOCATION.toString())
+                        initialLoad()
+                        true
+                    }
+                    R.id.action_sort_grid -> {
+                        layoutManager = GridLayoutManager(activity, 3);
+                        (layoutManager as GridLayoutManager).spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                            override fun getSpanSize(position: Int): Int {
+                                return if (position == 0) 3 else 1
+                            }
+                        }
+                        recyclerView.setLayoutManager(layoutManager)
+                        true
+                    }
+                    R.id.action_linear -> {
+                        layoutManager = LinearLayoutManager(activity)
+                        recyclerView.setLayoutManager(layoutManager)
+                        true
+                    }
+                    else -> {
+                        true
+                    }
                 }
             }
-        }
 
 
-        // deal with the feed list
-        recyclerView = layout.subfragment_feed_recycler
+            // deal with the feed list
+            recyclerView = layout.subfragment_feed_recycler
 
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        recyclerView.setHasFixedSize(true)
-        recyclerView.setItemViewCacheSize(40)
-        recyclerView.setDrawingCacheEnabled(true)
+            // use this setting to improve performance if you know that changes
+            // in content do not change the layout size of the RecyclerView
+            recyclerView.setHasFixedSize(true)
+            recyclerView.setItemViewCacheSize(40)
+            recyclerView.setDrawingCacheEnabled(true)
 
-        // use a linear layout manager
-        layoutManager = LinearLayoutManager(activity)
-        recyclerView.layoutManager = layoutManager
-
-
-        // initialise adapter with the item list, attach adapter to recyclerview
-        // list initially empty
-        adapter = FeedAdapter(activity!!, feedItems, recyclerView)
-        adapter.clickListeners = clickListeners
-        recyclerView.adapter = adapter
+            // use a linear layout manager
+            layoutManager = LinearLayoutManager(activity)
+            recyclerView.layoutManager = layoutManager
 
 
-        // !! onRefresh never triggers if the top view is 0px.........
-        layout.subfragment_feed_refresh.setOnRefreshListener {
+            // initialise adapter with the item list, attach adapter to recyclerview
+            // list initially empty
+            adapter = FeedAdapter(activity!!, feedItems, recyclerView)
+            adapter.clickListeners = clickListeners
+            recyclerView.adapter = adapter
+
+
+            // !! onRefresh never triggers if the top view is 0px.........
+            layout.subfragment_feed_refresh.setOnRefreshListener {
+                initialLoad()
+            }
+            layout.subfragment_feed_refresh.setColorSchemeResources(android.R.color.holo_green_dark,
+                    android.R.color.holo_red_dark,
+                    android.R.color.holo_blue_dark,
+                    android.R.color.holo_orange_dark)
+
+
+            // intial call - either date or location (default date)
             initialLoad()
-        }
-        layout.subfragment_feed_refresh.setColorSchemeResources(android.R.color.holo_green_dark,
-                android.R.color.holo_red_dark,
-                android.R.color.holo_blue_dark,
-                android.R.color.holo_orange_dark)
+
+            adapter.onLoadMoreListener = object : FeedAdapter.OnLoadMoreListener {
+                override fun onLoadMore() {
 
 
-        // intial call - either date or location (default date)
-        initialLoad()
+                    recyclerView.post {
+                        val lastPhotoID = if (feedItems.size > 0) feedItems.last()?.photoID else null
+                        feedItems.add(null)
+                        adapter.notifyItemInserted(feedItems.lastIndex)
 
-        adapter.onLoadMoreListener = object : FeedAdapter.OnLoadMoreListener {
-            override fun onLoadMore() {
+                        if (Prefs.getInstance().readString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString()) == InstaApi.Sort.DATE.toString()) {
+                            InstaApi.getFeed(InstaApi.Sort.DATE, null, null, lastPhotoID).enqueue(InstaApi.generateCallback(activity, loadMoreApiCallback()))
 
-
-                recyclerView.post {
-                    val lastPhotoID = if (feedItems.size > 0) feedItems.last()?.photoID else null
-                    feedItems.add(null)
-                    adapter.notifyItemInserted(feedItems.lastIndex)
-
-                    if (Prefs.getInstance().readString(Prefs.FEED_SORT,InstaApi.Sort.DATE.toString()) == InstaApi.Sort.DATE.toString()) {
-                        InstaApi.getFeed(InstaApi.Sort.DATE, null, null, lastPhotoID).enqueue(InstaApi.generateCallback(activity, loadMoreApiCallback()))
-
-                    } else {
-                        if (lastLocation?.longitude != null) {
-                            InstaApi.getFeed(InstaApi.Sort.LOCATION, lastLocation?.latitude, lastLocation?.longitude, lastPhotoID).enqueue(InstaApi.generateCallback(activity, loadMoreApiCallback()))
                         } else {
-                            adapter.currentlyLoading = false
-                            adapter.canLoadMore = false
-                            activity?.toast("Could not resolve previous location, please reload feed")
+                            if (lastLocation?.longitude != null) {
+                                InstaApi.getFeed(InstaApi.Sort.LOCATION, lastLocation?.latitude, lastLocation?.longitude, lastPhotoID).enqueue(InstaApi.generateCallback(activity, loadMoreApiCallback()))
+                            } else {
+                                adapter.currentlyLoading = false
+                                adapter.canLoadMore = false
+                                activity?.toast("Could not resolve previous location, please loadHeader feed")
+                            }
                         }
                     }
-                }
 
+                }
             }
         }
 
@@ -243,7 +246,6 @@ class FeedSubFragment : BaseSubFragment() {
                     context.toast(failureMessage)
                 }
                 layout.subfragment_feed_refresh.isRefreshing = false
-                // TODO consider displaying reload button
             }
 
             override fun networkFailure(context: Context?) {
@@ -280,7 +282,6 @@ class FeedSubFragment : BaseSubFragment() {
                 feedItems.removeAt(feedItems.lastIndex)
                 adapter.notifyDataSetChanged()
                 adapter.currentlyLoading = false
-                // TODO consider displaying reload button
             }
 
             override fun networkFailure(context: Context) {
@@ -288,7 +289,6 @@ class FeedSubFragment : BaseSubFragment() {
                 feedItems.removeAt(feedItems.lastIndex)
                 adapter.notifyDataSetChanged()
                 adapter.currentlyLoading = false
-                // TODO consider displaying reload button
             }
         }
     }

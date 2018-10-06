@@ -83,7 +83,7 @@ public class BaseMainFragment extends Fragment {
         FragmentManager manager = getChildFragmentManager();
         FragmentTransaction tx = manager.beginTransaction();
         fragment.setClickListeners(clickListeners);
-        tx.add(R.id.fragment_overall_container, fragment, null);
+        tx.replace(R.id.fragment_overall_container, fragment, null);
         tx.addToBackStack(null);
         tx.commit();
     }

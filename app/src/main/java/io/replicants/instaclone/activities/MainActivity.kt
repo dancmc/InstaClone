@@ -234,9 +234,7 @@ class MainActivity : AppCompatActivity() {
             switchFragment(TAG_PROFILE)
             finishedUploading = false
 
-            // todo refresh profile
-
-//            (supportFragmentManager.findFragmentByTag(currentFragment) as? ProfileMainFragment?)?.refresh()
+            (supportFragmentManager.findFragmentByTag(currentFragment) as? ProfileMainFragment?)?.showUploaded()
         }
 
     }

@@ -23,9 +23,14 @@ class CommentsSubFragment : BaseSubFragment() {
         }
     }
 
+    lateinit var layout:View
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.subfragment_comments, container, false)
 
+        if(!this::layout.isInitialized) {
+            layout = inflater.inflate(R.layout.subfragment_comments, container, false)
+
+
+        }
         //todo
         return layout
     }

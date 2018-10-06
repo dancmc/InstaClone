@@ -23,6 +23,8 @@ import com.javadocmd.simplelatlng.LatLng
 import com.javadocmd.simplelatlng.LatLngTool
 import com.javadocmd.simplelatlng.util.LengthUnit
 import io.replicants.instaclone.R
+import io.replicants.instaclone.network.InstaApi
+import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.pojos.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -370,7 +372,23 @@ class Utils {
             }
             builder.show()
         }
+
+        @JvmStatic
+        fun updateDetails(context: Context, function:()->Unit){
+            InstaApi.getDetails().enqueue(InstaApi.generateCallback(context, object: InstaApiCallback(){
+                override fun success(jsonResponse: JSONObject?) {
+
+                    Prefs.getInstance().writeString(Prefs.USERNAME, jsonResponse?.optString("username"))
+                    Prefs.getInstance().writeString(Prefs.USER_ID, jsonResponse?.optString("user_id"))
+                    Prefs.getInstance().writeString(Prefs.DISPLAY_NAME, jsonResponse?.optString("display_name"))
+
+                    function.invoke()
+                }
+            }))
+
+        }
     }
+
 
 
 }

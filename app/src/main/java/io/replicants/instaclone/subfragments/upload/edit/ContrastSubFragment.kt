@@ -48,7 +48,7 @@ class ContrastSubFragment:BaseSubFragment() {
                     val adjustedSeekBar = progress-100
                     val contrastApply = when{
                         adjustedSeekBar<=0->(progress+100)/200f
-                        else->1f+adjustedSeekBar/20f
+                        else->1f+adjustedSeekBar/80f
                     }
                     layout.subfragment_seekbar_number.text = adjustedSeekBar.toString()
                     (parentFragment as? ImageContrast)?.adjustContrast(contrastApply, adjustedSeekBar)

@@ -10,14 +10,13 @@
         android:id="@+id/subfragment_feed_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        style="@style/AppTheme"
-        android:elevation="2dp"
+        android:elevation="4dp"
         app:title="@string/app_name"
 
         app:popupTheme="@style/OverflowMenu"/>
 
     <Button
-        android:id="@+id/fragment_feed_button_request_location"
+        android:id="@+id/subfragment_feed_button_request_location"
         android:layout_gravity="center"
         android:text="@string/request_location"
         android:layout_width="wrap_content"

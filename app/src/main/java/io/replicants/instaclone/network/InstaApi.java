@@ -344,14 +344,17 @@ public class InstaApi {
         return InstaRetrofit.api.getDetails();
     }
 
-    public static Call<String> updateDetails(@Nullable File profileImageFile, @Nullable String password, @Nullable String email,
+    public static Call<String> updateDetails(@Nullable File profileImageFile, @Nullable String oldPassword, @Nullable String newPassword, @Nullable String email,
                                      @Nullable String firstName, @Nullable String lastName, @Nullable String displayName,
                                      @Nullable String profileName, @Nullable String profileDesc, @Nullable Boolean isPrivate) {
 
         JSONObject jsonObject = new JSONObject();
         try {
-            if (password != null) {
-                jsonObject.put("password", password);
+            if (oldPassword != null) {
+                jsonObject.put("old_password", oldPassword);
+            }
+            if (newPassword != null) {
+                jsonObject.put("password", newPassword);
             }
             if (email != null) {
                 jsonObject.put("email", email);

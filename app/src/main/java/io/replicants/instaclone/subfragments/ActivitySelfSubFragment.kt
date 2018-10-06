@@ -15,6 +15,7 @@ import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.pojos.*
 import kotlinx.android.synthetic.main.subfragment_activity_following.view.*
 import kotlinx.android.synthetic.main.subfragment_activity_self.view.*
+
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import org.json.JSONArray
@@ -41,30 +42,32 @@ class ActivitySelfSubFragment : BaseSubFragment() {
     private val activityItems = ArrayList<ActivityBase>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        layout = inflater.inflate(R.layout.subfragment_activity_self, container, false)
 
-        recyclerView = layout.subfragment_activity_self_recycler
-        recyclerView.setHasFixedSize(true)
-        recyclerView.setItemViewCacheSize(40)
-        recyclerView.setDrawingCacheEnabled(true)
+        if(!this::layout.isInitialized) {
+            layout = inflater.inflate(R.layout.subfragment_activity_self, container, false)
 
-        // use a linear layout manager
-        recyclerView.layoutManager = LinearLayoutManager(activity)
+            recyclerView = layout.subfragment_activity_self_recycler
+            recyclerView.setHasFixedSize(true)
+            recyclerView.setItemViewCacheSize(40)
+            recyclerView.setDrawingCacheEnabled(true)
+
+            // use a linear layout manager
+            recyclerView.layoutManager = LinearLayoutManager(activity)
 
 
-        // initialise adapter with the item list, attach adapter to recyclerview
-        // list initially empty
-        adapter = ActivitySelfAdapter(activity!!, activityItems, recyclerView)
-        adapter.clickListeners = clickListeners
-        recyclerView.adapter = adapter
+            // initialise adapter with the item list, attach adapter to recyclerview
+            // list initially empty
+            adapter = ActivitySelfAdapter(activity!!, activityItems, recyclerView)
+            adapter.clickListeners = clickListeners
+            recyclerView.adapter = adapter
 
-        layout.subfragment_activity_self_refresh.setOnRefreshListener {
+            layout.subfragment_activity_self_refresh.setOnRefreshListener {
+                initialLoad()
+            }
+
             initialLoad()
+
         }
-
-        initialLoad()
-
-
         return layout
     }
 

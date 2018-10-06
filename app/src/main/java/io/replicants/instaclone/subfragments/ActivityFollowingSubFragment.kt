@@ -39,6 +39,8 @@ class ActivityFollowingSubFragment : BaseSubFragment() {
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+
+        if(!this::layout.isInitialized) {
          layout= inflater.inflate(R.layout.subfragment_activity_following, container, false)
 
         recyclerView = layout.subfragment_activity_following_recycler
@@ -61,6 +63,7 @@ class ActivityFollowingSubFragment : BaseSubFragment() {
         }
 
         initialLoad()
+        }
 
         return layout
     }
