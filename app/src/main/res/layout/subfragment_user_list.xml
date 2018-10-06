@@ -9,7 +9,14 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/subfragment_user_list_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="48dp"/>
+        android:layout_height="48dp"
+        app:titleTextAppearance="@style/Toolbar.TitleText"
+        android:elevation="4dp"
+        android:background="@color/offwhite"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="@string/app_name"
+        app:popupTheme="@style/OverflowMenu"/>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/subfragment_userlist_recycler"

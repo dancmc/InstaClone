@@ -22,6 +22,11 @@ class PickPhotoSubFragment: BaseSubFragment() {
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+
+        if(this::layout.isInitialized){
+            return layout
+        }
+
         layout = inflater.inflate(R.layout.subfragment_pick_photo, container, false)
 
         adapter = PickPhotoVPAdapter(childFragmentManager, photoTakenListener)

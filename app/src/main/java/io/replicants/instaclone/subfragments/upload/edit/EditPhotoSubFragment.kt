@@ -26,7 +26,12 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, EditControlsSubFragment.OnChooseListener, BrightnessSubFragment.ImageBrightness, ContrastSubFragment.ImageContrast {
+class EditPhotoSubFragment : BaseSubFragment(),
+        AdjustSubFragment.ImageAdjust,
+        EditControlsSubFragment.OnChooseListener,
+        BrightnessSubFragment.ImageBrightness,
+        ContrastSubFragment.ImageContrast,
+        FilterSubFragment.ImageFilter{
 
     companion object {
 
@@ -73,14 +78,19 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
     var savedContrast = 0
     var saturation = 0
     var savedSaturation = 0
-    var filter = ""
-    var savedFilter = ""
+    var filter = FilterSubFragment.ORIGINAL
+    var savedFilter = FilterSubFragment.ORIGINAL
     lateinit var savedState: ZoomRotateImageViewState
 
     var listener: PhotoEditListener? = null
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+
+        if(this::layout.isInitialized){
+            return layout
+        }
+
         layout = inflater.inflate(R.layout.subfragment_edit_photo, container, false)
 
         filepath = arguments?.getString("fileName") ?: ""
@@ -358,6 +368,8 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
 
             }
             TAG_FILTER -> {
+                savedFilter = filter
+                savedColorMatrix.set(colorMatrix)
             }
             TAG_BRIGHTNESS -> {
                 savedBrightness = brightness
@@ -389,7 +401,7 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
     }
 
     override fun goToFilter() {
-
+        startNewEdit(FilterSubFragment.newInstance(filter), TAG_FILTER)
     }
 
     override fun goToAdjust() {
@@ -418,6 +430,50 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
         imageView.colorFilter = colorFilter
     }
 
+    override fun putFilter(filter: String) {
+
+        when(this.filter){
+            FilterSubFragment.GREYSCALE-> colorMatrix.apply {
+                val greyMatrix = ColorMatrix().apply {
+                    setSaturation(100f)
+                }
+                postConcat(greyMatrix)
+            }
+            FilterSubFragment.SEPIA -> colorMatrix.apply {
+                val sepiaMatrix = ColorMatrix().apply {
+                    setScale(1f, 1f, 1.25f, 1f)
+                }
+                val sepiaMatrix2 = ColorMatrix().apply {
+                    setSaturation(100f)
+                }
+                postConcat(sepiaMatrix)
+                postConcat(sepiaMatrix2)
+            }
+        }
+
+        when(filter){
+            FilterSubFragment.GREYSCALE-> colorMatrix.apply {
+                val greyMatrix = ColorMatrix().apply {
+                    setSaturation(0.01f)
+                }
+                postConcat(greyMatrix)
+            }
+            FilterSubFragment.SEPIA -> colorMatrix.apply {
+                val sepiaMatrix = ColorMatrix().apply {
+                    setSaturation(0.01f)
+                }
+                val sepiaMatrix2 = ColorMatrix().apply {
+                    setScale(1f, 1f, 0.8f, 1f)
+                }
+                postConcat(sepiaMatrix)
+                postConcat(sepiaMatrix2)
+            }
+        }
+        this.filter = filter
+        colorFilter = ColorMatrixColorFilter(colorMatrix)
+        imageView.colorFilter = colorFilter
+    }
+
     override fun cancelCurrentEdit():Boolean {
 
         switchToOverallToolbar()
@@ -433,6 +489,10 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
                     imageView.invalidate()
                 }
                 TAG_FILTER -> {
+                    filter= savedFilter
+                    colorMatrix.set(savedColorMatrix)
+                    colorFilter = ColorMatrixColorFilter(colorMatrix)
+                    imageView.colorFilter = colorFilter
                 }
                 TAG_BRIGHTNESS -> {
                     brightness = savedBrightness
@@ -464,6 +524,7 @@ class EditPhotoSubFragment : BaseSubFragment(), AdjustSubFragment.ImageAdjust, E
         savedState = imageView.saveState()
         savedBrightness = brightness
         savedContrast = contrast
+        savedFilter = filter
         if (childFragmentManager.backStackEntryCount > 0) {
             childFragmentManager.popBackStack()
         }

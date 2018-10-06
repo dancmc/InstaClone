@@ -19,7 +19,7 @@ import io.replicants.instaclone.utilities.Prefs
 import io.replicants.instaclone.utilities.Utils
 import org.json.JSONObject
 
-class ProfileMainFragment : BaseMainFragment(), EditProfileSubFragment.EditProfileFinished {
+class ProfileMainFragment : BaseMainFragment(){
 
 
     companion object {
@@ -43,27 +43,16 @@ class ProfileMainFragment : BaseMainFragment(), EditProfileSubFragment.EditProfi
 
         val displayName = Prefs.getInstance().readString(Prefs.DISPLAY_NAME,"")
 
-        // stand alone toolbar for profile
-        toolbar = LayoutInflater.from(context).inflate(R.layout.profile_toolbar, null, false) as androidx.appcompat.widget.Toolbar
-        toolbar.title = displayName
-
         manager = childFragmentManager
         val tx = manager.beginTransaction()
         val profileFrag = ProfileSubFragment.newInstance(displayName)
-
-        profileFrag.toolbar = toolbar
         profileFrag.clickListeners = this.clickListeners
-
         tx.add(R.id.fragment_overall_container, profileFrag, "profile_base")
         tx.commit()
 
         return layout
     }
 
-    override fun editProfileFinished() {
-        manager.popBackStack()
-
-    }
 
     fun showUploaded(){
         childFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)

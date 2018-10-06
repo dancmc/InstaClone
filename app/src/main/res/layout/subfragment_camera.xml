@@ -12,6 +12,9 @@
         android:layout_height="48dp"
         app:contentInsetLeft="0dp"
         app:contentInsetStart="0dp"
+        android:elevation="4dp"
+        android:background="@color/offwhite"
+        app:titleTextAppearance="@style/Toolbar.TitleText"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView

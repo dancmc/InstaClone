@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
-<HorizontalScrollView
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     tools:context=".activities.UploadPhotoActivity">
+
+<HorizontalScrollView
+    app:layout_constraintTop_toTopOf="parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_constraintBottom_toTopOf="@id/subfragment_filter_cancel_bar"
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -18,7 +24,7 @@
         android:paddingRight="16dp">
 
         <LinearLayout
-            android:id="@+id/subfragment_edit_controls_adjust"
+            android:id="@+id/subfragment_filter_original"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
@@ -28,17 +34,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Adjust"/>
+                android:text="Original"/>
 
             <ImageView
                 android:layout_width="72dp"
                 android:layout_height="72dp"
                 android:layout_marginTop="8dp"
+                android:scaleType="fitCenter"
+                android:padding="0dp"
+                android:background="@color/white"
                 android:src="@drawable/layer_adjust"/>
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/subfragment_edit_controls_filter"
+            android:id="@+id/subfragment_filter_sepia"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
@@ -48,17 +57,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Filter"/>
+                android:text="Sepia"/>
 
             <ImageView
                 android:layout_width="72dp"
                 android:layout_height="72dp"
                 android:layout_marginTop="8dp"
-                android:src="@drawable/layer_filter"/>
+                android:scaleType="fitCenter"
+                android:padding="0dp"
+                android:background="@color/white"
+                android:src="@drawable/layer_adjust"/>
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/subfragment_edit_controls_brightness"
+            android:id="@+id/subfragment_filter_greyscale"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
@@ -68,17 +80,44 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Brightness"/>
+                android:text="Grey"/>
 
             <ImageView
                 android:layout_width="72dp"
                 android:layout_height="72dp"
                 android:layout_marginTop="8dp"
+                android:scaleType="fitCenter"
+                android:padding="0dp"
+                android:background="@color/white"
+                android:src="@drawable/layer_filter"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/subfragment_filter_antwerp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Antwerp"/>
+
+            <ImageView
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="8dp"
+                android:scaleType="fitCenter"
+                android:padding="0dp"
+                android:background="@color/white"
                 android:src="@drawable/layer_brightness"/>
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/subfragment_edit_controls_contrast"
+            android:id="@+id/subfragment_edit_controls_mystic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
@@ -88,16 +127,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Contrast"/>
+                android:text="Mystic"/>
 
             <ImageView
                 android:layout_width="72dp"
                 android:layout_height="72dp"
                 android:layout_marginTop="8dp"
+                android:scaleType="fitCenter"
+                android:padding="0dp"
+                android:background="@color/white"
                 android:src="@drawable/layer_contrast"/>
+
         </LinearLayout>
 
     </LinearLayout>
 
 
 </HorizontalScrollView>
+
+<include
+android:id="@+id/subfragment_filter_cancel_bar"
+layout="@layout/subfragment_edit_photo_cancel_done"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

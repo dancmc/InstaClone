@@ -48,13 +48,13 @@ class ProfileSubFragment : BaseSubFragment() {
         }
     }
 
-    lateinit var layout: LinearLayout
-    var toolbar: Toolbar? = null
-    var profileHeader: ProfileHeader? = null
+    private lateinit var layout: LinearLayout
+    private var toolbar: Toolbar? = null
+    private var profileHeader: ProfileHeader? = null
     lateinit var displayName: String
-    val feedItems = ArrayList<Photo?>()
-    lateinit var adapter: FeedAdapter
-    var self = false
+    private val feedItems = ArrayList<Photo?>()
+    private lateinit var adapter: FeedAdapter
+    private var self = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         if (!this::layout.isInitialized) {
@@ -63,10 +63,8 @@ class ProfileSubFragment : BaseSubFragment() {
             self = arguments?.getBoolean("self") ?: false
 
             profileHeader = ProfileHeader(context!!)
+            layout.subfragment_profile_toolbar.title = displayName
             val recyclerView = (layout.subfragment_profile_recyclerview)!!
-            if (toolbar != null) {
-                layout.addView(toolbar, 0)
-            }
 
             // use this setting to improve performance if you know that changes
             // in content do not change the layout size of the RecyclerView
@@ -211,28 +209,12 @@ class ProfileSubFragment : BaseSubFragment() {
         }
     }
 
-    fun changeToolbar(toolbar: Toolbar) {
-        this.toolbar = toolbar
-        if (layout.getChildAt(0) is Toolbar) {
-            layout.removeViewAt(0)
-        }
-        layout.addView(toolbar, 0)
-    }
-
     fun loadHeader() {
         profileHeader?.init(displayName)
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        if (self) {
-            val retrievedDisplayName = Prefs.getInstance().readString(Prefs.DISPLAY_NAME, "")
-            if (displayName != retrievedDisplayName) {
-                displayName = retrievedDisplayName
-                toolbar?.title = displayName
-                load(false)
-            }
-        }
+    override fun reload() {
+        load(true)
     }
+
 }

@@ -65,10 +65,11 @@ class FeedSubFragment : BaseSubFragment() {
             layout.subfragment_feed_toolbar.inflateMenu(R.menu.menu_feed_fragment)
             layout.subfragment_feed_toolbar.setOnClickListener {
                 if (adapter.itemCount > 0) {
-                    // TODO find a way to scroll a bit more slowly
                     recyclerView.scrollToPosition(0)
                 }
             }
+
+
             layout.subfragment_feed_toolbar.setOnMenuItemClickListener {
                 when (it.itemId) {
                     R.id.action_wifi -> {

@@ -4,16 +4,20 @@
               android:orientation="vertical"
               android:background="@color/white"
               android:layout_width="match_parent"
+
               android:layout_height="match_parent">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/subfragment_feed_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="48dp"
         android:elevation="4dp"
+        android:background="@color/offwhite"
+        app:layout_constraintTop_toTopOf="parent"
         app:title="@string/app_name"
 
         app:popupTheme="@style/OverflowMenu"/>
+
 
     <Button
         android:id="@+id/subfragment_feed_button_request_location"

@@ -14,6 +14,7 @@
         android:layout_height="48dp"
         app:contentInsetLeft="0dp"
         app:contentInsetStart="0dp"
+        app:titleTextAppearance="@style/Toolbar.TitleText"
         app:layout_constraintTop_toTopOf="parent">
 
 

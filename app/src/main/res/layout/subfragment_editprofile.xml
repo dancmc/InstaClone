@@ -13,17 +13,16 @@
         android:orientation="vertical"
         tools:context=".activities.MainActivity">
 
-
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/edit_profile_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-
+            android:layout_height="48dp"
             android:elevation="4dp"
-
-            app:popupTheme="@style/OverflowMenu"
-            app:title="Edit Profile" />
-
+            app:titleTextAppearance="@style/Toolbar.TitleText"
+            android:background="@color/offwhite"
+            app:layout_constraintTop_toTopOf="parent"
+            app:title="Edit Profile"
+            app:popupTheme="@style/OverflowMenu"/>
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profile_image"

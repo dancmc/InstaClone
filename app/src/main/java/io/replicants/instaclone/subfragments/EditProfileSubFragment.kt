@@ -13,6 +13,7 @@ import androidx.annotation.Nullable
 import androidx.core.net.toFile
 import com.bumptech.glide.Glide
 import io.replicants.instaclone.R
+import io.replicants.instaclone.maintabs.BaseMainFragment
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.utilities.GlideHeader
@@ -32,6 +33,7 @@ class EditProfileSubFragment : BaseSubFragment() {
 
         val PHOTO_REQUEST_CODE = 1
 
+        @JvmStatic
         fun newInstance(displayName: String): EditProfileSubFragment {
             val myFragment = EditProfileSubFragment()
 
@@ -80,7 +82,7 @@ class EditProfileSubFragment : BaseSubFragment() {
                     Glide.with(context!!).load(GlideHeader.getUrlWithHeaders(profileImage)).into(layout.profile_image)
 
                     // back button
-                    layout.edit_profile_toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_material)
+                    layout.edit_profile_toolbar.setNavigationIcon(R.drawable.icon_back_grey)
                     layout.edit_profile_toolbar.onClick {
                         activity?.onBackPressed()
                     }
@@ -130,7 +132,7 @@ class EditProfileSubFragment : BaseSubFragment() {
                                     dialog.dismiss()
                                 }
                                 Utils.updateDetails(context!!) {
-                                    (parentFragment as EditProfileFinished?)?.editProfileFinished()
+                                    clickListeners?.popBackStack(true);
                                 }
                             }
 
@@ -167,7 +169,4 @@ class EditProfileSubFragment : BaseSubFragment() {
         }
     }
 
-    interface EditProfileFinished{
-        fun editProfileFinished()
-    }
 }

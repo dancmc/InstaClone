@@ -12,8 +12,11 @@
         android:id="@+id/subfragment_edit_photo_toolbar"
         android:layout_width="match_parent"
         android:layout_height="48dp"
+        android:elevation="4dp"
+        android:background="@color/offwhite"
         app:contentInsetLeft="0dp"
         app:contentInsetStart="0dp"
+        app:titleTextAppearance="@style/Toolbar.TitleText"
         app:layout_constraintTop_toTopOf="parent">
 
 

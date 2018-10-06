@@ -7,4 +7,8 @@ open class BaseSubFragment: Fragment(){
 
     var clickListeners : BaseMainFragment.ClickListeners? = null
 
+    open fun reload(){
+
+    }
+
 }

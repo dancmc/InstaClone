@@ -59,23 +59,32 @@ public class BaseMainFragment extends Fragment {
 
         @Override
         public void moveToProfileSubFragment(String displayName) {
-            ProfileSubFragment fragment = ProfileSubFragment.newInstance(displayName);
-
-            Toolbar toolbar = (Toolbar)LayoutInflater.from(getContext()).inflate(R.layout.toolbar_basic, null, false);
-            toolbar.setTitle(displayName);
-            fragment.setToolbar(toolbar);
-
-            changeFragment(fragment);
+            changeFragment(ProfileSubFragment.newInstance(displayName));
         }
 
         @Override
         public void moveToEditProfileSubFragment(String displayName) {
-            changeFragment(EditProfileSubFragment.Companion.newInstance(displayName));
+            changeFragment(EditProfileSubFragment.newInstance(displayName));
         }
 
         @Override
         public void moveToApproveListSubFragment(ArrayList<User> users) {
-            changeFragment(ApproveListSubFragment.Companion.newInstance(users));
+            changeFragment(ApproveListSubFragment.newInstance(users));
+        }
+
+        @Override
+        public void popBackStack(boolean reloadPreviousFragment) {
+            FragmentManager fm = getChildFragmentManager();
+            if(fm.getBackStackEntryCount()>0){
+                fm.popBackStackImmediate();
+                if(reloadPreviousFragment){
+                    for(Fragment frag : fm.getFragments()){
+                        if(frag.isVisible() && frag instanceof BaseSubFragment){
+                            ((BaseSubFragment) frag).reload();
+                        }
+                    }
+                }
+            }
         }
     };
 
@@ -133,6 +142,8 @@ public class BaseMainFragment extends Fragment {
         public void moveToEditProfileSubFragment(String displayName);
 
         public void moveToApproveListSubFragment(ArrayList<User> users);
+
+        public void popBackStack(boolean reloadPreviousFragment);
 
     }
 }

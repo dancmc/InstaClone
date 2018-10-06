@@ -6,11 +6,12 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <androidx.appcompat.widget.Toolbar
+    <include
         android:id="@+id/subfragment_approve_list_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        app:title="Approve Users"/>
+        app:title="Approve Users"
+        layout="@layout/toolbar_basic"
+        />
+
 
     <Button
         android:id="@+id/subfragment_approve_list_approveall"
