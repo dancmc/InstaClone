@@ -14,6 +14,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import io.replicants.instaclone.R
 import io.replicants.instaclone.adapters.FeedAdapter
 import io.replicants.instaclone.network.InstaApi
@@ -53,6 +54,7 @@ class ProfileSubFragment : BaseSubFragment() {
     private var profileHeader: ProfileHeader? = null
     lateinit var displayName: String
     private val feedItems = ArrayList<Photo?>()
+    private lateinit var recyclerView :RecyclerView
     private lateinit var adapter: FeedAdapter
     private var self = false
 
@@ -64,7 +66,7 @@ class ProfileSubFragment : BaseSubFragment() {
 
             profileHeader = ProfileHeader(context!!)
             layout.subfragment_profile_toolbar.title = displayName
-            val recyclerView = (layout.subfragment_profile_recyclerview)!!
+            recyclerView = (layout.subfragment_profile_recyclerview)!!
 
             // use this setting to improve performance if you know that changes
             // in content do not change the layout size of the RecyclerView
@@ -121,10 +123,10 @@ class ProfileSubFragment : BaseSubFragment() {
         return layout
     }
 
-    fun load(withSelfUpdate: Boolean = true) {
+    fun load(withSelfUpdate: Boolean = false) {
 
         fun internalLoad() {
-            loadHeader()
+            loadHeader(withSelfUpdate)
 
             val sort = Prefs.getInstance().readString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString())
             if (sort == InstaApi.Sort.DATE.toString()) {
@@ -136,7 +138,7 @@ class ProfileSubFragment : BaseSubFragment() {
                                         ?: JSONArray())
                                 feedItems.clear()
                                 feedItems.addAll(results)
-                                adapter.notifyDataSetChanged()
+                                resetAdapter()
                                 layout.subfragment_profile_refresh.isRefreshing = false
                             }
 
@@ -161,7 +163,7 @@ class ProfileSubFragment : BaseSubFragment() {
                                                 ?: JSONArray())
                                         feedItems.clear()
                                         feedItems.addAll(results)
-                                        adapter.notifyDataSetChanged()
+                                        resetAdapter()
                                         layout.subfragment_profile_refresh.isRefreshing = false
                                     }
 
@@ -209,8 +211,16 @@ class ProfileSubFragment : BaseSubFragment() {
         }
     }
 
-    fun loadHeader() {
-        profileHeader?.init(displayName)
+    fun resetAdapter(){
+        adapter = FeedAdapter(activity!!, feedItems, recyclerView)
+        (profileHeader?.view?.parent as? ViewGroup)?.removeAllViews()
+        adapter.header = profileHeader?.view
+        adapter.clickListeners = clickListeners
+        recyclerView.adapter = adapter
+    }
+
+    fun loadHeader(withSelfUpdate: Boolean=false) {
+        profileHeader?.init(displayName, withSelfUpdate)
     }
 
     override fun reload() {

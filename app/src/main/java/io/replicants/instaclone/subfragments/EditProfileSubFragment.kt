@@ -12,6 +12,8 @@ import androidx.annotation.NonNull
 import androidx.annotation.Nullable
 import androidx.core.net.toFile
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
 import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.BaseMainFragment
 import io.replicants.instaclone.network.InstaApi
@@ -79,7 +81,11 @@ class EditProfileSubFragment : BaseSubFragment() {
                     }
 
                     val profileImage = jsonResponse.optString("profile_image")
-                    Glide.with(context!!).load(GlideHeader.getUrlWithHeaders(profileImage)).into(layout.profile_image)
+                    val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
+                    Glide.with(context!!).
+                            load(GlideHeader.getUrlWithHeaders(profileImage))
+                            .apply(requestOptions)
+                            .into(layout.profile_image)
 
                     // back button
                     layout.edit_profile_toolbar.setNavigationIcon(R.drawable.icon_back_grey)
@@ -125,6 +131,7 @@ class EditProfileSubFragment : BaseSubFragment() {
                             show()
                         }
 
+                        // todo scale the photo first
                         InstaApi.updateDetails(newPhotoFile, oldPassword, password, inputEmail, inputFirstName, inputLastName, inputDisplayName, inputProfileName, inputProfileDesc, privacy).enqueue(InstaApi.generateCallback(context, object : InstaApiCallback() {
                             override fun success(jsonResponse: JSONObject?) {
                                 context?.toast("Successfully updated details")
@@ -159,14 +166,25 @@ class EditProfileSubFragment : BaseSubFragment() {
 
     // change profile photo
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+
         if (requestCode == PHOTO_REQUEST_CODE) {
             val selectedImage = data?.data
             if (selectedImage != null) {
-                newPhotoFile = selectedImage.toFile()
-                Glide.with(context!!).load(selectedImage).into(layout.profile_image)
+
+                val cursor = activity?.contentResolver?.query(selectedImage, arrayOf(android.provider.MediaStore.Images.ImageColumns.DATA), null, null, null)
+                cursor?.moveToFirst()
+                newPhotoFile = cursor?.getString(0)?.let {
+                    File(it)
+                }
+                cursor?.close()
+                val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
+                Glide.with(context!!)
+                        .load(newPhotoFile)
+                        .apply(requestOptions)
+                        .into(layout.profile_image)
             }
         }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
 }

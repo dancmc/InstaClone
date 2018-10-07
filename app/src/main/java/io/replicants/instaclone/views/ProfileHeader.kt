@@ -8,6 +8,8 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.text.bold
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
 import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.BaseMainFragment
 import io.replicants.instaclone.network.InstaApi
@@ -19,6 +21,9 @@ import io.replicants.instaclone.utilities.Prefs
 import io.replicants.instaclone.utilities.Utils
 import io.replicants.instaclone.utilities.setClickableSpan
 import kotlinx.android.synthetic.main.view_profile_header.view.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.noButton
 import org.jetbrains.anko.sdk27.coroutines.onClick
@@ -36,7 +41,7 @@ class ProfileHeader(val context: Context) {
         view.view_profile_header_others_following.movementMethod = LinkMovementMethod.getInstance()
     }
 
-    fun init(displayName :String){
+    fun init(displayName :String, withSelfUpdate:Boolean=false){
 
         val isSelf = Prefs.getInstance().readString(Prefs.DISPLAY_NAME,"") == displayName
 
@@ -60,8 +65,17 @@ class ProfileHeader(val context: Context) {
                     clickListeners?.moveToUserListSubFragmentWithCall(UserListSubFragment.CallType.FOLLOWING, displayName)
                 }
 
-                Glide.with(context).load(GlideHeader.getUrlWithHeaders(user.profileImage)).into(view.view_profile_header_image)
+                var requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
+                Glide.with(context).load(GlideHeader.getUrlWithHeaders(user.profileImage)).apply(requestOptions).into(view.view_profile_header_image)
 
+                // this is needed to refresh after uploading new profile photo, because server takes a while to process new photo
+                if(withSelfUpdate) {
+                    launch(UI) {
+                        delay(2000)
+                        requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
+                        Glide.with(context).load(GlideHeader.getUrlWithHeaders(user.profileImage)).apply(requestOptions).into(view.view_profile_header_image)
+                    }
+                }
 
                 // 0 not following, 1 following, 2 requested
                 if(isSelf){

@@ -54,12 +54,15 @@ class CameraPagerFragment : BaseSubFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         //TODO check somewhere that camera actually exists
-        layout = inflater.inflate(R.layout.subfragment_camera, container, false)
 
+        if(this::layout.isInitialized){
+            return layout
+        }
+
+        layout = inflater.inflate(R.layout.subfragment_camera, container, false)
         layout.subfragment_camera_toolbar.onClick {
             activity?.finish()
         }
-
 
         return layout
     }

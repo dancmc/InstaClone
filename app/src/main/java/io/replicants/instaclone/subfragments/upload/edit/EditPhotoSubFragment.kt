@@ -76,6 +76,9 @@ class EditPhotoSubFragment : BaseSubFragment(),
     var savedBrightness = 0
     var contrast = 0
     var savedContrast = 0
+    // todo save this
+    var contrastMatrixValue = 1f
+    var savedContrastMatrixValue = 1f
     var saturation = 0
     var savedSaturation = 0
     var filter = FilterSubFragment.ORIGINAL
@@ -304,7 +307,7 @@ class EditPhotoSubFragment : BaseSubFragment(),
             }
 
 
-            listener?.photoEdited(photoID, filepath)
+            listener?.photoEdited(photoID, file.absolutePath)
         }
 
         return layout
@@ -377,6 +380,7 @@ class EditPhotoSubFragment : BaseSubFragment(),
             }
             TAG_CONTRAST -> {
                 savedContrast = contrast
+                savedContrastMatrixValue = contrastMatrixValue
                 savedColorMatrix.set(colorMatrix)
             }
         }
@@ -423,9 +427,10 @@ class EditPhotoSubFragment : BaseSubFragment(),
         imageView.colorFilter = colorFilter
     }
 
-    override fun adjustContrast(contrastMatrixValue: Float, contrastSetting: Int) {
+    override fun adjustContrast(newContrastMatrixValue: Float, contrastSetting: Int) {
+        Utils.setContrastOnColorMatrix(colorMatrix, contrastMatrixValue, newContrastMatrixValue)
         this.contrast = contrastSetting
-        Utils.setContrastOnColorMatrix(colorMatrix, contrastMatrixValue)
+        this.contrastMatrixValue = newContrastMatrixValue
         colorFilter = ColorMatrixColorFilter(colorMatrix)
         imageView.colorFilter = colorFilter
     }
@@ -468,6 +473,12 @@ class EditPhotoSubFragment : BaseSubFragment(),
                 postConcat(sepiaMatrix)
                 postConcat(sepiaMatrix2)
             }
+            FilterSubFragment.ANTWERP-> colorMatrix.apply {
+                val greyMatrix = ColorMatrix().apply {
+                    setScale(0f, 0.8f, 0.85f, 1f)
+                }
+                postConcat(greyMatrix)
+            }
         }
         this.filter = filter
         colorFilter = ColorMatrixColorFilter(colorMatrix)
@@ -502,6 +513,7 @@ class EditPhotoSubFragment : BaseSubFragment(),
                 }
                 TAG_CONTRAST -> {
                     contrast = savedContrast
+                    contrastMatrixValue = savedContrastMatrixValue
                     colorMatrix.set(savedColorMatrix)
                     colorFilter = ColorMatrixColorFilter(colorMatrix)
                     imageView.colorFilter = colorFilter
@@ -524,7 +536,9 @@ class EditPhotoSubFragment : BaseSubFragment(),
         savedState = imageView.saveState()
         savedBrightness = brightness
         savedContrast = contrast
+        savedContrastMatrixValue = contrastMatrixValue
         savedFilter = filter
+
         if (childFragmentManager.backStackEntryCount > 0) {
             childFragmentManager.popBackStack()
         }
@@ -550,6 +564,7 @@ class EditPhotoSubFragment : BaseSubFragment(),
             }
             this.brightness = this@EditPhotoSubFragment.brightness
             this.contrast = this@EditPhotoSubFragment.contrast
+            this.contrastMatrixValue = this@EditPhotoSubFragment.contrastMatrixValue
             this.saturation = this@EditPhotoSubFragment.saturation
             this.filter = this@EditPhotoSubFragment.filter
         }
@@ -577,6 +592,8 @@ class EditPhotoSubFragment : BaseSubFragment(),
             this@EditPhotoSubFragment.savedBrightness = it.brightness
             this@EditPhotoSubFragment.contrast = it.contrast
             this@EditPhotoSubFragment.savedContrast = it.contrast
+            this@EditPhotoSubFragment.contrastMatrixValue = it.contrastMatrixValue
+            this@EditPhotoSubFragment.savedContrastMatrixValue = it.contrastMatrixValue
             this@EditPhotoSubFragment.saturation = it.saturation
             this@EditPhotoSubFragment.savedSaturation = it.saturation
             this@EditPhotoSubFragment.filter = it.filter

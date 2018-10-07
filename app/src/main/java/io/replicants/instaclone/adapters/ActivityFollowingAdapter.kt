@@ -10,6 +10,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.bold
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
 import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.BaseMainFragment
 import io.replicants.instaclone.pojos.ActivityBase
@@ -102,8 +104,10 @@ class ActivityFollowingAdapter(private val context: Activity, private val datase
         when (holder) {
             is ActivityFollowingHolder1 -> {
                 val item = dataset[position] as ActivityFollowing1
+                val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.profileImage))
+                        .apply(requestOptions)
                         .into(holder.ivProfileImage)
                 val time = Utils.formatDateForActivity(item.timestamp)
                 val textBuilder = SpannableStringBuilder()
@@ -143,8 +147,10 @@ class ActivityFollowingAdapter(private val context: Activity, private val datase
             }
             is ActivityFollowingHolder2 -> {
                 val item = dataset[position] as ActivityFollowing2
+                val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.previewUsers[0].profileImage))
+                        .apply(requestOptions)
                         .into(holder.ivProfileImage)
                 val textBuilder = SpannableStringBuilder()
 
@@ -195,8 +201,10 @@ class ActivityFollowingAdapter(private val context: Activity, private val datase
             }
             is ActivityFollowingHolder3 -> {
                 val item = dataset[position] as ActivityFollowing3
+                val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.profileImage))
+                        .apply(requestOptions)
                         .into(holder.ivProfileImage)
                 val textBuilder = SpannableStringBuilder()
                         .bold { append(item.displayName) }

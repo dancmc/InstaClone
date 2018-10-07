@@ -72,7 +72,7 @@ class ContrastSubFragment:BaseSubFragment() {
     }
 
     interface ImageContrast {
-        fun adjustContrast(contrastMatrixValue:Float, contrastSetting:Int)
+        fun adjustContrast(newContrastMatrixValue:Float, contrastSetting:Int)
 
         fun cancelCurrentEdit():Boolean
 

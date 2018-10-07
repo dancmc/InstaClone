@@ -322,11 +322,23 @@ class Utils {
         }
 
         @JvmStatic
-        fun setContrastOnColorMatrix(cm: ColorMatrix, contrast: Float) {
-            contrast.let {
-                cm.array[0] = it
-                cm.array[6] = it
-                cm.array[12] = it
+        fun setContrastOnColorMatrix(cm: ColorMatrix, oldContrast:Float, newContrast: Float) {
+            val undoMatrix = ColorMatrix().apply {
+                array[0] = 1/oldContrast
+                array[6] = 1/oldContrast
+                array[12] = 1/oldContrast
+            }
+            val newMatrix = ColorMatrix().apply {
+                array[0] = newContrast
+                array[6] = newContrast
+                array[12] = newContrast
+            }
+//            cm.array[0] *= newContrast/oldContrast
+//            cm.array[6] *= newContrast/oldContrast
+//            cm.array[12] *= newContrast/oldContrast
+            cm.apply {
+                postConcat(undoMatrix)
+                postConcat(newMatrix)
             }
 
         }

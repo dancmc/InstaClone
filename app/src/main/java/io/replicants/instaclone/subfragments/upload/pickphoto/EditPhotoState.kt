@@ -10,6 +10,7 @@ open class EditPhotoState : RealmObject(){
     var colorMatrix = RealmList<Float>()
     var brightness = 0
     var contrast = 0
+    var contrastMatrixValue = 1f
     var saturation = 0
     var filter = ""
 }

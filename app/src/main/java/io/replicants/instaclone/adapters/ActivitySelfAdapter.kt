@@ -10,6 +10,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.bold
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
 import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.BaseMainFragment
 import io.replicants.instaclone.pojos.*
@@ -98,8 +100,10 @@ class ActivitySelfAdapter(private val context: Activity, private val dataset: Ar
         when (holder) {
             is ActivitySelfHolder1 -> {
                 val item = dataset[position] as ActivitySelf1
+                val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.users[0].profileImage))
+                        .apply(requestOptions)
                         .into(holder.ivProfileImage)
                 val textBuilder = SpannableStringBuilder()
                 val previewUsers = item.users.take(3)
@@ -150,8 +154,10 @@ class ActivitySelfAdapter(private val context: Activity, private val dataset: Ar
             }
             is ActivitySelfHolder2 -> {
                 val item = dataset[position] as ActivitySelf2
+                val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.previewUsers[0].profileImage))
+                        .apply(requestOptions)
                         .into(holder.ivProfileImage)
                 val textBuilder = SpannableStringBuilder()
 
@@ -207,8 +213,10 @@ class ActivitySelfAdapter(private val context: Activity, private val dataset: Ar
             }
             is ActivitySelfHolder3 -> {
                 val item = dataset[position] as ActivitySelf3
+                val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.previewComment.profileImage))
+                        .apply(requestOptions)
                         .into(holder.ivProfileImage)
                 val textBuilder = SpannableStringBuilder()
                 textBuilder.bold { append(item.previewComment.displayName) }
@@ -247,8 +255,10 @@ class ActivitySelfAdapter(private val context: Activity, private val dataset: Ar
             }
             is ActivitySelfHolder4 -> {
                 val item = dataset[position] as ActivitySelf4
+                val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.requests[0].profileImage))
+                        .apply(requestOptions)
                         .into(holder.ivProfileImage)
                 val textBuilder = SpannableStringBuilder()
                 val previewUsers = item.requests.take(3)

@@ -42,13 +42,13 @@ class GalleryPagerFragment : BaseSubFragment() {
     lateinit var adapter: GalleryCursorAdapter
     lateinit var recyclerView: RecyclerView
     var photoObtainedListener: PickPhotoSubFragment.PhotoObtainedListener? = null
-    var firstLoad = true
-    var activityRef: Context? = null
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        activityRef = activity
-        if (firstLoad) {
+        if(this::layout.isInitialized){
+            return layout
+        }
+
             layout = inflater.inflate(R.layout.subfragment_gallery, container, false)
 
             recyclerView = layout.subfragment_gallery_recyclerview
@@ -94,8 +94,6 @@ class GalleryPagerFragment : BaseSubFragment() {
                 requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), Prefs.EXTERNAL_STORAGE_CODE)
             }
 
-            firstLoad = false
-        }
 
         return layout
     }
@@ -117,7 +115,7 @@ class GalleryPagerFragment : BaseSubFragment() {
                 directoryList.addAll(result)
                 // put in spinner
 
-                val dirListString = directoryList.mapTo(ArrayList()) { it.albumName }
+                val dirListString = directoryList.mapTo(ArrayList()) { dir->dir.albumName }
                 val spinnerAdapter = ArrayAdapter<String>(context, android.R.layout.simple_spinner_dropdown_item, dirListString).apply {
                     setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 }
@@ -159,7 +157,7 @@ class GalleryPagerFragment : BaseSubFragment() {
 
     private fun getImageDirectories(): ArrayList<ImageDirectory> {
         val projection = arrayOf("DISTINCT " + MediaStore.Images.Media.BUCKET_ID, MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
-        val cursor = MediaStore.Images.Media.query(activityRef?.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null)
+        val cursor = MediaStore.Images.Media.query(activity?.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null)
 
         cursor.moveToFirst()
         val albumName = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)

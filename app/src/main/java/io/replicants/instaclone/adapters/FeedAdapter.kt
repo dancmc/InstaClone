@@ -15,7 +15,9 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.signature.ObjectKey
 import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.BaseMainFragment
 import io.replicants.instaclone.network.InstaApi
@@ -305,8 +307,10 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                     holder.tvCommentText.visibility = View.GONE
                 }
 
+                val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(feedItem.profileImage))
+                        .apply(requestOptions)
                         .into(holder.ivProfileHead)
 
 

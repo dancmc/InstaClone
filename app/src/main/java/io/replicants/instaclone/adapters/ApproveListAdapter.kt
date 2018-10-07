@@ -11,6 +11,8 @@ import androidx.core.text.bold
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
 import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.BaseMainFragment
 import io.replicants.instaclone.network.InstaApi
@@ -49,7 +51,11 @@ class ApproveListAdapter(private val context: Activity, private val dataset: Arr
 
         val userItem = dataset[position]
         holder as UserHolder
-        Glide.with(context).load(GlideHeader.getUrlWithHeaders(userItem?.profileImage)).into(holder.ivProfileImage)
+        val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
+        Glide.with(context)
+                .load(GlideHeader.getUrlWithHeaders(userItem?.profileImage))
+                .apply(requestOptions)
+                .into(holder.ivProfileImage)
         holder.tvDisplayName.text = SpannableStringBuilder()
                 .bold { append(userItem?.displayName) }
         holder.tvProfileName.text = userItem?.profileName

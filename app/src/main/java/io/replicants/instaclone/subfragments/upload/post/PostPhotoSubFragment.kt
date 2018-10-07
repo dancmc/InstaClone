@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
 import io.realm.Realm
 import io.replicants.instaclone.R
 import io.replicants.instaclone.network.InstaApi
@@ -64,7 +66,8 @@ class PostPhotoSubFragment : BaseSubFragment() {
 
         }
 
-        Glide.with(context!!).load(filepath).into(layout.subfragment_post_image)
+        val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
+        Glide.with(context!!).load(filepath).apply(requestOptions).into(layout.subfragment_post_image)
 
         context?.let {
             layout.subfragment_post_photo_coordinates_switch.isChecked = ContextCompat.checkSelfPermission(context!!, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED

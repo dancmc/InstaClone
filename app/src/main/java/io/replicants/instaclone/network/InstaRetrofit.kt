@@ -13,6 +13,7 @@ class InstaRetrofit {
 
     companion object {
         private val apiUrlV2 = "https://dancmc.io/instacopy/v1/"
+//        private val apiUrlV2 = "http://10.0.0.3:8080/instacopy/v1/"
         private val httpclient = OkHttpClient.Builder()
                 .addInterceptor { chain ->
                     val originalRequest = chain.request()
@@ -124,7 +125,7 @@ class InstaRetrofit {
 
         @Multipart
         @POST("user/update")
-        fun updateDetails(@Part("photo") file:RequestBody, @Part("json") json:RequestBody): Call<String>
+        fun updateDetails(@Part("profile_image") file:RequestBody, @Part("json") json:RequestBody): Call<String>
 
         @Multipart
         @POST("user/update")
