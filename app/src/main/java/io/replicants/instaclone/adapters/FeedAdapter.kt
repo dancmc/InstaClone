@@ -101,7 +101,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
         }
     }
 
-    private inner class ProgressViewHolder(v: LinearLayout) : RecyclerView.ViewHolder(v)
+    private inner class ProgressViewHolder(v: View) : RecyclerView.ViewHolder(v)
     private inner class HeaderViewHolder(var container: FrameLayout) : RecyclerView.ViewHolder(container)
 
     private fun handleLike(button: Button, item: Photo) {
@@ -189,7 +189,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                 PhotoGridViewHolder(v)
             }
             else -> {
-                val v = LayoutInflater.from(parent.context).inflate(R.layout.adapter_loading, parent, false) as LinearLayout
+                val v = LayoutInflater.from(parent.context).inflate(R.layout.adapter_loading, parent, false) as View
                 ProgressViewHolder(v)
             }
         }
@@ -356,6 +356,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
             }
             is PhotoGridViewHolder->{
                 val feedItem = dataset[position - 1]!!
+                holder.ivPhoto.setAspectRatio(1f)
                 if (feedItem.smallUrl.isNotBlank()) {
                     Glide.with(context)
                             .load(GlideHeader.getUrlWithHeaders(feedItem.smallUrl))

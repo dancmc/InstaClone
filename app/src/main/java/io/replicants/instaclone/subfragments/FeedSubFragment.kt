@@ -242,14 +242,12 @@ class FeedSubFragment : BaseSubFragment() {
             }
 
             override fun failure(context: Context, jsonResponse: JSONObject?) {
-                val failureMessage = jsonResponse?.optString("error_message") ?: ""
-                if (failureMessage.isNotBlank()) {
-                    context.toast(failureMessage)
-                }
+                super.failure(context, jsonResponse)
                 layout.subfragment_feed_refresh.isRefreshing = false
             }
 
             override fun networkFailure(context: Context?) {
+                super.networkFailure(context)
                 layout.subfragment_feed_refresh.isRefreshing = false
             }
         }
@@ -276,10 +274,7 @@ class FeedSubFragment : BaseSubFragment() {
             }
 
             override fun failure(context: Context, jsonResponse: JSONObject?) {
-                val failureMessage = jsonResponse?.optString("error_message") ?: ""
-                if (failureMessage.isNotBlank()) {
-                    context.toast(failureMessage)
-                }
+                super.failure(context, jsonResponse)
                 feedItems.removeAt(feedItems.lastIndex)
                 adapter.notifyDataSetChanged()
                 adapter.currentlyLoading = false

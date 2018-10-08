@@ -15,6 +15,7 @@ import io.replicants.instaclone.pojos.User;
 import io.replicants.instaclone.subfragments.ApproveListSubFragment;
 import io.replicants.instaclone.subfragments.BaseSubFragment;
 import io.replicants.instaclone.subfragments.CommentsSubFragment;
+import io.replicants.instaclone.subfragments.DiscoverUsersSubFragment;
 import io.replicants.instaclone.subfragments.EditProfileSubFragment;
 import io.replicants.instaclone.subfragments.MapSubFragment;
 import io.replicants.instaclone.subfragments.PhotoSpecificSubFragment;
@@ -70,6 +71,11 @@ public class BaseMainFragment extends Fragment {
         @Override
         public void moveToApproveListSubFragment(ArrayList<User> users) {
             changeFragment(ApproveListSubFragment.newInstance(users));
+        }
+
+        @Override
+        public void moveToDiscoverUsersSubFragment() {
+            changeFragment(DiscoverUsersSubFragment.newInstance());
         }
 
         @Override
@@ -142,6 +148,8 @@ public class BaseMainFragment extends Fragment {
         public void moveToEditProfileSubFragment(String displayName);
 
         public void moveToApproveListSubFragment(ArrayList<User> users);
+
+        public void moveToDiscoverUsersSubFragment();
 
         public void popBackStack(boolean reloadPreviousFragment);
 

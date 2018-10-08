@@ -28,7 +28,7 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.yesButton
 import org.json.JSONObject
 
-class UserListAdapter(private val context: Activity, private val dataset: ArrayList<User?>, private val recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+open class UserListAdapter(private val context: Activity, private val dataset: ArrayList<User?>, private val recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var clickListeners: BaseMainFragment.ClickListeners? = null
     var onLoadMoreListener: UserListAdapter.OnLoadMoreListener? = null
@@ -36,17 +36,17 @@ class UserListAdapter(private val context: Activity, private val dataset: ArrayL
     var canLoadMore = true
 
     private val visibleThreshold = 6
-    private val VIEW_TYPE_USER = 1
-    private val VIEW_TYPE_LOADING = 3
+    val VIEW_TYPE_USER = 1
+    val VIEW_TYPE_LOADING = 3
 
-    private inner class UserHolder(v: View) : RecyclerView.ViewHolder(v) {
+    inner class UserHolder(v: View) : RecyclerView.ViewHolder(v) {
         val ivProfileImage = v.userlist_item_profile_head
         val tvDisplayName = v.userlist_item_displayname
         val tvProfileName = v.userlist_item_profile_name
         val btnFollow = v.userlist_item_follow_button
         val layout = v.userlist_layout
     }
-    private inner class ProgressViewHolder(v: LinearLayout) : RecyclerView.ViewHolder(v)
+    inner class ProgressViewHolder(v: View) : RecyclerView.ViewHolder(v)
 
     init {
         val llm = recyclerView.layoutManager as LinearLayoutManager
@@ -65,7 +65,7 @@ class UserListAdapter(private val context: Activity, private val dataset: ArrayL
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if(viewType == VIEW_TYPE_LOADING){
-            ProgressViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.adapter_loading, parent, false) as LinearLayout)
+            ProgressViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.adapter_loading, parent, false))
         }else {
             UserHolder(LayoutInflater.from(parent.context).inflate(R.layout.adapter_userlist_item, parent, false))
         }
@@ -130,6 +130,7 @@ class UserListAdapter(private val context: Activity, private val dataset: ArrayL
             yesButton {
                 InstaApi.unfollowUser(user.displayName).enqueue(InstaApi.generateCallback(context, object : InstaApiCallback() {
                     override fun success(jsonResponse: JSONObject?) {
+                        user.followStatusToThem = User.STATUS_NOT_FOLLOWING
                         btn.text = if (user.isPrivate) "Request" else "Follow"
                         btn.onClick {
                             follow(btn, user)
@@ -145,10 +146,15 @@ class UserListAdapter(private val context: Activity, private val dataset: ArrayL
         InstaApi.followUser(user.displayName).enqueue(InstaApi.generateCallback(context, object : InstaApiCallback() {
             override fun success(jsonResponse: JSONObject) {
                 val response = jsonResponse.optInt("result", -1)
-
                 when (response) {
-                    0, 2 -> btn.text = "Following"
-                    1, 3 -> btn.text = "Requested"
+                    0, 2 -> {
+                        btn.text = "Following"
+                        user.followStatusToThem = User.STATUS_FOLLOWING
+                    }
+                    1, 3 -> {
+                        btn.text = "Requested"
+                        user.followStatusToThem = User.STATUS_REQUESTED
+                    }
                 }
                 btn.onClick {
                     unfollow(btn, user)
