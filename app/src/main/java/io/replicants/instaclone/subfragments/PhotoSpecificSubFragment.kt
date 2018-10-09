@@ -59,7 +59,7 @@ class PhotoSpecificSubFragment : BaseSubFragment() {
             recyclerView.layoutManager = layoutManager
 
 
-            // initialise adapter with the item list, attach adapter to recyclerview
+            // initialise cursorAdapter with the item list, attach cursorAdapter to recyclerview
             // list initially empty
             adapter = FeedAdapter(activity!!, photoList, recyclerView)
             adapter.clickListeners = clickListeners

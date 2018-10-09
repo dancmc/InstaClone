@@ -67,10 +67,6 @@ class CameraPagerFragment : BaseSubFragment() {
         return layout
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-    }
 
     fun permissionGranted() {
         initialiseCameraPreview()
@@ -83,7 +79,6 @@ class CameraPagerFragment : BaseSubFragment() {
     private fun initialiseCameraPreview() {
 
         val time = System.currentTimeMillis()
-        // TODO consider putting this in async
         doAsync {
             setCameraResolutions()
             println("TIME ${System.currentTimeMillis() - time}")
@@ -150,14 +145,14 @@ class CameraPagerFragment : BaseSubFragment() {
 
                     val currentSide = Prefs.getInstance().readInt(Prefs.CAMERA_SIDE, SIDE_BACK)
                     val newSide = if (currentSide == SIDE_FRONT) SIDE_BACK else SIDE_FRONT
-                    val flashStatus = Prefs.getInstance().readBoolean(Prefs.CAMERA_FLASH_STATUS, false)
+                    val flashStatus2 = Prefs.getInstance().readBoolean(Prefs.CAMERA_FLASH_STATUS, false)
                     Prefs.getInstance().writeInt(Prefs.CAMERA_SIDE, newSide)
 
                     layout.subfragment_camera_flash.isEnabled = newSide == SIDE_BACK
-                    layout.subfragment_camera_flash.isSelected = flashStatus
+                    layout.subfragment_camera_flash.isSelected = flashStatus2
 
                     fotoapparat?.switchTo(
-                            if (newSide == SIDE_FRONT) front() else back(), getConfig(newSide, flashStatus)
+                            if (newSide == SIDE_FRONT) front() else back(), getConfig(newSide, flashStatus2)
                     )
                 }
 
@@ -182,7 +177,8 @@ class CameraPagerFragment : BaseSubFragment() {
             if (ContextCompat.checkSelfPermission(context!!, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 initialiseCameraPreview()
             } else {
-                requestPermissions(arrayOf(Manifest.permission.CAMERA), Prefs.CAMERA_REQUEST_CODE)
+                // todo insert some request button
+
             }
         }, 500)
 

@@ -41,7 +41,6 @@
             android:layout_gravity="right"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
-            android:layout_marginRight="16dp"
             android:text="Post"
             android:textSize="18sp"
             android:textStyle="bold"

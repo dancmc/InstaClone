@@ -29,8 +29,6 @@ class UploadPhotoActivity : AppCompatActivity(), PickPhotoSubFragment.PhotoObtai
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        deleteExtraPhotos()
-
         val manager = supportFragmentManager
         val transaction = manager.beginTransaction()
         val getPhotoFragment = PickPhotoSubFragment()
@@ -74,29 +72,19 @@ class UploadPhotoActivity : AppCompatActivity(), PickPhotoSubFragment.PhotoObtai
         supportFragmentManager.popBackStack("photoEdited", FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 
-    private fun deleteExtraPhotos() {
-        val savedSet = HashSet<String>()
-        Realm.getDefaultInstance().where(SavedPhoto::class.java).findAll().forEach {
-            savedSet.add(it.photoFile)
-        }
-        val folder = File(filesDir, "photos")
-        if (folder.exists()) {
-            folder.listFiles().forEach {
-                if (!it.isDirectory && it.absolutePath !in savedSet && it.absolutePath.endsWith(".jpg")) {
-                    it.delete()
-                }
-            }
-        }
-
-    }
 
     override fun onBackPressed() {
         val frag = supportFragmentManager.findFragmentById(R.id.add_photo_container)
-        if (frag != null && frag is EditPhotoSubFragment) {
-            frag.cancelCurrentEdit()
-        }else {
-            super.onBackPressed()
+        when{
+            frag != null && frag is EditPhotoSubFragment->frag.cancelCurrentEdit()
+            frag != null && frag is PickPhotoSubFragment->{
+                if(!frag.handleBackPressed()){
+                    super.onBackPressed()
+                }
+            }
+            else->super.onBackPressed()
         }
+
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -114,6 +102,9 @@ class UploadPhotoActivity : AppCompatActivity(), PickPhotoSubFragment.PhotoObtai
                     toast("Location permission not granted")
                 }
             }
+        }else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
+
     }
 }

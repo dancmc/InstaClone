@@ -34,12 +34,47 @@
         <TextView
             android:id="@+id/subfragment_gallery_toolbar_next"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:textSize="18sp"
             android:textStyle="bold"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
             android:text="Next"
-            android:layout_marginRight="16dp"
+            android:gravity="center"
             android:layout_gravity="right"/>
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/subfragment_gallery_toolbar_longclick"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        app:contentInsetLeft="0dp"
+        android:elevation="4dp"
+        android:background="@color/offwhite"
+        app:contentInsetStart="0dp"
+
+        app:titleTextAppearance="@style/Toolbar.TitleText"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/subfragment_gallery_toolbar_longclick_cancel"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="8dp"
+            android:layout_marginRight="4dp"
+            android:src="@drawable/icon_close_grey"/>
+
+        <TextView
+            android:id="@+id/subfragment_gallery_toolbar_longclick_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:layout_marginLeft="16dp"
+            android:text="0 photos"/>
+
+
+
+
     </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout

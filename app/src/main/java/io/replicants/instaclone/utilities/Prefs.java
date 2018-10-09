@@ -18,6 +18,7 @@ public class Prefs {
     public static String CAMERA_SIDE = "camera_side";
     public static int LOCATION_REQUEST_CODE =757;
     public static int CAMERA_REQUEST_CODE =123;
+    public static int CAMERA_STORAGE_REQUEST_CODE =133;
     public static int EXTERNAL_STORAGE_CODE =372;
 
     public static String CAMERA_BACK_WIDTH = "camera_back_width";

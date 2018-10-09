@@ -99,31 +99,6 @@ class EditPhotoSubFragment : BaseSubFragment(),
         filepath = arguments?.getString("fileName") ?: ""
         photoID = arguments?.getString("photoID") ?: ""
 
-        context?.let {
-            val builder = AlertDialog.Builder(it)
-            builder.setTitle(R.string.save_draft_title)
-                    .setMessage(R.string.save_draft_text)
-            builder.apply {
-                setNegativeButton(R.string.discard){ dialog, id ->
-                    listener?.editCancelled()
-                }
-                setPositiveButton(R.string.save_draft) { dialog, id ->
-                    realm.beginTransaction()
-                    val savedPhoto = realm.where(SavedPhoto::class.java).equalTo("photoID", photoID).findFirst() ?:
-                    SavedPhoto()
-                    savedPhoto.photoID = photoID
-                    savedPhoto.temp = false
-                    savedPhoto.photoFile = filepath
-                    savedPhoto.editPhotoState = saveState()
-                    savedPhoto.imageViewState = imageView.saveState()
-                    realm.copyToRealmOrUpdate(savedPhoto)
-                    realm.commitTransaction()
-                    listener?.editCancelled()
-                }
-            }
-            saveDialog = builder.create()
-        }
-
 
         //create the overall bitmap
         var options = BitmapFactory.Options()
@@ -192,18 +167,7 @@ class EditPhotoSubFragment : BaseSubFragment(),
         tx.commit()
 
 
-        // Setup the toolbar
-        layout.subfragment_edit_photo_toolbar_back.onClick {
-            saveDialog.show()
-        }
-
-        layout.subfragment_edit_photo_toolbar_next.onClick {
-            val photoFolder = File(context!!.filesDir, "posting")
-            if (!photoFolder.exists()) {
-                photoFolder.mkdir()
-            }
-            val file = File(photoFolder, "$photoID.jpg")
-
+        fun saveEditedPhoto(file:File){
             // we need to scale by the original sample scale
             val finalMatrix = Matrix(imageView.imageMatrix)
 
@@ -306,8 +270,70 @@ class EditPhotoSubFragment : BaseSubFragment(),
                 e.printStackTrace()
             }
 
+        }
+
+        // Setup the toolbar
+        layout.subfragment_edit_photo_toolbar_back.onClick {
+            saveDialog.show()
+        }
+
+        layout.subfragment_edit_photo_toolbar_next.onClick {
+            val postingFolder = File(context!!.filesDir, "posting")
+            if (!postingFolder.exists()) {
+                postingFolder.mkdir()
+            }
+            val file = File(postingFolder, "$photoID.jpg")
+
+            saveEditedPhoto(file)
 
             listener?.photoEdited(photoID, file.absolutePath)
+        }
+
+        context?.let {
+            val builder = AlertDialog.Builder(it)
+            builder.setTitle(R.string.save_draft_title)
+                    .setMessage(R.string.save_draft_text)
+            builder.apply {
+                setNegativeButton(R.string.discard){ dialog, id ->
+                    listener?.editCancelled()
+                }
+                setPositiveButton(R.string.save_draft) { dialog, id ->
+
+                    val photoFolder = File(context.filesDir, "photos")
+                    if (!photoFolder.exists()) {
+                        photoFolder.mkdir()
+                    }
+                    val previewFile = File(photoFolder, "$photoID-preview.jpg")
+
+                    realm.beginTransaction()
+                    var savedPhoto = realm.where(SavedPhoto::class.java).equalTo("photoID", photoID).findFirst()
+                    if(savedPhoto!=null) {
+                        savedPhoto.photoFile = filepath
+                        savedPhoto.photoFilePreview = previewFile.absolutePath
+                        val oldEditPhotoState = savedPhoto.editPhotoState
+                        savedPhoto.editPhotoState = realm.copyToRealm(saveState())
+                        oldEditPhotoState?.deleteFromRealm()
+                        val oldImageViewState = savedPhoto.imageViewState
+                        savedPhoto.imageViewState = realm.copyToRealm(imageView.saveState())
+                        oldImageViewState?.deleteFromRealm()
+                        realm.copyToRealmOrUpdate(savedPhoto)
+                    }else {
+                        savedPhoto = SavedPhoto()
+                        savedPhoto.photoID = photoID
+                        savedPhoto.photoFile = filepath
+                        savedPhoto.photoFilePreview = previewFile.absolutePath
+                        savedPhoto.editPhotoState = saveState()
+                        savedPhoto.imageViewState = imageView.saveState()
+                        realm.copyToRealm(savedPhoto)
+                    }
+                    realm.commitTransaction()
+
+                    saveEditedPhoto(previewFile)
+
+                    listener?.editCancelled()
+                }
+            }
+            saveDialog = builder.create()
         }
 
         return layout

@@ -10,20 +10,20 @@ import io.replicants.instaclone.views.ZoomRotateImageViewState
 open class SavedPhoto():RealmObject(){
         @PrimaryKey var photoID: String = ""
         var photoFile: String = ""
+        var photoFilePreview: String = ""
         var caption: String = ""
         var locationName: String = ""
         var longitude: Double = 0.0
         var latitude: Double = 0.0
         var editPhotoState:EditPhotoState?=null
         var imageViewState: ZoomRotateImageViewState?=null
-        var temp = true
 
 
-    constructor(temp:Boolean, photoID:String, photoFile:String, caption:String, locationName:String,
+    constructor(temp:Boolean, photoID:String, photoFile:String, photoFilePreview:String,caption:String, locationName:String,
                   longitude:Double, latitude:Double, editPhotoState:EditPhotoState, imageViewState:ZoomRotateImageViewState):this(){
-        this.temp = temp
         this.photoID = photoID
         this.photoFile = photoFile
+        this.photoFilePreview = photoFilePreview
         this.caption = caption
         this.locationName = locationName
         this.longitude = longitude

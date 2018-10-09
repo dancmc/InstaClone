@@ -79,7 +79,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                 private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
                     override fun onDoubleTap(e: MotionEvent): Boolean {
                         val item = dataset[adapterPosition-1]
-                        handleLike(btLike, item!!)
+                        handleLike(btLike, tvLikeText, item!!)
                         return super.onDoubleTap(e)
                     }
                 })
@@ -104,36 +104,79 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
     private inner class ProgressViewHolder(v: View) : RecyclerView.ViewHolder(v)
     private inner class HeaderViewHolder(var container: FrameLayout) : RecyclerView.ViewHolder(container)
 
-    private fun handleLike(button: Button, item: Photo) {
-        toggleLike(button, item)
+    private fun handleLike(button: Button, textview:TextView, item: Photo) {
+        toggleLike(button, textview, item)
 
         if (item.isLiked) {
             InstaApi.likePhoto(item.photoID).enqueue(InstaApi.generateCallback(context, object : InstaApiCallback() {
                 override fun success(jsonResponse: JSONObject) {
-                    if (!jsonResponse.optBoolean("success")) {
-                        toggleLike(button, item)
-                    }
+
                 }
 
-                override fun failure(context: Context,jsonResponse: JSONObject?) = toggleLike(button, item)
+                override fun failure(context: Context,jsonResponse: JSONObject?){
+                    super.failure(context, jsonResponse)
+                    toggleLike(button,  textview,item)
+                }
 
             }))
         } else {
             InstaApi.unlikePhoto(item.photoID).enqueue(InstaApi.generateCallback(context, object : InstaApiCallback() {
                 override fun success(jsonResponse: JSONObject) {
-                    if (!jsonResponse.optBoolean("success")) {
-                        toggleLike(button, item)
-                    }
+
                 }
 
-                override fun failure(context: Context, jsonResponse: JSONObject?) = toggleLike(button, item)
+                override fun failure(context: Context, jsonResponse: JSONObject?){
+                    super.failure(context, jsonResponse)
+                    toggleLike(button, textview, item)
+                }
             }))
         }
     }
 
-    private fun toggleLike(button: Button, photo: Photo) {
+    private fun toggleLike(button: Button, textview:TextView, photo: Photo) {
+        if(photo.isLiked){
+            photo.totalLikes--
+        } else {
+            photo.totalLikes++
+        }
         photo.isLiked = !photo.isLiked
         button.isSelected = photo.isLiked
+        populateLikesText(photo, textview)
+    }
+
+    private fun populateLikesText(feedItem:Photo,textview:TextView){
+        val likeBuilder = SpannableStringBuilder()
+
+        if (feedItem.previewLikes.isNotEmpty()) {
+
+            val joinedLikes = feedItem.previewLikes.joinToString(", ")
+            likeBuilder.append("Liked by ")
+                    .bold { append(joinedLikes) }
+            val remaining = feedItem.totalLikes - feedItem.previewLikes.size
+            if (remaining > 0) {
+                likeBuilder.append(" and ")
+                        .bold { append("$remaining ${if (remaining > 1) "others" else "other"}") }
+            }
+            feedItem.previewLikes.forEach {
+                likeBuilder.setClickableSpan(it) {
+                    clickListeners?.moveToProfileSubFragment(it)
+
+                }
+            }
+            likeBuilder.setClickableSpan(likeBuilder.toString().substringAfter(" and ")) {
+                clickListeners?.moveToUserListSubFragmentWithCall(UserListSubFragment.CallType.LIKES, feedItem.photoID)
+            }
+
+        } else {
+            if (feedItem.totalLikes > 0) {
+                likeBuilder.bold { append("${feedItem.totalLikes} ${if (feedItem.totalLikes > 1) "likes" else "like"}") }
+            }
+
+            likeBuilder.setClickableSpan(likeBuilder.toString()) {
+                clickListeners?.moveToUserListSubFragmentWithCall(UserListSubFragment.CallType.LIKES, feedItem.photoID)
+            }
+        }
+        textview.text = likeBuilder
     }
 
     init {
@@ -233,38 +276,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
 
                 holder.btLike.isSelected = feedItem.isLiked
 
-                val likeBuilder = SpannableStringBuilder()
-
-                if (feedItem.previewLikes.isNotEmpty()) {
-
-                    val joinedLikes = feedItem.previewLikes.joinToString(", ")
-                    likeBuilder.append("Liked by ")
-                            .bold { append(joinedLikes) }
-                    val remaining = feedItem.totalLikes - feedItem.previewLikes.size
-                    if (remaining > 0) {
-                        likeBuilder.append(" and ")
-                                .bold { append("$remaining ${if (remaining > 1) "others" else "other"}") }
-                    }
-                    feedItem.previewLikes.forEach {
-                        likeBuilder.setClickableSpan(it) {
-                            clickListeners?.moveToProfileSubFragment(it)
-
-                        }
-                    }
-                    likeBuilder.setClickableSpan(likeBuilder.toString().substringAfter(" and ")) {
-                        clickListeners?.moveToUserListSubFragmentWithCall(UserListSubFragment.CallType.LIKES, feedItem.photoID)
-                    }
-
-                } else {
-                    if (feedItem.totalLikes > 0) {
-                        likeBuilder.bold { append("${feedItem.totalLikes} ${if (feedItem.totalLikes > 1) "likes" else "like"}") }
-                    }
-
-                    likeBuilder.setClickableSpan(likeBuilder.toString()) {
-                        clickListeners?.moveToUserListSubFragmentWithCall(UserListSubFragment.CallType.LIKES, feedItem.photoID)
-                    }
-                }
-                holder.tvLikeText.text = likeBuilder
+                populateLikesText(feedItem, holder.tvLikeText)
 
                 if(feedItem.caption.isNotBlank()){
                     holder.tvCaption.visibility = View.VISIBLE
@@ -339,7 +351,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
 
 
                 holder.btLike.setOnClickListener {
-                    handleLike(holder.btLike, feedItem)
+                    handleLike(holder.btLike, holder.tvLikeText, feedItem)
                 }
 
                 holder.btComment.setOnClickListener {

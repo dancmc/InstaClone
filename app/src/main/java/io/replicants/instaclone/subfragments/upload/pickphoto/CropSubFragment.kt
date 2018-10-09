@@ -12,7 +12,12 @@ import android.net.Uri
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
 import io.replicants.instaclone.R
+import kotlinx.android.synthetic.main.subfragment_crop.view.*
 
 
 class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener{
@@ -21,14 +26,31 @@ class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener{
     private var mCropImageView: CropImageView? = null
     var onCropImageCompleteListener:CropImageView.OnCropImageCompleteListener? = null
     lateinit var rootView : View
+    var plainImageView :ImageView?=null
 
 
     /** Set the image to show for cropping.  */
     fun setImageUri(imageUri: Uri) {
-        mCropImageView!!.setImageUriAsync(imageUri)
+        mCropImageView?.visibility = View.VISIBLE
+        plainImageView?.visibility = View.GONE
+        context?.let {
+            Glide.with(it).clear(plainImageView!!)
+        }
+        mCropImageView?.setImageUriAsync(imageUri)
 
         //        CropImage.activity(imageUri)
         //                .start(getContext(), this);
+    }
+
+    fun setPlainImage(path:String){
+        mCropImageView?.visibility = View.GONE
+        mCropImageView?.clearImage()
+        plainImageView?.visibility = View.VISIBLE
+        context?.let {
+            val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
+            Glide.with(it).load(path).apply(requestOptions).into(plainImageView!!)
+        }
+
     }
 
     fun clear(){
@@ -87,6 +109,7 @@ class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener{
         mCropImageView!!.setCropShape(CropImageView.CropShape.RECTANGLE);
         mCropImageView!!.setGuidelines(CropImageView.Guidelines.ON_TOUCH);
         mCropImageView!!.rotatedDegrees
+        plainImageView = rootView.subfragment_plain_imageview
 //        mCropImageView!!.setAspectRatio(options.aspectRatio.first, options.aspectRatio.second);
 //        mCropImageView!!.setFixedAspectRatio(options.fixAspectRatio);
 //        mCropImageView!!.setMultiTouchEnabled(true);
@@ -148,7 +171,9 @@ class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener{
         }
     }
 
-
+    fun setTouchable(touchable:Boolean){
+        mCropImageView?.isEnabled = touchable
+    }
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

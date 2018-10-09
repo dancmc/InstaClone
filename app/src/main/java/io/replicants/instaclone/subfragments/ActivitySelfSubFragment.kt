@@ -55,7 +55,7 @@ class ActivitySelfSubFragment : BaseSubFragment() {
             recyclerView.layoutManager = LinearLayoutManager(activity)
 
 
-            // initialise adapter with the item list, attach adapter to recyclerview
+            // initialise cursorAdapter with the item list, attach cursorAdapter to recyclerview
             // list initially empty
             adapter = ActivitySelfAdapter(activity!!, activityItems, recyclerView)
             adapter.clickListeners = clickListeners

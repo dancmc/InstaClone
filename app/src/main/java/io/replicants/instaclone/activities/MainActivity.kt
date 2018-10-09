@@ -11,17 +11,21 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import io.realm.Realm
 import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.*
 import io.replicants.instaclone.network.InstaApi
+import io.replicants.instaclone.pojos.SavedPhoto
 import io.replicants.instaclone.utilities.MyApplication
 import io.replicants.instaclone.utilities.Prefs
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.toast
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.File
 import java.util.*
 
 
@@ -83,6 +87,9 @@ class MainActivity : AppCompatActivity() {
             })
         }
 
+        launch {
+         cleanupStorage()
+        }
 
     }
 
@@ -238,5 +245,27 @@ class MainActivity : AppCompatActivity() {
             (supportFragmentManager.findFragmentByTag(currentFragment) as? ProfileMainFragment?)?.showUploaded()
         }
 
+    }
+
+    private fun cleanupStorage() {
+        val savedSet = HashSet<String>()
+        Realm.getDefaultInstance().where(SavedPhoto::class.java).findAll().forEach {
+            savedSet.add(it.photoFile)
+            savedSet.add(it.photoFilePreview)
+        }
+        var folder = File(filesDir, "photos")
+        if (folder.exists()) {
+            folder.listFiles().forEach {
+                if (!it.isDirectory && it.absolutePath !in savedSet && it.absolutePath.endsWith(".jpg")) {
+                    it.delete()
+                }
+            }
+        }
+        folder = File(filesDir, "posting")
+        if (folder.exists()) {
+            folder.listFiles().forEach {
+                    it.delete()
+            }
+        }
     }
 }
