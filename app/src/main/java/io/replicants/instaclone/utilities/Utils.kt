@@ -367,10 +367,9 @@ class Utils {
 
         @JvmStatic
         fun redirectToSettings(@StringRes title:Int, @StringRes text:Int, context: Context) {
-            val builder = AlertDialog.Builder(context)
-            builder.setTitle(title)
-                    .setMessage(text)
-            builder.apply {
+            AlertDialog.Builder(context).apply {
+                setTitle(title)
+                setMessage(text)
                 setNegativeButton(R.string.cancel){ dialog, id ->
 
                 }
@@ -381,20 +380,26 @@ class Utils {
                     intent.data = uri
                     context.startActivity(intent)
                 }
+                show()
             }
-            builder.show()
         }
 
         @JvmStatic
-        fun updateDetails(context: Context, function:()->Unit){
+        fun updateDetails(context: Context, success:()->Unit, failure:(JSONObject?)->Unit={}){
             InstaApi.getDetails().enqueue(InstaApi.generateCallback(context, object: InstaApiCallback(){
                 override fun success(jsonResponse: JSONObject?) {
 
                     Prefs.getInstance().writeString(Prefs.USERNAME, jsonResponse?.optString("username"))
                     Prefs.getInstance().writeString(Prefs.USER_ID, jsonResponse?.optString("user_id"))
                     Prefs.getInstance().writeString(Prefs.DISPLAY_NAME, jsonResponse?.optString("display_name"))
+                    Prefs.getInstance().writeString(Prefs.PROFILE_IMAGE, jsonResponse?.optString("profile_image"))
 
-                    function.invoke()
+                    success.invoke()
+                }
+
+                override fun failure(context: Context?, jsonResponse: JSONObject?) {
+                    super.failure(context, jsonResponse)
+                    failure.invoke(jsonResponse)
                 }
             }))
 

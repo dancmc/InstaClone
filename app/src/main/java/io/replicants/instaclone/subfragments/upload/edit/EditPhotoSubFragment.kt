@@ -76,7 +76,6 @@ class EditPhotoSubFragment : BaseSubFragment(),
     var savedBrightness = 0
     var contrast = 0
     var savedContrast = 0
-    // todo save this
     var contrastMatrixValue = 1f
     var savedContrastMatrixValue = 1f
     var saturation = 0
@@ -290,10 +289,9 @@ class EditPhotoSubFragment : BaseSubFragment(),
         }
 
         context?.let {
-            val builder = AlertDialog.Builder(it)
-            builder.setTitle(R.string.save_draft_title)
-                    .setMessage(R.string.save_draft_text)
-            builder.apply {
+            val builder = AlertDialog.Builder(it).apply {
+                setTitle(R.string.save_draft_title)
+                setMessage(R.string.save_draft_text)
                 setNegativeButton(R.string.discard){ dialog, id ->
                     listener?.editCancelled()
                 }
@@ -332,6 +330,7 @@ class EditPhotoSubFragment : BaseSubFragment(),
 
                     listener?.editCancelled()
                 }
+
             }
             saveDialog = builder.create()
         }

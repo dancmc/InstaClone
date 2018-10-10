@@ -84,6 +84,7 @@ class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener{
     }
 
     fun updateCurrentCropViewOptions() {
+        // have some preset options
 //        val options = CropImageViewOptions()
 //        options.scaleType = mCropImageView!!.scaleType
 //        options.cropShape = mCropImageView!!.cropShape
@@ -162,7 +163,7 @@ class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener{
 
     override fun onSetImageUriComplete(view: CropImageView, uri: Uri, error: Exception?) {
         if (error == null) {
-            Toast.makeText(activity, "Image load successful", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(activity, "Image load successful", Toast.LENGTH_SHORT).show()
 
         } else {
             Log.e("AIC", "Failed to load image by URI", error)

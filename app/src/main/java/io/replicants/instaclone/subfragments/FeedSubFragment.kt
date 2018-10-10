@@ -168,7 +168,7 @@ class FeedSubFragment : BaseSubFragment() {
                             } else {
                                 adapter.currentlyLoading = false
                                 adapter.canLoadMore = false
-                                activity?.toast("Could not resolve previous location, please loadHeader feed")
+                                activity?.toast("Could not resolve previous location, please reload feed")
                             }
                         }
                     }

@@ -22,6 +22,7 @@ import io.fotoapparat.selector.*
 import io.replicants.instaclone.R
 import io.replicants.instaclone.subfragments.BaseSubFragment
 import io.replicants.instaclone.utilities.Prefs
+import io.replicants.instaclone.utilities.Utils
 import io.replicants.instaclone.utilities.rotate
 import kotlinx.android.synthetic.main.subfragment_camera.view.*
 import kotlinx.android.synthetic.main.subfragment_gallery.view.*
@@ -53,7 +54,6 @@ class CameraPagerFragment : BaseSubFragment() {
     var backHeight = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        //TODO check somewhere that camera actually exists
 
         if(this::layout.isInitialized){
             return layout
@@ -69,21 +69,28 @@ class CameraPagerFragment : BaseSubFragment() {
 
 
     fun permissionGranted() {
+        layout.subfragment_camera_request_camera.visibility = View.GONE
         initialiseCameraPreview()
     }
 
     fun permissionDenied() {
-        //TODO create some request button
+        layout.subfragment_camera_request_camera.visibility = View.VISIBLE
+        layout.subfragment_camera_request_camera.onClick {
+            if (Prefs.getInstance().readBoolean(Prefs.CAMERA_DENIED_FOREVER, false)) {
+                context?.let { c ->
+                    Utils.redirectToSettings(R.string.request_camera_title, R.string.request_camera_text, c)
+                }
+            }else {
+                requestPermissions(arrayOf(Manifest.permission.CAMERA), Prefs.CAMERA_REQUEST_CODE)
+            }
+        }
     }
 
     private fun initialiseCameraPreview() {
 
-        val time = System.currentTimeMillis()
         doAsync {
             setCameraResolutions()
-            println("TIME ${System.currentTimeMillis() - time}")
             uiThread {
-                val time2 = System.currentTimeMillis()
                 val flashStatus = Prefs.getInstance().readBoolean(Prefs.CAMERA_FLASH_STATUS, false)
                 val side = Prefs.getInstance().readInt(Prefs.CAMERA_SIDE, SIDE_BACK)
 
@@ -156,12 +163,8 @@ class CameraPagerFragment : BaseSubFragment() {
                     )
                 }
 
-                println("TIME2 ${System.currentTimeMillis() - time2}")
-
-                val time3 = System.currentTimeMillis()
                 try {
                     fotoapparat?.start()
-                    println("TIME3 ${System.currentTimeMillis() - time3}")
                 } catch (e: IllegalStateException) {
                     println(e.message)
                 }
@@ -175,10 +178,9 @@ class CameraPagerFragment : BaseSubFragment() {
         super.onStart()
         Handler().postDelayed({
             if (ContextCompat.checkSelfPermission(context!!, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                initialiseCameraPreview()
+                permissionGranted()
             } else {
-                // todo insert some request button
-
+                permissionDenied()
             }
         }, 500)
 

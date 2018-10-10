@@ -49,17 +49,7 @@ class LoginActivity : AppCompatActivity() {
     fun login(username: String, password: String) {
         val callback = InstaApi.generateCallback(this,  object: InstaApiCallback(){
             override fun success(jsonResponse: JSONObject) {
-                val jwt = jsonResponse.optString("jwt")
-                if (jwt.isNotBlank()) {
-                    Prefs.getInstance().writeString(Prefs.JWT, jwt)
-                    GlideHeader.setAuthorization(jwt)
-                    Prefs.getInstance().writeString(Prefs.USERNAME, jsonResponse.optString("username"))
-                    Prefs.getInstance().writeString(Prefs.USER_ID, jsonResponse.optString("user_id"))
-                    Prefs.getInstance().writeString(Prefs.DISPLAY_NAME, jsonResponse.optString("display_name"))
-                    val mainIntent = Intent(this@LoginActivity, MainActivity::class.java)
-                    startActivity(mainIntent)
-                    finish()
-                }
+                processSuccessfulLogin(jsonResponse)
             }
 
             override fun failure(context: Context, jsonResponse: JSONObject?) {
@@ -73,17 +63,7 @@ class LoginActivity : AppCompatActivity() {
     fun register(username: String, password: String, firstName: String, lastName: String, displayName: String, email: String) {
         val callback = InstaApi.generateCallback(this,  object: InstaApiCallback(){
             override fun success(jsonResponse: JSONObject) {
-                val jwt = jsonResponse.optString("jwt")
-                if (jwt.isNotBlank()) {
-                    Prefs.getInstance().writeString(Prefs.JWT, jwt)
-                    GlideHeader.setAuthorization(jwt)
-                    Prefs.getInstance().writeString(Prefs.USERNAME, jsonResponse.optString("username"))
-                    Prefs.getInstance().writeString(Prefs.USER_ID, jsonResponse.optString("user_id"))
-                    Prefs.getInstance().writeString(Prefs.DISPLAY_NAME, jsonResponse.optString("display_name"))
-                    val mainIntent = Intent(this@LoginActivity, MainActivity::class.java)
-                    startActivity(mainIntent)
-                    finish()
-                }
+               processSuccessfulLogin(jsonResponse)
             }
 
             override fun failure(context: Context,jsonResponse: JSONObject?) {
@@ -92,5 +72,20 @@ class LoginActivity : AppCompatActivity() {
         })
 
         InstaApi.userRegister(username, password, firstName, lastName, displayName, email).enqueue(callback)
+    }
+
+    fun processSuccessfulLogin(jsonResponse:JSONObject){
+        val jwt = jsonResponse.optString("jwt")
+        if (jwt.isNotBlank()) {
+            Prefs.getInstance().writeString(Prefs.JWT, jwt)
+            GlideHeader.setAuthorization(jwt)
+            Prefs.getInstance().writeString(Prefs.USERNAME, jsonResponse.optString("username"))
+            Prefs.getInstance().writeString(Prefs.USER_ID, jsonResponse.optString("user_id"))
+            Prefs.getInstance().writeString(Prefs.DISPLAY_NAME, jsonResponse.optString("display_name"))
+            Prefs.getInstance().writeString(Prefs.PROFILE_IMAGE, jsonResponse.optString("profile_image"))
+            val mainIntent = Intent(this@LoginActivity, MainActivity::class.java)
+            startActivity(mainIntent)
+            finish()
+        }
     }
 }

@@ -120,9 +120,6 @@ class EditProfileSubFragment : BaseSubFragment() {
                             password = null
                         }
 
-                        if (inputDisplayName != displayName) {
-                            Prefs.getInstance().writeString(DISPLAY_NAME, inputDisplayName)
-                        }
 
                         Utils.hideKeyboardFrom(activity!!.applicationContext, layout.profile_desc)
 
@@ -138,9 +135,9 @@ class EditProfileSubFragment : BaseSubFragment() {
                                 if(dialog.isShowing){
                                     dialog.dismiss()
                                 }
-                                Utils.updateDetails(context!!) {
+                                Utils.updateDetails(context!!, {
                                     clickListeners?.popBackStack(true);
-                                }
+                                })
                             }
 
                             override fun failure(context: Context?, jsonResponse: JSONObject?) {

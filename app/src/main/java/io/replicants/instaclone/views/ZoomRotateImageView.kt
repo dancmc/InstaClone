@@ -135,7 +135,6 @@ class ZoomRotateImageView : ImageView {
 
 
             oldScaleFactor = scaleFactor
-            println("$oldScaleFactor, $scaleFactor")
 
             return true
         }
@@ -160,7 +159,6 @@ class ZoomRotateImageView : ImageView {
             if (Math.pow((e1!!.x - e2!!.x).toDouble(), 2.0) + Math.pow((e1.y - e2.y).toDouble(), 2.0) > SWIPE_MIN_DISTANCE &&
                     Math.pow(velocityX.toDouble(), 2.0) + Math.pow(velocityY.toDouble(), 2.0) > SWIPE_THRESHOLD_VELOCITY) {
 
-                println("fling")
                 flinging = true
 
                 // calculate duration - exponential for now - constant time
@@ -262,8 +260,6 @@ class ZoomRotateImageView : ImageView {
 
         val a = FloatArray(2)
         imageMatrix.mapPoints(a)
-
-        println("rotate scale $forPostScale $oldScaleFactor $scaleFactor")
 
         invalidate()
     }
@@ -430,7 +426,6 @@ class ZoomRotateImageView : ImageView {
                         imageMatrix = imageMatrix.apply {
                             postTranslate(event.x - lastTouchX, event.y - lastTouchY)
                         }
-                        println("move")
                     }
 
 
@@ -511,23 +506,6 @@ class ZoomRotateImageView : ImageView {
         return true
     }
 
-//    private fun getOffsets() {
-//
-//        offsets[0] = 0f
-//        offsets[1] = 0f
-//        offsets[2] = originalWidth.toFloat()
-//        offsets[3] = originalHeight.toFloat()
-//        imageMatrix.mapPoints(offsets)
-////        offsets[0] = matVal[Matrix.MTRANS_X]
-////        offsets[1] = matVal[Matrix.MTRANS_Y]
-////        offsets[2] = offsets[0] + originalWidth * scaleFactor - viewWidth
-////        offsets[3] = offsets[1] + originalHeight * scaleFactor - viewHeight
-//
-//        // this part only works
-//        offsets[2] = offsets[2] - viewWidth
-//        offsets[3] = offsets[3] - viewHeight
-//
-//    }
 
 
     data class CoordinateHolder(var x: Float, var y: Float, var tag: Int = 0)
@@ -560,7 +538,6 @@ class ZoomRotateImageView : ImageView {
 
     // enhanced version of static method in Utils to avoid allocating new arrays all the time
     fun populateFutureImagePoints(zoomFix: Float) {
-        // todo this should actually be set at the beginning instead of every time
         ipArray[0] = 0f
         ipArray[1] = 0f
         ipArray[2] = originalWidth.toFloat()

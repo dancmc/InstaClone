@@ -14,17 +14,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.realm.Realm
 import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.*
-import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.pojos.SavedPhoto
 import io.replicants.instaclone.utilities.MyApplication
 import io.replicants.instaclone.utilities.Prefs
+import io.replicants.instaclone.utilities.Utils
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.toast
-import org.json.JSONObject
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.io.File
 import java.util.*
 
@@ -49,9 +45,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        println(1.2f in 1.2f..3.4f)
-        println(1.3f in 1.2f..3.4f)
-
         val menuView = navigation.getChildAt(0) as BottomNavigationMenuView
         for (i in 0 until menuView.childCount) {
             val iconView = menuView.getChildAt(i).findViewById<View>(R.id.icon)
@@ -63,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         }
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
-        if (Prefs.getInstance().readString(Prefs.JWT,"").isBlank()) {
+        if (Prefs.getInstance().readString(Prefs.JWT, "").isBlank()) {
             logout()
         } else {
             if (savedInstanceState != null) {
@@ -71,24 +64,18 @@ class MainActivity : AppCompatActivity() {
             } else {
                 switchFragment(TAG_HOME)
             }
-            InstaApi.validate().enqueue(object : Callback<String> {
-                override fun onResponse(call: Call<String>?, response: Response<String>?) {
-                    val responseJson = JSONObject(response?.body() ?: "{}")
-                    val success = responseJson.optBoolean("success")
-                    if (!success) {
-                        if (responseJson.optInt("error_code", -1) == 0) {
+
+            Utils.updateDetails(this,
+                    success = {},
+                    failure = { responseJson ->
+                        if (responseJson?.optInt("error_code", -1) ?: 0 == 0) {
                             logout()
                         }
-                    }
-                }
-
-                override fun onFailure(call: Call<String>?, t: Throwable?) {
-                }
-            })
+                    })
         }
 
         launch {
-         cleanupStorage()
+            cleanupStorage()
         }
 
     }
@@ -122,9 +109,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun switchFragment(target: String) {
 
-        if(currentFragment == target){
+        if (currentFragment == target) {
             (supportFragmentManager.findFragmentByTag(currentFragment) as BaseMainFragment).clearBackStack()
-        }else {
+        } else {
 
             val manager = supportFragmentManager
             val transaction = manager.beginTransaction()
@@ -169,8 +156,8 @@ class MainActivity : AppCompatActivity() {
         for (frag in fm.fragments) {
             if (frag.isVisible) {
                 // give opportunity for mainfragment to consume back press
-                if(frag is BaseMainFragment){
-                    if(frag.handleBackPress()){
+                if (frag is BaseMainFragment) {
+                    if (frag.handleBackPress()) {
                         return
                     }
                 }
@@ -209,13 +196,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == Prefs.LOCATION_REQUEST_CODE) {
-            if (permissions.size == 1 && permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION ) {
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (permissions.size == 1 && permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     MyApplication.instance.activateStoredCallback(true, this)
                     toast("Location permission granted")
-                }else{
+                } else {
                     // check if user checked never show again
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         Prefs.getInstance().writeBoolean(Prefs.LOCATION_DENIED_FOREVER, !shouldShowRequestPermissionRationale(permissions[0]))
                     }
                     MyApplication.instance.activateStoredCallback(false, this)
@@ -226,7 +213,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if(requestCode== UPLOAD_PHOTO_REQUEST && resultCode == Activity.RESULT_OK){
+        if (requestCode == UPLOAD_PHOTO_REQUEST && resultCode == Activity.RESULT_OK) {
 
             toast("Successfully uploaded photo!")
             finishedUploading = true
@@ -238,7 +225,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if(finishedUploading){
+        if (finishedUploading) {
             switchFragment(TAG_PROFILE)
             finishedUploading = false
 
@@ -264,7 +251,7 @@ class MainActivity : AppCompatActivity() {
         folder = File(filesDir, "posting")
         if (folder.exists()) {
             folder.listFiles().forEach {
-                    it.delete()
+                it.delete()
             }
         }
     }

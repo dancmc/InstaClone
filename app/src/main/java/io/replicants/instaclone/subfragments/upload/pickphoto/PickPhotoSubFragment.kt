@@ -39,14 +39,14 @@ class PickPhotoSubFragment: BaseSubFragment() {
         (layout.subfragment_pick_photo_tabs as TabLayout).setupWithViewPager(layout.subfragment_pick_photo_viewpager)
         layout.subfragment_pick_photo_viewpager.currentItem = 1
 
-
+        getPermissions()
 
         return layout
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        getPermissions()
+
     }
 
     class PickPhotoVPAdapter(fm:FragmentManager, var photoObtainedListener: PhotoObtainedListener?) : FragmentStatePagerAdapter(fm) {

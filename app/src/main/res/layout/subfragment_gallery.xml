@@ -52,7 +52,6 @@
         android:elevation="4dp"
         android:background="@color/offwhite"
         app:contentInsetStart="0dp"
-
         app:titleTextAppearance="@style/Toolbar.TitleText"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -72,9 +71,6 @@
             android:layout_marginLeft="16dp"
             android:text="0 photos"/>
 
-
-
-
     </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
@@ -85,6 +81,17 @@
         app:layout_constraintTop_toBottomOf="@id/subfragment_gallery_toolbar"
         app:layout_constraintDimensionRatio="1"/>
 
+    <Button
+        android:id="@+id/subfragment_gallery_request_storage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Gallery"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:background="@drawable/rounded_rectangle"
+        android:padding="8dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/subfragment_gallery_image_container"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/subfragment_gallery_recyclerview"

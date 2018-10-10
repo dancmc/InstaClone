@@ -1,6 +1,7 @@
 package io.replicants.instaclone.subfragments.upload.post
 
 import android.Manifest
+import android.app.ProgressDialog
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -97,7 +98,10 @@ class PostPhotoSubFragment : BaseSubFragment() {
 
             fun handlePost(){
 
-                // todo show some loading dialog
+                val dialog = ProgressDialog(context).apply {
+                    setMessage("Posting...")
+                    show()
+                }
 
                 InstaApi.uploadPhoto(imageFile, caption, latitude, longitude, locationName)
                         .enqueue(InstaApi.generateCallback(context, object: InstaApiCallback(){
@@ -107,6 +111,11 @@ class PostPhotoSubFragment : BaseSubFragment() {
                                 realm.beginTransaction()
                                 realm.where(SavedPhoto::class.java).equalTo("photoID", photoID).findFirst()?.deleteFromRealm()
                                 realm.commitTransaction()
+
+                                if(dialog.isShowing){
+                                    dialog.dismiss()
+                                }
+
                                 listener?.photoPosted()
                             }
                         }))

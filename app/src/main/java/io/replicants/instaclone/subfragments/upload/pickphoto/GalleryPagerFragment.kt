@@ -8,9 +8,12 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,7 +24,7 @@ import io.replicants.instaclone.adapters.GalleryCursorAdapter
 import io.replicants.instaclone.pojos.SavedPhoto
 import io.replicants.instaclone.subfragments.BaseSubFragment
 import io.replicants.instaclone.utilities.Prefs
-import kotlinx.android.synthetic.main.subfragment_feed.view.*
+import io.replicants.instaclone.utilities.Utils
 import kotlinx.android.synthetic.main.subfragment_gallery.view.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.sdk27.coroutines.onClick
@@ -95,28 +98,39 @@ class GalleryPagerFragment : BaseSubFragment(), GalleryCursorAdapter.Listener {
 
 
         if (ContextCompat.checkSelfPermission(context!!, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            populateDirectory()
-
+            permissionGranted()
         } else {
-            // todo put some button
+            permissionDenied()
         }
 
         layout.subfragment_gallery_toolbar_longclick.inflateMenu(R.menu.gallery_longclick)
 
         layout.subfragment_gallery_toolbar_longclick.setOnMenuItemClickListener {
             when (it.itemId) {
-                R.id.menu_delete->{
-                    val realm = Realm.getDefaultInstance()
-                    realm.beginTransaction()
-                    adapter.getLongClickItems().forEach { photo->
-                        photo.deleteFromRealm()
+                R.id.menu_delete -> {
+                    val items = adapter.getLongClickItems()
+                    AlertDialog.Builder(context!!).apply {
+                        setTitle("Delete Drafts")
+                        setMessage("Are you sure you want to delete ${items.size} items?")
+                        setNegativeButton(R.string.cancel) { dialog, id ->
+
+                        }
+                        setPositiveButton(R.string.ok) { dialog, id ->
+                            val realm = Realm.getDefaultInstance()
+                            realm.beginTransaction()
+                            items.forEach { photo ->
+                                photo.deleteFromRealm()
+                            }
+                            realm.commitTransaction()
+                            adapter.cancelLongClickMode()
+                            val drafts = realm.where(SavedPhoto::class.java).findAll().mapTo(ArrayList<SavedPhoto>()) { p -> p }
+                            adapter.reloadDrafts(drafts)
+                        }
+                        show()
                     }
-                    realm.commitTransaction()
-                    adapter.cancelLongClickMode()
-                    val drafts = realm.where(SavedPhoto::class.java).findAll().mapTo(ArrayList<SavedPhoto>()) { p -> p }
-                    adapter.reloadDrafts(drafts)
                 }
-                else->{}
+                else -> {
+                }
             }
             true
         }
@@ -126,11 +140,22 @@ class GalleryPagerFragment : BaseSubFragment(), GalleryCursorAdapter.Listener {
 
 
     fun permissionGranted() {
+        layout.subfragment_gallery_request_storage.visibility = View.GONE
         populateDirectory()
     }
 
     fun permissionDenied() {
-        //TODO create some request button
+        layout.subfragment_gallery_request_storage.visibility = View.VISIBLE
+        layout.subfragment_gallery_request_storage.onClick {
+
+            if (Prefs.getInstance().readBoolean(Prefs.EXTERNAL_STORAGE_DENIED_FOREVER, false)) {
+                context?.let { c ->
+                    Utils.redirectToSettings(R.string.request_storage_title, R.string.request_storage_text, c)
+                }
+            }else {
+                requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), Prefs.EXTERNAL_STORAGE_CODE)
+            }
+        }
     }
 
     private fun populateDirectory() {
@@ -195,11 +220,6 @@ class GalleryPagerFragment : BaseSubFragment(), GalleryCursorAdapter.Listener {
         resultList.add(0, ImageDirectory(-128937, "All"))
         return resultList
     }
-
-    private fun refresh() {
-        //todo
-    }
-
 
     data class ImageDirectory(var id: Int, var albumName: String) : Serializable {
         override fun hashCode(): Int {
@@ -276,7 +296,7 @@ class GalleryPagerFragment : BaseSubFragment(), GalleryCursorAdapter.Listener {
 
     override fun onLongClickChanged() {
         val num = adapter.getLongClickItems().size
-        layout.subfragment_gallery_toolbar_longclick_title.text = "$num photo${if(num!=1)"s" else ""} selected"
+        layout.subfragment_gallery_toolbar_longclick_title.text = "$num photo${if (num != 1) "s" else ""} selected"
     }
 
     override fun onLongClickCancelled() {
@@ -284,8 +304,8 @@ class GalleryPagerFragment : BaseSubFragment(), GalleryCursorAdapter.Listener {
 
     }
 
-    fun handleBackPressed():Boolean{
-        if(adapter.inLongClickMode){
+    fun handleBackPressed(): Boolean {
+        if (adapter.inLongClickMode) {
             adapter.cancelLongClickMode()
             adapter.notifyDataSetChanged()
             return true

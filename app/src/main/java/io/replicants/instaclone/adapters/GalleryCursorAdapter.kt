@@ -166,6 +166,7 @@ class GalleryCursorAdapter(var context: Context, var layoutManager: GridLayoutMa
                                     selectedItems.remove(position - 1)
                                 }
                                 clickListener.onLongClickChanged()
+                                clickListener.onClick(draft.photoFilePreview, position, draft)
                             } else {
                                 clickListener.onClick(draft.photoFilePreview, position, draft)
                             }
@@ -175,10 +176,10 @@ class GalleryCursorAdapter(var context: Context, var layoutManager: GridLayoutMa
                         // handle long click
                         holder.itemView.isLongClickable = true
                         holder.imageView.onLongClick {
-                            context?.toast("Pressed")
                             if (!inLongClickMode) {
                                 inLongClickMode = true
                                 clickListener.onLongClick()
+                                clickListener.onClick(draft.photoFilePreview, position, draft)
                                 longClickStartNumber = position - 1
                                 selectedItems.add(position - 1)
                             } else {

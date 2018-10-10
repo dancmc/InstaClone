@@ -201,11 +201,11 @@ class ProfileSubFragment : BaseSubFragment() {
         }
 
         if (self && withSelfUpdate) {
-            Utils.updateDetails(context!!) {
+            Utils.updateDetails(context!!,{
                 displayName = Prefs.getInstance().readString(Prefs.DISPLAY_NAME, "")
                 toolbar?.title = displayName
                 internalLoad()
-            }
+            })
         } else {
             internalLoad()
         }
