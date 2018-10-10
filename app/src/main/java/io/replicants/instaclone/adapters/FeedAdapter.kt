@@ -355,7 +355,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                 }
 
                 holder.btComment.setOnClickListener {
-                    clickListeners?.moveToCommentsSubFragment(feedItem.displayName)
+                    clickListeners?.moveToCommentsSubFragment(feedItem.photoID)
                 }
 
 
