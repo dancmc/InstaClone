@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import java.util.UUID;
+
 public class Prefs {
 
     public static String JWT = "jwt";
@@ -17,6 +19,7 @@ public class Prefs {
     public static String EXTERNAL_STORAGE_DENIED_FOREVER = "external_storage_denied_forever";
     public static String CAMERA_FLASH_STATUS = "camera_flash_status";
     public static String CAMERA_SIDE = "camera_side";
+    public static UUID INSTACLONE_UUID = UUID.fromString("b7ef1602-d143-11e8-a8d5-f2801f1b9fd1");
     public static int LOCATION_REQUEST_CODE =757;
     public static int BLUETOOTH_REQUEST_CODE =232;
     public static int CAMERA_REQUEST_CODE =123;

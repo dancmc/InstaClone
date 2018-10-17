@@ -13,6 +13,10 @@
     <color name="grey600">#757575</color>
     <color name="transparent">#00757575</color>
     <color name="transparent_blue">#444FC3F7</color>
+    <color name="orange700">#F57C00</color>
+    <color name="lightblue700">#0288D1</color>
+
+
 
     <color name="text_default">#303030</color>
 </resources>

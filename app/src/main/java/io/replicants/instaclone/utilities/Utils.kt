@@ -3,11 +3,13 @@ package io.replicants.instaclone.utilities
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ColorMatrix
 import android.graphics.Matrix
 import android.net.Uri
+import android.provider.MediaStore
 import android.provider.Settings
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -26,6 +28,7 @@ import io.replicants.instaclone.R
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.pojos.*
+import io.replicants.instaclone.subfragments.upload.pickphoto.GalleryPagerFragment
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.DecimalFormat
@@ -403,6 +406,39 @@ class Utils {
                 }
             }))
 
+        }
+
+        @JvmStatic
+        fun getImageDirectories(context: Context?): ArrayList<GalleryPagerFragment.ImageDirectory> {
+            val projection = arrayOf("DISTINCT " + MediaStore.Images.Media.BUCKET_ID, MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
+            val cursor = MediaStore.Images.Media.query(context?.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null)
+
+            cursor.moveToFirst()
+            val albumName = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
+            val albumID = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID)
+
+            val directorySet = HashSet<GalleryPagerFragment.ImageDirectory>()
+            while (cursor.moveToNext()) {
+                directorySet.add(GalleryPagerFragment.ImageDirectory(cursor.getInt(albumID), cursor.getString(albumName)))
+            }
+            cursor.close()
+            val resultList = ArrayList<GalleryPagerFragment.ImageDirectory>()
+            resultList.addAll(directorySet)
+            resultList.sortBy { it.albumName }
+            resultList.add(0, GalleryPagerFragment.ImageDirectory(-128937, "All"))
+            return resultList
+        }
+
+        @JvmStatic
+        fun getDirectoryCursor(context: Context,imageDirectory: GalleryPagerFragment.ImageDirectory): Cursor {
+            val projection = arrayOf(MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA)
+            val cursor: Cursor
+            if (imageDirectory.albumName == "All") {
+                cursor = MediaStore.Images.Media.query(context!!.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, MediaStore.Images.Media.DATE_TAKEN + " DESC");
+            } else {
+                cursor = MediaStore.Images.Media.query(context!!.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, MediaStore.Images.Media.BUCKET_ID + " = ?", arrayOf("${imageDirectory.id}"), MediaStore.Images.Media.DATE_TAKEN + " DESC");
+            }
+            return cursor
         }
     }
 

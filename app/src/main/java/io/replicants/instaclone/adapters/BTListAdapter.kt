@@ -41,9 +41,6 @@ import org.jetbrains.anko.yesButton
 import org.json.JSONObject
 
 class BTListAdapter(private val context: Context?, private val dataset: MutableList<BluetoothItem>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    var connecting = ""
-    var connected = ""
     var listener :BTListAdapter.Listener?=null
 
 
@@ -70,16 +67,24 @@ class BTListAdapter(private val context: Context?, private val dataset: MutableL
 
         holder.text.text = if(item.name.isNotBlank())item.name else item.address
 
-        when(item.address){
-            connecting->{
-                holder.image.setImageResource(R.drawable.icon_bluetooth_cyan)
+        when{
+            item.connecting->{
+                holder.image.setImageResource(R.drawable.icon_bluetooth_orange)
                 context?.let {
-                    holder.text.setTextColor(ContextCompat.getColor(context,R.color.lightblue400))
+                    holder.text.setTextColor(ContextCompat.getColor(context,R.color.orange700))
                 }
             }
-            connected->{
+            item.connected->{
                 holder.image.setImageResource(R.drawable.icon_bluetooth_cyan)
-                holder.text.setTextColor(holder.text.textColors.defaultColor)
+                context?.let {
+                    holder.text.setTextColor(ContextCompat.getColor(context,R.color.lightblue700))
+                }
+            }
+            else->{
+                holder.image.setImageResource(R.drawable.icon_bluetooth)
+                context?.let {
+                    holder.text.setTextColor(ContextCompat.getColor(context,R.color.grey500))
+                }
             }
         }
 

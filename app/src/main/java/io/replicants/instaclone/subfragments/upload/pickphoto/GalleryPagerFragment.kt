@@ -25,6 +25,8 @@ import io.replicants.instaclone.pojos.SavedPhoto
 import io.replicants.instaclone.subfragments.BaseSubFragment
 import io.replicants.instaclone.utilities.Prefs
 import io.replicants.instaclone.utilities.Utils
+import io.replicants.instaclone.utilities.Utils.Companion.getDirectoryCursor
+import io.replicants.instaclone.utilities.Utils.Companion.getImageDirectories
 import kotlinx.android.synthetic.main.subfragment_gallery.view.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.sdk27.coroutines.onClick
@@ -42,11 +44,13 @@ class GalleryPagerFragment : BaseSubFragment(), GalleryCursorAdapter.Listener {
 
 
     private lateinit var layout: View
+
     private var directoryList = ArrayList<ImageDirectory>()
-    lateinit var adapter: GalleryCursorAdapter
     lateinit var recyclerView: RecyclerView
-    var photoObtainedListener: PickPhotoSubFragment.PhotoObtainedListener? = null
+    lateinit var adapter: GalleryCursorAdapter
     lateinit var gridManager: GridLayoutManager
+
+    var photoObtainedListener: PickPhotoSubFragment.PhotoObtainedListener? = null
     var draftSelected = false
     var draft: SavedPhoto? = null
 
@@ -161,7 +165,7 @@ class GalleryPagerFragment : BaseSubFragment(), GalleryCursorAdapter.Listener {
     private fun populateDirectory() {
 
         doAsync {
-            val result = getImageDirectories()
+            val result = getImageDirectories(activity)
             uiThread {
                 directoryList.clear()
                 directoryList.addAll(result)
@@ -178,10 +182,10 @@ class GalleryPagerFragment : BaseSubFragment(), GalleryCursorAdapter.Listener {
                     }
 
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                        adapter.swapCursor(getDirectoryCursor(directoryList[position]))
+                        adapter.swapCursor(getDirectoryCursor(context!!,directoryList[position]))
                     }
                 }
-                val initialCursor = getDirectoryCursor(directoryList[0])
+                val initialCursor = getDirectoryCursor(context!!,directoryList[0])
                 val drafts = Realm.getDefaultInstance().where(SavedPhoto::class.java).findAll().mapTo(ArrayList<SavedPhoto>()) { p -> p }
                 adapter = GalleryCursorAdapter(context!!, gridManager, drafts, initialCursor, this@GalleryPagerFragment)
                 recyclerView.adapter = adapter
@@ -191,36 +195,7 @@ class GalleryPagerFragment : BaseSubFragment(), GalleryCursorAdapter.Listener {
 
     }
 
-    private fun getDirectoryCursor(imageDirectory: ImageDirectory): Cursor {
-        val projection = arrayOf(MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA)
-        val cursor: Cursor
-        if (imageDirectory.albumName == "All") {
-            cursor = MediaStore.Images.Media.query(context!!.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, MediaStore.Images.Media.DATE_TAKEN + " DESC");
-        } else {
-            cursor = MediaStore.Images.Media.query(context!!.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, MediaStore.Images.Media.BUCKET_ID + " = ?", arrayOf("${imageDirectory.id}"), MediaStore.Images.Media.DATE_TAKEN + " DESC");
-        }
-        return cursor
-    }
 
-    private fun getImageDirectories(): ArrayList<ImageDirectory> {
-        val projection = arrayOf("DISTINCT " + MediaStore.Images.Media.BUCKET_ID, MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
-        val cursor = MediaStore.Images.Media.query(activity?.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null)
-
-        cursor.moveToFirst()
-        val albumName = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
-        val albumID = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID)
-
-        val directorySet = HashSet<ImageDirectory>()
-        while (cursor.moveToNext()) {
-            directorySet.add(ImageDirectory(cursor.getInt(albumID), cursor.getString(albumName)))
-        }
-        cursor.close()
-        val resultList = ArrayList<ImageDirectory>()
-        resultList.addAll(directorySet)
-        resultList.sortBy { it.albumName }
-        resultList.add(0, ImageDirectory(-128937, "All"))
-        return resultList
-    }
 
     data class ImageDirectory(var id: Int, var albumName: String) : Serializable {
         override fun hashCode(): Int {
@@ -232,7 +207,7 @@ class GalleryPagerFragment : BaseSubFragment(), GalleryCursorAdapter.Listener {
         }
     }
 
-    fun reloadDrafts() {
+    private fun reloadDrafts() {
         if (this::adapter.isInitialized) {
             val drafts = Realm.getDefaultInstance().where(SavedPhoto::class.java).findAll().mapTo(ArrayList<SavedPhoto>()) { p -> p }
             if (draftSelected) {
@@ -244,25 +219,28 @@ class GalleryPagerFragment : BaseSubFragment(), GalleryCursorAdapter.Listener {
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == Prefs.EXTERNAL_STORAGE_READ_CODE) {
-            if (permissions.size == 1 && permissions[0] == Manifest.permission.READ_EXTERNAL_STORAGE) {
+        when(requestCode) {
+            Prefs.EXTERNAL_STORAGE_READ_CODE-> {
+                if (permissions.size == 1 && permissions[0] == Manifest.permission.READ_EXTERNAL_STORAGE) {
 
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), Prefs.EXTERNAL_STORAGE_WRITE_CODE)
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), Prefs.EXTERNAL_STORAGE_WRITE_CODE)
 
-                    permissionGranted()
+                        permissionGranted()
 
-                } else {
-                    // check if user checked never show again
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        Prefs.getInstance().writeBoolean(Prefs.EXTERNAL_STORAGE_DENIED_FOREVER, !shouldShowRequestPermissionRationale(permissions[0]))
+                    } else {
+                        // check if user checked never show again
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            Prefs.getInstance().writeBoolean(Prefs.EXTERNAL_STORAGE_DENIED_FOREVER, !shouldShowRequestPermissionRationale(permissions[0]))
+                        }
+                        permissionDenied()
+
+
+                        context?.toast("Storage permission not granted")
                     }
-                    permissionDenied()
-
-
-                    context?.toast("Storage permission not granted")
                 }
             }
+            else->super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 
