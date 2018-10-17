@@ -153,7 +153,7 @@ class GalleryPagerFragment : BaseSubFragment(), GalleryCursorAdapter.Listener {
                     Utils.redirectToSettings(R.string.request_storage_title, R.string.request_storage_text, c)
                 }
             }else {
-                requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), Prefs.EXTERNAL_STORAGE_CODE)
+                requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), Prefs.EXTERNAL_STORAGE_READ_CODE)
             }
         }
     }
@@ -163,6 +163,7 @@ class GalleryPagerFragment : BaseSubFragment(), GalleryCursorAdapter.Listener {
         doAsync {
             val result = getImageDirectories()
             uiThread {
+                directoryList.clear()
                 directoryList.addAll(result)
                 // put in spinner
 
@@ -243,15 +244,14 @@ class GalleryPagerFragment : BaseSubFragment(), GalleryCursorAdapter.Listener {
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == Prefs.EXTERNAL_STORAGE_CODE) {
+        if (requestCode == Prefs.EXTERNAL_STORAGE_READ_CODE) {
             if (permissions.size == 1 && permissions[0] == Manifest.permission.READ_EXTERNAL_STORAGE) {
 
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), Prefs.EXTERNAL_STORAGE_CODE)
+                    requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), Prefs.EXTERNAL_STORAGE_WRITE_CODE)
 
                     permissionGranted()
 
-                    context?.toast("Storage permission granted")
                 } else {
                     // check if user checked never show again
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -305,7 +305,7 @@ class GalleryPagerFragment : BaseSubFragment(), GalleryCursorAdapter.Listener {
     }
 
     fun handleBackPressed(): Boolean {
-        if (adapter.inLongClickMode) {
+        if (this::adapter.isInitialized && adapter.inLongClickMode) {
             adapter.cancelLongClickMode()
             adapter.notifyDataSetChanged()
             return true

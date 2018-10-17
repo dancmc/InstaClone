@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:background="@color/white"
+    xmlns:tools="http://schemas.android.com/tools"
+              android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/subfragment_bluetooth_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        app:contentInsetLeft="0dp"
+        android:elevation="4dp"
+        android:background="@color/offwhite"
+        app:contentInsetStart="0dp"
+        app:titleTextAppearance="@style/Toolbar.TitleText"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/subfragment_bluetooth_toolbar_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="8dp"
+            android:layout_marginRight="4dp"
+            android:src="@drawable/icon_close_grey"/>
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/subfragment_bluetooth_toolbar_directory_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:id="@+id/subfragment_bluetooth_scan"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:text="Scan"
+            android:gravity="center"
+            android:layout_gravity="right"/>
+
+    </androidx.appcompat.widget.Toolbar>
+
+
+
+    <Button
+        android:id="@+id/subfragment_bluetooth_permissions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/rounded_rectangle"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginRight="8dp"
+        android:text="Request Permissions"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/subfragment_bluetooth_none"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginRight="8dp"
+        android:text="Bluetooth not available on this device"
+        android:textSize="18sp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/subfragment_bluetooth_selected"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        tools:text="Dan's S3"
+        android:layout_marginLeft="16dp"
+        app:layout_constraintLeft_toRightOf="@id/subfragment_bluetooth_connected"
+        android:layout_marginRight="16dp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/subfragment_bluetooth_toolbar"
+        android:gravity="center_vertical"
+        android:layout_marginTop="8dp"
+        android:ellipsize="end"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <TextView
+        android:id="@+id/subfragment_bluetooth_connected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:text="Selected :"
+        android:layout_marginLeft="16dp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="@id/subfragment_bluetooth_selected"
+        app:layout_constraintBottom_toBottomOf="@id/subfragment_bluetooth_selected"
+        app:layout_constraintRight_toLeftOf="@id/subfragment_bluetooth_selected"/>
+
+    <View
+        android:id="@+id/subfragment_bluetooth_separator1"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/grey400"
+        app:layout_constraintTop_toBottomOf="@id/subfragment_bluetooth_selected"
+        android:layout_marginTop="8dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/subfragment_bluetooth_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/subfragment_bluetooth_separator1"
+        app:layout_constraintDimensionRatio="1.5"/>
+
+    <View
+        android:id="@+id/subfragment_bluetooth_separator2"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/grey400"
+        app:layout_constraintTop_toBottomOf="@id/subfragment_bluetooth_list"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

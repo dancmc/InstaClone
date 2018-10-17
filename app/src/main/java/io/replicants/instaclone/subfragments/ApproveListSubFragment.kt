@@ -12,7 +12,6 @@ import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.pojos.User
 import kotlinx.android.synthetic.main.subfragment_approve_list.view.*
-import kotlinx.android.synthetic.main.subfragment_user_list.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.json.JSONObject
 
@@ -42,33 +41,36 @@ class ApproveListSubFragment : BaseSubFragment() {
     lateinit var layout: View
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
-        if (!this::layout.isInitialized) {
-            layout = inflater.inflate(R.layout.subfragment_approve_list, container, false)
-
-            layout.subfragment_approve_list_approveall.onClick {
-                users.forEach { user ->
-                    InstaApi.approveUser(user?.displayName).enqueue(InstaApi.generateCallback(context, object : InstaApiCallback() {
-                        override fun success(jsonResponse: JSONObject) {
-                            users.find {user2-> user2?.displayName == user?.displayName }?.followStatusToMe = User.STATUS_FOLLOWING
-                            adapter.notifyDataSetChanged()
-                        }
-                    }))
-                }
-            }
-
-            recyclerView = layout.subfragment_approve_list_recycler
-            recyclerView.setHasFixedSize(true)
-            recyclerView.setItemViewCacheSize(40)
-            recyclerView.setDrawingCacheEnabled(true)
-
-            // use a linear layout manager
-            val layoutManager = LinearLayoutManager(activity)
-            recyclerView.layoutManager = layoutManager
-            adapter = ApproveListAdapter(activity!!, users, recyclerView)
-            adapter.clickListeners = clickListeners
-            recyclerView.adapter = adapter
-
+        if (this::layout.isInitialized) {
+            return layout
         }
+
+        layout = inflater.inflate(R.layout.subfragment_approve_list, container, false)
+
+        layout.subfragment_approve_list_approveall.onClick {
+            users.forEach { user ->
+                InstaApi.approveUser(user?.displayName).enqueue(InstaApi.generateCallback(context, object : InstaApiCallback() {
+                    override fun success(jsonResponse: JSONObject) {
+                        users.find { user2 -> user2?.displayName == user?.displayName }?.followStatusToMe = User.STATUS_FOLLOWING
+                        adapter.notifyDataSetChanged()
+                    }
+                }))
+            }
+        }
+
+        recyclerView = layout.subfragment_approve_list_recycler
+        recyclerView.setHasFixedSize(true)
+        recyclerView.setItemViewCacheSize(40)
+        recyclerView.setDrawingCacheEnabled(true)
+
+        // use a linear layout manager
+        val layoutManager = LinearLayoutManager(activity)
+        recyclerView.layoutManager = layoutManager
+        adapter = ApproveListAdapter(activity!!, users, recyclerView)
+        adapter.clickListeners = clickListeners
+        recyclerView.adapter = adapter
+
+
         return layout
 
     }

@@ -11,6 +11,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.replicants.instaclone.R
+import io.replicants.instaclone.adapters.DiscoverUserListAdapter
 import io.replicants.instaclone.adapters.UserListAdapter
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
@@ -20,9 +21,6 @@ import kotlinx.android.synthetic.main.subfragment_discover_users.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.json.JSONArray
 import org.json.JSONObject
-import android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT
-import androidx.core.content.ContextCompat.getSystemService
-import io.replicants.instaclone.adapters.DiscoverUserListAdapter
 
 
 class DiscoverUsersSubFragment : BaseSubFragment() {
@@ -57,79 +55,81 @@ class DiscoverUsersSubFragment : BaseSubFragment() {
     lateinit var layout: View
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
-        if (!this::layout.isInitialized) {
-            layout = inflater.inflate(R.layout.subfragment_discover_users, container, false)
+        if (this::layout.isInitialized) {
+            return layout
+        }
+        layout = inflater.inflate(R.layout.subfragment_discover_users, container, false)
 
-            suggestRecyclerView = layout.subfragment_discover_users_suggest_recycler
-            searchRecyclerView = layout.subfragment_discover_users_search_recycler
+        suggestRecyclerView = layout.subfragment_discover_users_suggest_recycler
+        searchRecyclerView = layout.subfragment_discover_users_search_recycler
 
-            val suggestLayoutManager = LinearLayoutManager(context)
-            suggestRecyclerView.layoutManager = suggestLayoutManager
-            suggestAdapter = DiscoverUserListAdapter(activity!!, suggestUsers, suggestRecyclerView)
-            suggestAdapter.clickListeners = clickListeners
-            suggestRecyclerView.adapter = suggestAdapter
+        val suggestLayoutManager = LinearLayoutManager(context)
+        suggestRecyclerView.layoutManager = suggestLayoutManager
+        suggestAdapter = DiscoverUserListAdapter(activity!!, suggestUsers, suggestRecyclerView)
+        suggestAdapter.clickListeners = clickListeners
+        suggestRecyclerView.adapter = suggestAdapter
 
-            layout.subfragment_discover_users_suggest_refresh.setOnRefreshListener {
-                initialLoad()
-            }
-
-            val searchLayoutManager = LinearLayoutManager(context)
-            searchRecyclerView.layoutManager = searchLayoutManager
-            searchAdapter = UserListAdapter(activity!!, searchUsers, searchRecyclerView)
-            searchAdapter.clickListeners = clickListeners
-            searchRecyclerView.adapter = searchAdapter
-
-            searchAdapter.onLoadMoreListener = object : UserListAdapter.OnLoadMoreListener {
-                override fun onLoadMore() {
-
-                    searchRecyclerView.post {
-                        searchUsers.add(null)
-                        searchAdapter.notifyItemInserted(searchUsers.lastIndex)
-
-                        InstaApi.discoverSearch(searchName, page).enqueue(InstaApi.generateCallback(activity, loadMoreApiCallback()))
-
-                    }
-
-                }
-            }
-
-            layout.subfragment_discover_users_searchbar.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable?) {
-                }
-
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    searchName = s.toString()
-                    searchAdapter.currentlyLoading = true
-                    searchUsers.clear()
-                    searchAdapter.notifyDataSetChanged()
-                    if (searchName.isBlank()) {
-                        searchRecyclerView.visibility = View.GONE
-                    } else {
-                        searchRecyclerView.visibility = View.VISIBLE
-                        executeSearch()
-                    }
-
-
-                }
-            })
-
-            layout.subfragment_discover_users_searchbar.requestFocus()
-
-            val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
-            layout.subfragment_discover_users_searchbar.postDelayed({
-                imm?.showSoftInput(layout.subfragment_discover_users_searchbar, InputMethodManager.SHOW_IMPLICIT)
-            },100)
-
-
-            layout.subfragment_discover_users_back.onClick {
-                clickListeners?.popBackStack(false)
-            }
-
+        layout.subfragment_discover_users_suggest_refresh.setOnRefreshListener {
             initialLoad()
         }
+
+        val searchLayoutManager = LinearLayoutManager(context)
+        searchRecyclerView.layoutManager = searchLayoutManager
+        searchAdapter = UserListAdapter(activity!!, searchUsers, searchRecyclerView)
+        searchAdapter.clickListeners = clickListeners
+        searchRecyclerView.adapter = searchAdapter
+
+        searchAdapter.onLoadMoreListener = object : UserListAdapter.OnLoadMoreListener {
+            override fun onLoadMore() {
+
+                searchRecyclerView.post {
+                    searchUsers.add(null)
+                    searchAdapter.notifyItemInserted(searchUsers.lastIndex)
+
+                    InstaApi.discoverSearch(searchName, page).enqueue(InstaApi.generateCallback(activity, loadMoreApiCallback()))
+
+                }
+
+            }
+        }
+
+        layout.subfragment_discover_users_searchbar.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                searchName = s.toString()
+                searchAdapter.currentlyLoading = true
+                searchUsers.clear()
+                searchAdapter.notifyDataSetChanged()
+                if (searchName.isBlank()) {
+                    searchRecyclerView.visibility = View.GONE
+                } else {
+                    searchRecyclerView.visibility = View.VISIBLE
+                    executeSearch()
+                }
+
+
+            }
+        })
+
+        layout.subfragment_discover_users_searchbar.requestFocus()
+
+        val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+        layout.subfragment_discover_users_searchbar.postDelayed({
+            imm?.showSoftInput(layout.subfragment_discover_users_searchbar, InputMethodManager.SHOW_IMPLICIT)
+        }, 100)
+
+
+        layout.subfragment_discover_users_back.onClick {
+            clickListeners?.popBackStack(false)
+        }
+
+        initialLoad()
+
 
         return layout
 

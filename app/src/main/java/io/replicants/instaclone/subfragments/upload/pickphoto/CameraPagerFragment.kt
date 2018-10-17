@@ -293,7 +293,6 @@ class CameraPagerFragment : BaseSubFragment() {
             if (permissions.size == 1 && permissions[0] == Manifest.permission.CAMERA) {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     permissionGranted()
-                    context?.toast("Camera permission granted")
                 } else {
                     // check if user checked never show again
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

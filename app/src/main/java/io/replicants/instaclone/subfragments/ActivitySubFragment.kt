@@ -9,9 +9,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.google.android.material.tabs.TabLayout
 import io.replicants.instaclone.R
-import io.replicants.instaclone.maintabs.ActivityMainFragment
 import io.replicants.instaclone.maintabs.BaseMainFragment
-import kotlinx.android.synthetic.main.mainfragment_activity.*
 import kotlinx.android.synthetic.main.subfragment_activity_pager.view.*
 
 class ActivitySubFragment : BaseSubFragment() {
@@ -30,18 +28,20 @@ class ActivitySubFragment : BaseSubFragment() {
     }
 
     lateinit var layout: View
-    lateinit var adapter : ActivitySubFragment.ActivityVPAdapter
+    lateinit var adapter: ActivitySubFragment.ActivityVPAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        if(!this::layout.isInitialized) {
-            layout = inflater.inflate(R.layout.subfragment_activity_pager, container, false)
-
-            adapter = ActivityVPAdapter(childFragmentManager, clickListeners)
-            layout.subfragment_activity_viewpager.adapter = adapter
-            (layout.subfragment_activity_tabs as TabLayout).setupWithViewPager(layout.subfragment_activity_viewpager)
-            layout.subfragment_activity_viewpager.currentItem = 1
-
+        if (this::layout.isInitialized) {
+            return layout
         }
+        layout = inflater.inflate(R.layout.subfragment_activity_pager, container, false)
+
+        adapter = ActivityVPAdapter(childFragmentManager, clickListeners)
+        layout.subfragment_activity_viewpager.adapter = adapter
+        (layout.subfragment_activity_tabs as TabLayout).setupWithViewPager(layout.subfragment_activity_viewpager)
+        layout.subfragment_activity_viewpager.currentItem = 1
+
+
         return layout
     }
 
@@ -53,7 +53,7 @@ class ActivitySubFragment : BaseSubFragment() {
 
         override fun getItem(position: Int): Fragment {
 
-            if(position==0){
+            if (position == 0) {
                 val followingFrag = ActivityFollowingSubFragment()
                 followingFrag.clickListeners = listeners
                 return followingFrag
@@ -65,7 +65,7 @@ class ActivitySubFragment : BaseSubFragment() {
         }
 
         override fun getPageTitle(position: Int): CharSequence? {
-            return if(position==0){
+            return if (position == 0) {
                 "Following"
             } else {
                 "You"
@@ -73,7 +73,7 @@ class ActivitySubFragment : BaseSubFragment() {
         }
     }
 
-    fun refreshRequests(){
+    fun refreshRequests() {
         (adapter.getItem(1) as? ActivitySelfSubFragment)?.refresh()
     }
 }

@@ -51,8 +51,7 @@ class HomeMainFragment : BaseMainFragment(), FeedSubFragment.FeedFragmentInterfa
     }
 
     override fun moveToAdhoc() {
-        activity?.toast("Will go to adhoc")
-        // TODO not implemented
+        clickListeners?.moveToBluetooth()
     }
 
 

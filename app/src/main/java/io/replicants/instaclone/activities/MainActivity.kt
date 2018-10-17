@@ -209,6 +209,8 @@ class MainActivity : AppCompatActivity() {
                     toast("Location permission not granted")
                 }
             }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 

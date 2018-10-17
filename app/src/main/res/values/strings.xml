@@ -38,6 +38,9 @@
     <string name="discard">Discard</string>
     <string name="edit_photo">Edit Photo</string>
 
+    <string name="request_storage_location_text">Previously ticked never ask again, please go to settings and allow Storage and Location in Permissions.</string>
+    <string name="request_storage_location_title">Request Storage/Location</string>
+
     <string name="request_storage_text">Previously ticked never ask again, please go to settings and allow Storage in Permissions.</string>
     <string name="request_storage_title">Request Storage</string>
 

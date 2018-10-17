@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import io.replicants.instaclone.R
@@ -44,10 +45,6 @@ class PickPhotoSubFragment: BaseSubFragment() {
         return layout
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-    }
 
     class PickPhotoVPAdapter(fm:FragmentManager, var photoObtainedListener: PhotoObtainedListener?) : FragmentStatePagerAdapter(fm) {
 
@@ -79,10 +76,24 @@ class PickPhotoSubFragment: BaseSubFragment() {
                 "Camera"
             }
         }
+
+
     }
 
     fun getPermissions(){
-        requestPermissions(arrayOf(Manifest.permission.CAMERA,Manifest.permission.READ_EXTERNAL_STORAGE), Prefs.CAMERA_STORAGE_REQUEST_CODE)
+        val perms = arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+        val permsNeeded = ArrayList<String>()
+        perms.forEach {
+            if (ContextCompat.checkSelfPermission(context!!, it)!=PackageManager.PERMISSION_GRANTED){
+                permsNeeded.add(it)
+            }
+        }
+
+        if(permsNeeded.size>0) {
+            requestPermissions(permsNeeded.toTypedArray(), Prefs.CAMERA_STORAGE_REQUEST_CODE)
+        }
     }
 
 
@@ -103,7 +114,7 @@ class PickPhotoSubFragment: BaseSubFragment() {
                     }
 
                     Manifest.permission.READ_EXTERNAL_STORAGE->{
-                        (adapter.fragmentArray[0] as? GalleryPagerFragment)?.onRequestPermissionsResult(Prefs.EXTERNAL_STORAGE_CODE, arrayOf(s), intArrayOf(grantResults[index]))
+                        (adapter.fragmentArray[0] as? GalleryPagerFragment)?.onRequestPermissionsResult(Prefs.EXTERNAL_STORAGE_READ_CODE, arrayOf(s), intArrayOf(grantResults[index]))
                     }
 
                 }

@@ -15,12 +15,10 @@ import io.replicants.instaclone.pojos.Photo
 import io.replicants.instaclone.utilities.Utils
 import kotlinx.android.synthetic.main.subfragment_discover_photos.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
-import org.jetbrains.anko.toast
 import org.json.JSONArray
 import org.json.JSONObject
 
 class DiscoverPhotosSubFragment : BaseSubFragment() {
-
 
 
     companion object {
@@ -47,59 +45,61 @@ class DiscoverPhotosSubFragment : BaseSubFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
-        if (!this::layout.isInitialized) {
-            layout = inflater.inflate(R.layout.subfragment_discover_photos, container, false)
-            recyclerView = layout.subfragment_discover_photos_recycler
-            recyclerView.setHasFixedSize(true)
-            recyclerView.setItemViewCacheSize(40)
-            recyclerView.setDrawingCacheEnabled(true)
+        if (this::layout.isInitialized) {
+            return layout
+        }
+        layout = inflater.inflate(R.layout.subfragment_discover_photos, container, false)
+        recyclerView = layout.subfragment_discover_photos_recycler
+        recyclerView.setHasFixedSize(true)
+        recyclerView.setItemViewCacheSize(40)
+        recyclerView.setDrawingCacheEnabled(true)
 
-            val layoutManager = GridLayoutManager(activity, 3)
-            layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                override fun getSpanSize(position: Int): Int {
-                    return if (position == 0) 3 else 1
-                }
-            }
-            recyclerView.layoutManager = layoutManager
-            adapter = FeedAdapter(activity!!, feedItems, recyclerView)
-            adapter.clickListeners = clickListeners
-            recyclerView.adapter = adapter
-
-            layout.subfragment_discover_photos_refresh.setOnRefreshListener {
-                initialLoad()
-            }
-            layout.subfragment_discover_photos_refresh.setColorSchemeResources(android.R.color.holo_green_dark,
-                    android.R.color.holo_red_dark,
-                    android.R.color.holo_blue_dark,
-                    android.R.color.holo_orange_dark)
-
-            initialLoad()
-
-            adapter.onLoadMoreListener = object : FeedAdapter.OnLoadMoreListener {
-                override fun onLoadMore() {
-
-                    recyclerView.post {
-                        feedItems.add(null)
-                        adapter.notifyItemInserted(feedItems.lastIndex)
-
-                        InstaApi.discoverPhotos(seed).enqueue(InstaApi.generateCallback(activity, loadMoreApiCallback()))
-
-                    }
-
-                }
-            }
-
-            layout.subfragment_discover_photos_toolbar.onClick {
-                clickListeners?.moveToDiscoverUsersSubFragment()
+        val layoutManager = GridLayoutManager(activity, 3)
+        layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return if (position == 0) 3 else 1
             }
         }
+        recyclerView.layoutManager = layoutManager
+        adapter = FeedAdapter(activity!!, feedItems, recyclerView)
+        adapter.clickListeners = clickListeners
+        recyclerView.adapter = adapter
+
+        layout.subfragment_discover_photos_refresh.setOnRefreshListener {
+            initialLoad()
+        }
+        layout.subfragment_discover_photos_refresh.setColorSchemeResources(android.R.color.holo_green_dark,
+                android.R.color.holo_red_dark,
+                android.R.color.holo_blue_dark,
+                android.R.color.holo_orange_dark)
+
+        initialLoad()
+
+        adapter.onLoadMoreListener = object : FeedAdapter.OnLoadMoreListener {
+            override fun onLoadMore() {
+
+                recyclerView.post {
+                    feedItems.add(null)
+                    adapter.notifyItemInserted(feedItems.lastIndex)
+
+                    InstaApi.discoverPhotos(seed).enqueue(InstaApi.generateCallback(activity, loadMoreApiCallback()))
+
+                }
+
+            }
+        }
+
+        layout.subfragment_discover_photos_toolbar.onClick {
+            clickListeners?.moveToDiscoverUsersSubFragment()
+        }
+
 
         return layout
 
     }
 
     private fun initialLoad() {
-        if(!layout.subfragment_discover_photos_refresh.isRefreshing) {
+        if (!layout.subfragment_discover_photos_refresh.isRefreshing) {
             layout.subfragment_discover_photos_refresh.isRefreshing = true
         }
         adapter.currentlyLoading = true
@@ -113,8 +113,8 @@ class DiscoverPhotosSubFragment : BaseSubFragment() {
         return object : InstaApiCallback() {
             override fun success(jsonResponse: JSONObject?) {
                 val photoArray = jsonResponse?.optJSONArray("photos") ?: JSONArray()
-                seed = jsonResponse?.optString("seed")?:""
-                val photoList :List<Photo> = Utils.photosFromJsonArray(photoArray)
+                seed = jsonResponse?.optString("seed") ?: ""
+                val photoList: List<Photo> = Utils.photosFromJsonArray(photoArray)
 
                 feedItems.addAll(photoList)
                 adapter.currentlyLoading = false
@@ -139,9 +139,9 @@ class DiscoverPhotosSubFragment : BaseSubFragment() {
     private fun loadMoreApiCallback(): InstaApiCallback {
         return object : InstaApiCallback() {
             override fun success(jsonResponse: JSONObject?) {
-                seed = jsonResponse?.optString("seed")?:""
+                seed = jsonResponse?.optString("seed") ?: ""
                 val photoArray = jsonResponse?.optJSONArray("photos") ?: JSONArray()
-                val photoList:List<Photo> = Utils.photosFromJsonArray(photoArray)
+                val photoList: List<Photo> = Utils.photosFromJsonArray(photoArray)
 
                 feedItems.removeAt(feedItems.lastIndex)
                 feedItems.addAll(photoList)
@@ -153,7 +153,7 @@ class DiscoverPhotosSubFragment : BaseSubFragment() {
             }
 
             override fun failure(context: Context, jsonResponse: JSONObject?) {
-               super.failure(context, jsonResponse)
+                super.failure(context, jsonResponse)
                 feedItems.removeAt(feedItems.lastIndex)
                 adapter.notifyDataSetChanged()
                 adapter.currentlyLoading = false

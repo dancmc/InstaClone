@@ -21,6 +21,7 @@ import io.replicants.instaclone.subfragments.MapSubFragment;
 import io.replicants.instaclone.subfragments.PhotoSpecificSubFragment;
 import io.replicants.instaclone.subfragments.ProfileSubFragment;
 import io.replicants.instaclone.subfragments.UserListSubFragment;
+import io.replicants.instaclone.subfragments.bluetooth.BluetoothSubFragment;
 import retrofit2.Call;
 import retrofit2.Callback;
 
@@ -76,6 +77,11 @@ public class BaseMainFragment extends Fragment {
         @Override
         public void moveToDiscoverUsersSubFragment() {
             changeFragment(DiscoverUsersSubFragment.newInstance());
+        }
+
+        @Override
+        public void moveToBluetooth() {
+            changeFragment(BluetoothSubFragment.newInstance());
         }
 
         @Override
@@ -150,6 +156,8 @@ public class BaseMainFragment extends Fragment {
         public void moveToApproveListSubFragment(ArrayList<User> users);
 
         public void moveToDiscoverUsersSubFragment();
+
+        public void moveToBluetooth();
 
         public void popBackStack(boolean reloadPreviousFragment);
 

@@ -54,72 +54,74 @@ class ProfileSubFragment : BaseSubFragment() {
     private var profileHeader: ProfileHeader? = null
     lateinit var displayName: String
     private val feedItems = ArrayList<Photo?>()
-    private lateinit var recyclerView :RecyclerView
+    private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: FeedAdapter
     private var self = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        if (!this::layout.isInitialized) {
-            layout = inflater.inflate(R.layout.subfragment_profile, container, false) as LinearLayout
-            displayName = arguments?.getString("displayName") ?: ""
-            self = arguments?.getBoolean("self") ?: false
+        if (this::layout.isInitialized) {
+            return layout
+        }
+        layout = inflater.inflate(R.layout.subfragment_profile, container, false) as LinearLayout
+        displayName = arguments?.getString("displayName") ?: ""
+        self = arguments?.getBoolean("self") ?: false
 
-            profileHeader = ProfileHeader(context!!)
-            layout.subfragment_profile_toolbar.title = displayName
-            recyclerView = (layout.subfragment_profile_recyclerview)!!
+        profileHeader = ProfileHeader(context!!)
+        layout.subfragment_profile_toolbar.title = displayName
+        recyclerView = (layout.subfragment_profile_recyclerview)!!
 
-            // use this setting to improve performance if you know that changes
-            // in content do not change the layout size of the RecyclerView
-            recyclerView.setHasFixedSize(true)
-            recyclerView.setItemViewCacheSize(40)
-            recyclerView.setDrawingCacheEnabled(true)
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        recyclerView.setHasFixedSize(true)
+        recyclerView.setItemViewCacheSize(40)
+        recyclerView.setDrawingCacheEnabled(true)
 
-            // use a linear layout manager
-            val linearLayoutManager = LinearLayoutManager(activity)
-            val gridLayoutManager = GridLayoutManager(activity, 3)
-            gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                override fun getSpanSize(position: Int): Int {
-                    return if (position == 0) 3 else 1
-                }
+        // use a linear layout manager
+        val linearLayoutManager = LinearLayoutManager(activity)
+        val gridLayoutManager = GridLayoutManager(activity, 3)
+        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return if (position == 0) 3 else 1
             }
-            recyclerView.layoutManager = gridLayoutManager
+        }
+        recyclerView.layoutManager = gridLayoutManager
 
-            // initialise cursorAdapter with the item list, attach cursorAdapter to recyclerview
-            // list initially empty
-            adapter = FeedAdapter(activity!!, feedItems, recyclerView)
-            adapter.header = profileHeader?.view
-            adapter.clickListeners = clickListeners
-            recyclerView.adapter = adapter
+        // initialise cursorAdapter with the item list, attach cursorAdapter to recyclerview
+        // list initially empty
+        adapter = FeedAdapter(activity!!, feedItems, recyclerView)
+        adapter.header = profileHeader?.view
+        adapter.clickListeners = clickListeners
+        recyclerView.adapter = adapter
 
-            // setup the  listeners to switch between grid and linear views
-            profileHeader?.listButtonsCallback = object : ProfileHeader.ListButtonsCallback {
-                override fun onGridClicked() {
-                    val oldManager = recyclerView.layoutManager
-                    val firstItemView = oldManager!!.findViewByPosition(0)
-                    val topOffset = firstItemView!!.top
-                    recyclerView.layoutManager = gridLayoutManager
-                    (recyclerView.layoutManager as GridLayoutManager).scrollToPositionWithOffset(0, topOffset)
-                }
-
-                override fun onListClicked() {
-                    val oldManager = recyclerView.layoutManager
-                    val firstItemView = oldManager!!.findViewByPosition(0)
-                    val topOffset = firstItemView!!.top
-                    recyclerView.layoutManager = linearLayoutManager
-                    (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, topOffset)
-                }
-            }
-            profileHeader?.clickListeners = clickListeners
-
-            // setup swipe refresh
-            layout.subfragment_profile_refresh.setOnRefreshListener {
-                load()
+        // setup the  listeners to switch between grid and linear views
+        profileHeader?.listButtonsCallback = object : ProfileHeader.ListButtonsCallback {
+            override fun onGridClicked() {
+                val oldManager = recyclerView.layoutManager
+                val firstItemView = oldManager!!.findViewByPosition(0)
+                val topOffset = firstItemView!!.top
+                recyclerView.layoutManager = gridLayoutManager
+                (recyclerView.layoutManager as GridLayoutManager).scrollToPositionWithOffset(0, topOffset)
             }
 
+            override fun onListClicked() {
+                val oldManager = recyclerView.layoutManager
+                val firstItemView = oldManager!!.findViewByPosition(0)
+                val topOffset = firstItemView!!.top
+                recyclerView.layoutManager = linearLayoutManager
+                (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, topOffset)
+            }
+        }
+        profileHeader?.clickListeners = clickListeners
 
-            // finally load everything from api
+        // setup swipe refresh
+        layout.subfragment_profile_refresh.setOnRefreshListener {
             load()
         }
+
+
+        // finally load everything from api
+        load()
+
         return layout
     }
 
@@ -201,7 +203,7 @@ class ProfileSubFragment : BaseSubFragment() {
         }
 
         if (self && withSelfUpdate) {
-            Utils.updateDetails(context!!,{
+            Utils.updateDetails(context!!, {
                 displayName = Prefs.getInstance().readString(Prefs.DISPLAY_NAME, "")
                 toolbar?.title = displayName
                 internalLoad()
@@ -211,7 +213,7 @@ class ProfileSubFragment : BaseSubFragment() {
         }
     }
 
-    fun resetAdapter(){
+    fun resetAdapter() {
         adapter = FeedAdapter(activity!!, feedItems, recyclerView)
         (profileHeader?.view?.parent as? ViewGroup)?.removeAllViews()
         adapter.header = profileHeader?.view
@@ -219,7 +221,7 @@ class ProfileSubFragment : BaseSubFragment() {
         recyclerView.adapter = adapter
     }
 
-    fun loadHeader(withSelfUpdate: Boolean=false) {
+    fun loadHeader(withSelfUpdate: Boolean = false) {
         profileHeader?.init(displayName, withSelfUpdate)
     }
 

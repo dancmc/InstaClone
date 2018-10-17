@@ -14,8 +14,8 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="icon_send" />
-                            <entry key="sourceFile" value="$PROJECT_DIR$/../outline-send-24px.svg" />
+                            <entry key="outputName" value="icon_bluetooth" />
+                            <entry key="sourceFile" value="$PROJECT_DIR$/../outline-bluetooth-24px.svg" />
                           </map>
                         </option>
                       </PersistentState>
