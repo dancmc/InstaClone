@@ -26,5 +26,6 @@ class Photo {
     var regularWidth = 0
     var regularHeight = 0
 
+    var inRange = false
 
 }

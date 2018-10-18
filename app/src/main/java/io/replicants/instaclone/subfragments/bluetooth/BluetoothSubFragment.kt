@@ -34,6 +34,9 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.uiThread
 import java.util.*
 import kotlin.collections.HashMap
+import android.R.attr.button
+import android.graphics.Bitmap
+import org.jetbrains.anko.toast
 
 
 const val MESSAGE_READ: Int = 0
@@ -73,6 +76,7 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
 
     val REQUEST_ENABLE_BT = 288
     val REQUEST_ENABLE_DISCOVERABLE = 289
+    var galleryTopY = 0f
 
 
     private var bluetoothAdapter: BluetoothAdapter? = null
@@ -129,6 +133,15 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
         }
 
         layout = inflater.inflate(R.layout.subfragment_bluetooth, container, false)
+        layout.subfragment_bluetooth_root.flingView = layout.subfragment_bluetooth_flingview
+        layout.subfragment_bluetooth_root.flingView?.listener = object:FlingView.Listener{
+            override fun endMove(y: Int, path: String) {
+                if(y<galleryTopY){
+                    context?.toast(path)
+
+                }
+            }
+        }
 
         layout.subfragment_bluetooth_toolbar_back.onClick { clickListeners?.popBackStack(false) }
 
@@ -163,7 +176,6 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
         galleryRecycler.setDrawingCacheEnabled(true)
         gridManager = GridLayoutManager(activity, 4);
         galleryRecycler.layoutManager = gridManager
-
 
 
         return layout
@@ -212,14 +224,26 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
     }
 
 
-    override fun onLongClick() {
-        val v = context!!.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    override fun onLongClick(v:View, path:String) {
+
+
+        galleryTopY = layout.subfragment_bluetooth_gallery.top.toFloat()
+        layout.subfragment_bluetooth_flingview.inLongClickMode = true
+
+        v.isDrawingCacheEnabled = true
+        v.buildDrawingCache()
+        val bmp = Bitmap.createBitmap(v.drawingCache)
+        v.isDrawingCacheEnabled = false
+        layout.subfragment_bluetooth_flingview.load(bmp, path)
+
+
+        val vibrate = context!!.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         // Vibrate for 500 milliseconds
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            v.vibrate(VibrationEffect.createOneShot(60, VibrationEffect.DEFAULT_AMPLITUDE));
+            vibrate.vibrate(VibrationEffect.createOneShot(60, VibrationEffect.DEFAULT_AMPLITUDE));
         } else {
             //deprecated in API 26
-            v.vibrate(60);
+            vibrate.vibrate(60);
         }
 
     }

@@ -95,10 +95,6 @@ class ZoomRotateImageView : ImageView {
         originalWidth = bm?.width ?: 0
     }
 
-    override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
-
-    }
 
     fun setMinZoom(min: Float) {
         scaleFactor = min
@@ -155,6 +151,7 @@ class ZoomRotateImageView : ImageView {
 
 
         override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
+
 
             if (Math.pow((e1!!.x - e2!!.x).toDouble(), 2.0) + Math.pow((e1.y - e2.y).toDouble(), 2.0) > SWIPE_MIN_DISTANCE &&
                     Math.pow(velocityX.toDouble(), 2.0) + Math.pow(velocityY.toDouble(), 2.0) > SWIPE_THRESHOLD_VELOCITY) {
@@ -391,6 +388,7 @@ class ZoomRotateImageView : ImageView {
             snapBackAnimator.start()
         }
     }
+
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<io.replicants.instaclone.views.InterceptConstraintLayout
+    android:id="@+id/subfragment_bluetooth_root"
     xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
@@ -146,5 +147,11 @@
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:visibility="gone"/>
+    
+    <io.replicants.instaclone.subfragments.bluetooth.FlingView
+        android:id="@+id/subfragment_bluetooth_flingview"
+        android:layout_width="match_parent"
+        android:elevation="2dp"
+        android:layout_height="match_parent"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</io.replicants.instaclone.views.InterceptConstraintLayout>

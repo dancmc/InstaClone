@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.signature.ObjectKey
 import io.replicants.instaclone.R
+import io.replicants.instaclone.pojos.BluetoothItem
 import io.replicants.instaclone.pojos.SavedPhoto
 import kotlinx.android.synthetic.main.adapter_gallery_header.view.*
 import kotlinx.android.synthetic.main.adapter_gallery_item.view.*
@@ -50,6 +51,10 @@ class BluetoothGalleryCursorAdapter(var context: Context, var cursor: Cursor, va
                 val pos = cursor.position
 
                 Glide.with(context!!).load(path).into(view.gallery_item_image)
+                view.gallery_item_image.isLongClickable = true
+                view.gallery_item_image.onLongClick {
+                    clickListener.onLongClick(view.gallery_item_image, path)
+                }
             }
         }
 
@@ -76,10 +81,7 @@ class BluetoothGalleryCursorAdapter(var context: Context, var cursor: Cursor, va
             is PhotoViewHolder -> {
                 cursorAdapter.cursor.moveToPosition(position)
                 cursorAdapter.bindView(holder.itemView, context, cursorAdapter.cursor)
-                holder.itemView.isLongClickable = true
-                holder.itemView.onLongClick {
-                    clickListener.onLongClick()
-                }
+
 
             }
         }
@@ -89,7 +91,7 @@ class BluetoothGalleryCursorAdapter(var context: Context, var cursor: Cursor, va
 
 
     interface Listener {
-        fun onLongClick()
+        fun onLongClick(v:View, path:String)
 
     }
 
