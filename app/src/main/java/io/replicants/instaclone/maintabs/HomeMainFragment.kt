@@ -50,9 +50,5 @@ class HomeMainFragment : BaseMainFragment(), FeedSubFragment.FeedFragmentInterfa
         tx.commit()
     }
 
-    override fun moveToAdhoc() {
-        clickListeners?.moveToBluetooth()
-    }
-
 
 }

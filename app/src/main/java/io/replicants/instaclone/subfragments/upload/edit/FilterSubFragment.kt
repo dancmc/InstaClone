@@ -74,7 +74,7 @@ class FilterSubFragment:BaseSubFragment() {
             (parentFragment as? ImageFilter)?.putFilter(MYSTIC)
         }
 
-        layout.subfragment_edit_photo_canceledit.onClick { (parentFragment as? ImageFilter)?.cancelCurrentEdit()}
+        layout.subfragment_edit_photo_canceledit.onClick { (parentFragment as? ImageFilter)?.cancelCurrentEdit(true)}
         layout.subfragment_edit_photo_doneedit.onClick { (parentFragment as? ImageFilter)?.done()}
 
         return layout
@@ -83,7 +83,7 @@ class FilterSubFragment:BaseSubFragment() {
     interface ImageFilter {
         fun putFilter(filter: String)
 
-        fun cancelCurrentEdit():Boolean
+        fun cancelCurrentEdit(withSaveDialog:Boolean):Boolean
 
         fun done()
     }

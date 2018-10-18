@@ -2,6 +2,7 @@ package io.replicants.instaclone.subfragments
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.replicants.instaclone.R
+import io.replicants.instaclone.activities.BluetoothActivity
 import io.replicants.instaclone.adapters.FeedAdapter
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
@@ -78,9 +80,8 @@ class FeedSubFragment : BaseSubFragment() {
         layout.subfragment_feed_toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.action_wifi -> {
-                    if (parentFragment is FeedFragmentInterface) {
-                        (parentFragment as FeedFragmentInterface).moveToAdhoc()
-                    }
+                    val intent = Intent(context, BluetoothActivity::class.java)
+                    startActivity(intent)
                     true
                 }
                 R.id.action_settings -> {
@@ -304,6 +305,5 @@ class FeedSubFragment : BaseSubFragment() {
 
     interface FeedFragmentInterface {
         fun moveToSettings()
-        fun moveToAdhoc()
     }
 }

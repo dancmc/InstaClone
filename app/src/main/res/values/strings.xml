@@ -37,6 +37,7 @@
     <string name="save_draft">Save Draft</string>
     <string name="discard">Discard</string>
     <string name="edit_photo">Edit Photo</string>
+    <string name="crop_photo">Crop Photo</string>
 
     <string name="request_storage_location_text">Previously ticked never ask again, please go to settings and allow Storage and Location in Permissions.</string>
     <string name="request_storage_location_title">Request Storage/Location</string>

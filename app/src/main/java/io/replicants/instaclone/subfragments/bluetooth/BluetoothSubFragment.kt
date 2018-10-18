@@ -36,6 +36,7 @@ import java.util.*
 import kotlin.collections.HashMap
 import android.R.attr.button
 import android.graphics.Bitmap
+import io.replicants.instaclone.subfragments.upload.pickphoto.CropSubFragment
 import org.jetbrains.anko.toast
 
 
@@ -138,6 +139,7 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
             override fun endMove(y: Int, path: String) {
                 if(y<galleryTopY){
                     context?.toast(path)
+                    (activity as? BluetoothActivityInterface)?.photoObtained(path)
 
                 }
             }

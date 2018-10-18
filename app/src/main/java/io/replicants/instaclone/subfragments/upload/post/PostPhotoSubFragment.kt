@@ -63,9 +63,6 @@ class PostPhotoSubFragment : BaseSubFragment() {
             listener?.goBackToEdit()
         }
 
-        layout.subfragment_post_photo_toolbar_post.onClick {
-
-        }
 
         val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
         Glide.with(context!!).load(filepath).apply(requestOptions).into(layout.subfragment_post_image)

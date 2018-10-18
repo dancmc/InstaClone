@@ -76,7 +76,7 @@ class UploadPhotoActivity : AppCompatActivity(), PickPhotoSubFragment.PhotoObtai
     override fun onBackPressed() {
         val frag = supportFragmentManager.findFragmentById(R.id.add_photo_container)
         when{
-            frag != null && frag is EditPhotoSubFragment->frag.cancelCurrentEdit()
+            frag != null && frag is EditPhotoSubFragment->frag.cancelCurrentEdit(true)
             frag != null && frag is PickPhotoSubFragment->{
                 if(!frag.handleBackPressed()){
                     super.onBackPressed()

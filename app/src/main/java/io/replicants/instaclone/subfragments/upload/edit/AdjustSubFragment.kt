@@ -99,7 +99,7 @@ class AdjustSubFragment:BaseSubFragment() {
             }
         }
 
-        layout.subfragment_edit_photo_canceledit.onClick { (parentFragment as ImageAdjust).cancelCurrentEdit()}
+        layout.subfragment_edit_photo_canceledit.onClick { (parentFragment as ImageAdjust).cancelCurrentEdit(true)}
         layout.subfragment_edit_photo_doneedit.onClick { (parentFragment as ImageAdjust).done()}
 
         return layout
@@ -112,7 +112,7 @@ class AdjustSubFragment:BaseSubFragment() {
 
         fun onRotateFinished()
 
-        fun cancelCurrentEdit():Boolean
+        fun cancelCurrentEdit(withSaveDialog:Boolean):Boolean
 
         fun done()
     }

@@ -38,6 +38,11 @@
         </activity>
 
         <activity
+        android:name=".activities.BluetoothActivity"
+        android:screenOrientation="portrait">
+    </activity>
+
+        <activity
             android:name=".activities.UploadPhotoActivity"
             android:screenOrientation="portrait">
         </activity>

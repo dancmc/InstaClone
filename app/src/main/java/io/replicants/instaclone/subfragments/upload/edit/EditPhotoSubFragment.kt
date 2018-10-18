@@ -289,7 +289,7 @@ class EditPhotoSubFragment : BaseSubFragment(),
         }
 
         context?.let {
-            val builder = AlertDialog.Builder(it).apply {
+            saveDialog = AlertDialog.Builder(it).apply {
                 setTitle(R.string.save_draft_title)
                 setMessage(R.string.save_draft_text)
                 setNegativeButton(R.string.discard){ dialog, id ->
@@ -331,8 +331,7 @@ class EditPhotoSubFragment : BaseSubFragment(),
                     listener?.editCancelled()
                 }
 
-            }
-            saveDialog = builder.create()
+            }.create()
         }
 
         return layout
@@ -510,7 +509,7 @@ class EditPhotoSubFragment : BaseSubFragment(),
         imageView.colorFilter = colorFilter
     }
 
-    override fun cancelCurrentEdit():Boolean {
+    override fun cancelCurrentEdit(withSaveDialog:Boolean):Boolean {
 
         switchToOverallToolbar()
 
@@ -547,7 +546,11 @@ class EditPhotoSubFragment : BaseSubFragment(),
             childFragmentManager.popBackStack()
 
         } else {
-            if(saveDialog.isShowing) saveDialog.cancel() else saveDialog.show()
+            if(withSaveDialog) {
+                if (saveDialog.isShowing) saveDialog.cancel() else saveDialog.show()
+            }else {
+                listener?.editCancelled()
+            }
         }
         return false
     }

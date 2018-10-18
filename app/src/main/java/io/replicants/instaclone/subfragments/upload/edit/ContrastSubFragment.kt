@@ -65,7 +65,7 @@ class ContrastSubFragment:BaseSubFragment() {
         })
 
 
-        layout.subfragment_edit_photo_canceledit.onClick { (parentFragment as? ImageContrast)?.cancelCurrentEdit()}
+        layout.subfragment_edit_photo_canceledit.onClick { (parentFragment as? ImageContrast)?.cancelCurrentEdit(true)}
         layout.subfragment_edit_photo_doneedit.onClick { (parentFragment as? ImageContrast)?.done()}
 
         return layout
@@ -74,7 +74,7 @@ class ContrastSubFragment:BaseSubFragment() {
     interface ImageContrast {
         fun adjustContrast(newContrastMatrixValue:Float, contrastSetting:Int)
 
-        fun cancelCurrentEdit():Boolean
+        fun cancelCurrentEdit(withSaveDialog:Boolean):Boolean
 
         fun done()
     }

@@ -61,7 +61,7 @@ class BrightnessSubFragment:BaseSubFragment() {
         })
 
 
-        layout.subfragment_edit_photo_canceledit.onClick { (parentFragment as? ImageBrightness)?.cancelCurrentEdit()}
+        layout.subfragment_edit_photo_canceledit.onClick { (parentFragment as? ImageBrightness)?.cancelCurrentEdit(true)}
         layout.subfragment_edit_photo_doneedit.onClick { (parentFragment as? ImageBrightness)?.done()}
 
         return layout
@@ -70,7 +70,7 @@ class BrightnessSubFragment:BaseSubFragment() {
     interface ImageBrightness {
         fun adjustBrightness(brightness:Int)
 
-        fun cancelCurrentEdit():Boolean
+        fun cancelCurrentEdit(withSaveDialog:Boolean):Boolean
 
         fun done()
     }
