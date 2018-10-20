@@ -51,7 +51,7 @@
             android:padding="2dp"
             android:scaleType="centerCrop"
             app:ratio="1"
-            tools:src="@drawable/unimelb_logo"/>
+            tools:src="@drawable/icon_android"/>
 
         <io.replicants.instaclone.utilities.AspectImageView
             android:id="@+id/activity_following1_image2"
@@ -61,7 +61,7 @@
             android:padding="2dp"
             android:scaleType="centerCrop"
             app:ratio="1"
-            tools:src="@drawable/unimelb_logo"/>
+            tools:src="@drawable/icon_android"/>
 
         <io.replicants.instaclone.utilities.AspectImageView
             android:id="@+id/activity_following1_image3"
@@ -71,7 +71,7 @@
             android:padding="2dp"
             android:scaleType="centerCrop"
             app:ratio="1"
-            tools:src="@drawable/unimelb_logo"/>
+            tools:src="@drawable/icon_android"/>
 
         <io.replicants.instaclone.utilities.AspectImageView
             android:id="@+id/activity_following1_image4"
@@ -81,7 +81,7 @@
             android:padding="2dp"
             android:scaleType="centerCrop"
             app:ratio="1"
-            tools:src="@drawable/unimelb_logo"/>
+            tools:src="@drawable/icon_android"/>
 
         <io.replicants.instaclone.utilities.AspectImageView
             android:id="@+id/activity_following1_image5"
@@ -91,7 +91,7 @@
             android:padding="2dp"
             android:scaleType="centerCrop"
             app:ratio="1"
-            tools:src="@drawable/unimelb_logo"/>
+            tools:src="@drawable/icon_android"/>
 
         <io.replicants.instaclone.utilities.AspectImageView
             android:id="@+id/activity_following1_image6"
@@ -101,7 +101,7 @@
             android:padding="2dp"
             android:scaleType="centerCrop"
             app:ratio="1"
-            tools:src="@drawable/unimelb_logo"/>
+            tools:src="@drawable/icon_android"/>
 
 
     </LinearLayout>
@@ -124,7 +124,7 @@
             android:padding="2dp"
             android:scaleType="centerCrop"
             app:ratio="1"
-            tools:src="@drawable/unimelb_logo"/>
+            tools:src="@drawable/icon_android"/>
 
         <io.replicants.instaclone.utilities.AspectImageView
             android:id="@+id/activity_following1_image8"
@@ -134,7 +134,7 @@
             android:padding="2dp"
             android:scaleType="centerCrop"
             app:ratio="1"
-            tools:src="@drawable/unimelb_logo"/>
+            tools:src="@drawable/icon_android"/>
 
         <io.replicants.instaclone.utilities.AspectImageView
             android:id="@+id/activity_following1_image9"
@@ -144,7 +144,7 @@
             android:padding="2dp"
             android:scaleType="centerCrop"
             app:ratio="1"
-            tools:src="@drawable/unimelb_logo"/>
+            tools:src="@drawable/icon_android"/>
 
         <io.replicants.instaclone.utilities.AspectImageView
             android:id="@+id/activity_following1_image10"
@@ -154,7 +154,7 @@
             android:padding="2dp"
             android:scaleType="centerCrop"
             app:ratio="1"
-            tools:src="@drawable/unimelb_logo"/>
+            tools:src="@drawable/icon_android"/>
 
         <io.replicants.instaclone.utilities.AspectImageView
             android:id="@+id/activity_following1_image11"
@@ -164,7 +164,7 @@
             android:padding="2dp"
             android:scaleType="centerCrop"
             app:ratio="1"
-            tools:src="@drawable/unimelb_logo"/>
+            tools:src="@drawable/icon_android"/>
 
         <io.replicants.instaclone.utilities.AspectImageView
             android:id="@+id/activity_following1_image12"
@@ -174,7 +174,7 @@
             android:padding="2dp"
             android:scaleType="centerCrop"
             app:ratio="1"
-            tools:src="@drawable/unimelb_logo"/>
+            tools:src="@drawable/icon_android"/>
 
 
     </LinearLayout>

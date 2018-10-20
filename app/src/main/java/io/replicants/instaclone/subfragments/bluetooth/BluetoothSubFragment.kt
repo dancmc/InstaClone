@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.*
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.*
 import android.view.LayoutInflater
 import android.view.View
@@ -15,11 +16,11 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.replicants.instaclone.R
+import io.replicants.instaclone.activities.BluetoothActivity
 import io.replicants.instaclone.adapters.BTListAdapter
 import io.replicants.instaclone.adapters.BluetoothGalleryCursorAdapter
 import io.replicants.instaclone.pojos.BluetoothItem
@@ -31,14 +32,9 @@ import io.replicants.instaclone.utilities.Utils.Companion.getDirectoryCursor
 import kotlinx.android.synthetic.main.subfragment_bluetooth.view.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.sdk27.coroutines.onClick
+import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
 import java.util.*
-import kotlin.collections.HashMap
-import android.R.attr.button
-import android.graphics.Bitmap
-import io.replicants.instaclone.activities.BluetoothActivity
-import io.replicants.instaclone.subfragments.upload.pickphoto.CropSubFragment
-import org.jetbrains.anko.toast
 
 
 const val MESSAGE_READ: Int = 0

@@ -416,20 +416,19 @@ public class InstaApi {
                         } catch (Exception e) {
                             Toast.makeText(context, "Invalid response from server", Toast.LENGTH_SHORT).show();
                             Log.d(TAG, e.getMessage());
-                            apiCallback.networkFailure(context);
+                            apiCallback.networkFailure(context, response.code());
                         }
                     } else {
-                        Toast.makeText(context, "HTTP "+response.code()+" error", Toast.LENGTH_SHORT).show();
-                        apiCallback.networkFailure(context);
+                        apiCallback.networkFailure(context,response.code());
                     }
                 } else {
-                    apiCallback.networkFailure(context);
+                    apiCallback.networkFailure(context,response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<String> call, Throwable t) {
-                apiCallback.networkFailure(context);
+                apiCallback.networkFailure(context, -1);
             }
         };
     }

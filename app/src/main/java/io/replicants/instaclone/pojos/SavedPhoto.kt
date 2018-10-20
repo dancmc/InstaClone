@@ -2,9 +2,7 @@ package io.replicants.instaclone.pojos
 
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
-import io.replicants.instaclone.subfragments.upload.edit.EditPhotoSubFragment
 import io.replicants.instaclone.subfragments.upload.pickphoto.EditPhotoState
-import io.replicants.instaclone.views.ZoomRotateImageView
 import io.replicants.instaclone.views.ZoomRotateImageViewState
 
 open class SavedPhoto():RealmObject(){

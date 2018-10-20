@@ -46,7 +46,7 @@
         app:layout_constraintDimensionRatio="1"
         android:layout_marginRight="16dp"
         android:scaleType="centerCrop"
-        tools:src="@drawable/unimelb_logo"/>
+        tools:src="@drawable/icon_android"/>
 
 
 

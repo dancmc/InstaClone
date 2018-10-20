@@ -23,8 +23,6 @@ import io.replicants.instaclone.utilities.MyApplication
 import io.replicants.instaclone.utilities.Prefs
 import io.replicants.instaclone.utilities.Utils
 import kotlinx.android.synthetic.main.subfragment_post_photo.view.*
-import kotlinx.coroutines.experimental.runBlocking
-import org.jetbrains.anko.appcompat.v7.alertDialogLayout
 import org.jetbrains.anko.sdk27.coroutines.onCheckedChange
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast

@@ -4,20 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
 import androidx.appcompat.widget.Toolbar
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import io.replicants.instaclone.R
-import io.replicants.instaclone.network.InstaApi
-import io.replicants.instaclone.network.InstaApiCallback
-import io.replicants.instaclone.subfragments.EditProfileSubFragment
 import io.replicants.instaclone.subfragments.ProfileSubFragment
 import io.replicants.instaclone.utilities.Prefs
-import io.replicants.instaclone.utilities.Utils
-import org.json.JSONObject
 
 class ProfileMainFragment : BaseMainFragment(){
 

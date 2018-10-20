@@ -149,8 +149,8 @@ class ProfileSubFragment : BaseSubFragment() {
                                 layout.subfragment_profile_refresh.isRefreshing = false
                             }
 
-                            override fun networkFailure(context: Context?) {
-                                super.networkFailure(context)
+                            override fun networkFailure(context: Context?, code:Int) {
+                                super.networkFailure(context, code)
                                 layout.subfragment_profile_refresh.isRefreshing = false
                             }
                         }))
@@ -174,8 +174,8 @@ class ProfileSubFragment : BaseSubFragment() {
                                         layout.subfragment_profile_refresh.isRefreshing = false
                                     }
 
-                                    override fun networkFailure(context: Context?) {
-                                        super.networkFailure(context)
+                                    override fun networkFailure(context: Context?, code:Int) {
+                                        super.networkFailure(context,code)
                                         layout.subfragment_profile_refresh.isRefreshing = false
                                     }
                                 }))

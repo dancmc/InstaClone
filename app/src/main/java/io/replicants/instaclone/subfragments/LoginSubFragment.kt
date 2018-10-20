@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import io.replicants.instaclone.R
 import io.replicants.instaclone.activities.LoginActivity
-import kotlinx.android.synthetic.main.subfragment_login.view.*
-import android.view.inputmethod.EditorInfo
 import io.replicants.instaclone.utilities.Utils
+import kotlinx.android.synthetic.main.subfragment_login.view.*
 
 
 class LoginSubFragment:BaseSubFragment(){

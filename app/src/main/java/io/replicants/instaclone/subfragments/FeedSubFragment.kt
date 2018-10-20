@@ -311,8 +311,8 @@ class FeedSubFragment : BaseSubFragment() {
                 layout.subfragment_feed_refresh.isRefreshing = false
             }
 
-            override fun networkFailure(context: Context?) {
-                super.networkFailure(context)
+            override fun networkFailure(context: Context?,code:Int) {
+                super.networkFailure(context,code)
                 layout.subfragment_feed_refresh.isRefreshing = false
             }
         }
@@ -351,8 +351,8 @@ class FeedSubFragment : BaseSubFragment() {
                 adapter.currentlyLoading = false
             }
 
-            override fun networkFailure(context: Context) {
-                super.networkFailure(context)
+            override fun networkFailure(context: Context,code:Int) {
+                super.networkFailure(context,code)
                 feedItems.removeAt(feedItems.lastIndex)
                 adapter.notifyDataSetChanged()
                 adapter.currentlyLoading = false

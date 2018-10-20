@@ -32,10 +32,8 @@ import kotlinx.coroutines.experimental.launch
 import org.apache.commons.io.FileUtils
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.*
-import java.lang.Exception
+import java.io.File
 import java.net.URL
-import java.nio.file.Files
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -393,7 +391,7 @@ class Utils {
         }
 
         @JvmStatic
-        fun updateDetails(context: Context, success: () -> Unit, failure: (JSONObject?) -> Unit = {}) {
+        fun updateDetails(context: Context, success: () -> Unit, failure: (JSONObject?) -> Unit = {},networkFailure: (Int) -> Unit = {}) {
             InstaApi.getDetails().enqueue(InstaApi.generateCallback(context, object : InstaApiCallback() {
                 override fun success(jsonResponse: JSONObject?) {
 
@@ -413,6 +411,11 @@ class Utils {
                 override fun failure(context: Context?, jsonResponse: JSONObject?) {
                     super.failure(context, jsonResponse)
                     failure.invoke(jsonResponse)
+                }
+
+                override fun networkFailure(context: Context?, code:Int) {
+                    super.networkFailure(context, code)
+                    networkFailure.invoke(code)
                 }
             }))
 

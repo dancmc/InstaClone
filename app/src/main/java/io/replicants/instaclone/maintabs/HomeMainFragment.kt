@@ -8,7 +8,6 @@ import androidx.fragment.app.FragmentManager
 import io.replicants.instaclone.R
 import io.replicants.instaclone.subfragments.FeedSubFragment
 import io.replicants.instaclone.subfragments.TemporarySubFragment
-import org.jetbrains.anko.toast
 
 
 class HomeMainFragment : BaseMainFragment(), FeedSubFragment.FeedFragmentInterface {

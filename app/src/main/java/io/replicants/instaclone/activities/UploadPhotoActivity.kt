@@ -8,16 +8,13 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
-import io.realm.Realm
 import io.replicants.instaclone.R
-import io.replicants.instaclone.pojos.SavedPhoto
 import io.replicants.instaclone.subfragments.upload.edit.EditPhotoSubFragment
 import io.replicants.instaclone.subfragments.upload.pickphoto.PickPhotoSubFragment
 import io.replicants.instaclone.subfragments.upload.post.PostPhotoSubFragment
 import io.replicants.instaclone.utilities.MyApplication
 import io.replicants.instaclone.utilities.Prefs
 import org.jetbrains.anko.toast
-import java.io.File
 
 // Same as Instagram's Upload Photo activity
 class UploadPhotoActivity : AppCompatActivity(), PickPhotoSubFragment.PhotoObtainedListener, EditPhotoSubFragment.PhotoEditListener, PostPhotoSubFragment.PhotoPostListener {

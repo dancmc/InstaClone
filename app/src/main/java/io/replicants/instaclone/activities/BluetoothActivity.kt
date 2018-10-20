@@ -1,9 +1,5 @@
 package io.replicants.instaclone.activities
 
-import android.Manifest
-import android.app.Activity
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Base64
 import androidx.appcompat.app.AppCompatActivity
@@ -12,14 +8,8 @@ import io.realm.Realm
 import io.replicants.instaclone.R
 import io.replicants.instaclone.pojos.BluetoothItem
 import io.replicants.instaclone.pojos.InRangePhoto
-import io.replicants.instaclone.pojos.Photo
 import io.replicants.instaclone.subfragments.bluetooth.*
 import io.replicants.instaclone.subfragments.upload.edit.EditPhotoSubFragment
-import io.replicants.instaclone.subfragments.upload.pickphoto.PickPhotoSubFragment
-import io.replicants.instaclone.subfragments.upload.post.PostPhotoSubFragment
-import io.replicants.instaclone.utilities.MyApplication
-import io.replicants.instaclone.utilities.Prefs
-import io.replicants.instaclone.utilities.Utils
 import kotlinx.coroutines.experimental.launch
 import org.apache.commons.io.FileUtils
 import org.jetbrains.anko.toast
@@ -27,10 +17,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
-import java.nio.file.Files
 import java.util.*
-
-
 
 
 class BluetoothActivity : AppCompatActivity(), EditPhotoSubFragment.PhotoEditListener,BluetoothActivityInterface{
@@ -50,12 +37,13 @@ class BluetoothActivity : AppCompatActivity(), EditPhotoSubFragment.PhotoEditLis
 
 
         val manager = supportFragmentManager
-        val transaction = manager.beginTransaction()
-        val bluetoothFragment = BluetoothSubFragment.newInstance()
+        if(supportFragmentManager.findFragmentById(R.id.bluetooth_container)==null){
+            val transaction = manager.beginTransaction()
+            val bluetoothFragment = BluetoothSubFragment.newInstance()
 
-        transaction.add(R.id.bluetooth_container, bluetoothFragment, "bluetooth")
-        transaction.commit()
-
+            transaction.add(R.id.bluetooth_container, bluetoothFragment, "bluetooth")
+            transaction.commit()
+        }
     }
 
 

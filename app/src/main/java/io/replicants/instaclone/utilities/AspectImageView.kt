@@ -2,11 +2,8 @@ package io.replicants.instaclone.utilities
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.View.MeasureSpec
 import android.widget.ImageView
 import androidx.annotation.Nullable
-import androidx.appcompat.widget.AppCompatImageView
-import android.content.res.TypedArray
 import io.replicants.instaclone.R
 
 

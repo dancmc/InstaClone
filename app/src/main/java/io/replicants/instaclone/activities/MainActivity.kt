@@ -14,6 +14,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.realm.Realm
 import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.*
+import io.replicants.instaclone.network.InstaRetrofit
 import io.replicants.instaclone.pojos.SavedPhoto
 import io.replicants.instaclone.utilities.MyApplication
 import io.replicants.instaclone.utilities.Prefs
@@ -56,6 +57,15 @@ class MainActivity : AppCompatActivity() {
         }
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
+        initialiseAndAuthorise(savedInstanceState)
+
+        launch {
+            cleanupStorage()
+        }
+
+    }
+
+    private fun initialiseAndAuthorise(savedInstanceState: Bundle?){
         if (Prefs.getInstance().readString(Prefs.JWT, "").isBlank()) {
             logout()
         } else {
@@ -71,13 +81,23 @@ class MainActivity : AppCompatActivity() {
                         if (responseJson?.optInt("error_code", -1) ?: 0 == 0) {
                             logout()
                         }
+                    },
+                    networkFailure = { code->
+                        if(code == 502) {
+                            when(InstaRetrofit.domain){
+                                "dancmc.io"->{
+                                    InstaRetrofit.domain = "danielchan.io"
+                                    InstaRetrofit.rebuild()
+                                    toast("Switching to backup server")
+                                    initialiseAndAuthorise(savedInstanceState)
+                                }
+                                "danielchan.io"->{
+                                    toast("Both servers down")
+                                }
+                            }
+                        }
                     })
         }
-
-        launch {
-            cleanupStorage()
-        }
-
     }
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
@@ -129,7 +149,7 @@ class MainActivity : AppCompatActivity() {
                     TAG_ACTIVITY -> ActivityMainFragment.newInstance()
                     TAG_PROFILE -> ProfileMainFragment.newInstance()
                     else -> HomeMainFragment.newInstance()
-                }!!
+                }
 
                 transaction.add(R.id.activity_container, newFrag, target)
             } else {

@@ -143,8 +143,8 @@ class EditProfileSubFragment : BaseSubFragment() {
                             }
                         }
 
-                        override fun networkFailure(context: Context?) {
-                            super.networkFailure(context)
+                        override fun networkFailure(context: Context?,code:Int) {
+                            super.networkFailure(context,code)
                             if (dialog.isShowing) {
                                 dialog.dismiss()
                             }

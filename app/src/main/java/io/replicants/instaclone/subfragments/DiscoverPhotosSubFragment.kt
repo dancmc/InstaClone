@@ -129,8 +129,8 @@ class DiscoverPhotosSubFragment : BaseSubFragment() {
                 layout.subfragment_discover_photos_refresh.isRefreshing = false
             }
 
-            override fun networkFailure(context: Context?) {
-                super.networkFailure(context)
+            override fun networkFailure(context: Context?,code:Int) {
+                super.networkFailure(context,code)
                 layout.subfragment_discover_photos_refresh.isRefreshing = false
             }
         }
@@ -159,8 +159,8 @@ class DiscoverPhotosSubFragment : BaseSubFragment() {
                 adapter.currentlyLoading = false
             }
 
-            override fun networkFailure(context: Context) {
-                super.networkFailure(context)
+            override fun networkFailure(context: Context,code:Int) {
+                super.networkFailure(context,code)
                 feedItems.removeAt(feedItems.lastIndex)
                 adapter.notifyDataSetChanged()
                 adapter.currentlyLoading = false

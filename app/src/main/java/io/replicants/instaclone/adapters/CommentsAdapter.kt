@@ -6,8 +6,6 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.text.bold
@@ -16,26 +14,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.signature.ObjectKey
-import io.realm.Realm
 import io.replicants.instaclone.R
 import io.replicants.instaclone.maintabs.BaseMainFragment
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.pojos.Comment
-import io.replicants.instaclone.pojos.SavedPhoto
-import io.replicants.instaclone.pojos.User
 import io.replicants.instaclone.subfragments.CommentsSubFragment
 import io.replicants.instaclone.utilities.*
 import kotlinx.android.synthetic.main.adapter_comment_item.view.*
-import java.util.ArrayList
-import kotlinx.android.synthetic.main.adapter_userlist_item.view.*
-import org.jetbrains.anko.alert
-import org.jetbrains.anko.noButton
-import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.sdk27.coroutines.onLongClick
-import org.jetbrains.anko.toast
-import org.jetbrains.anko.yesButton
 import org.json.JSONObject
+import java.util.*
 
 open class CommentsAdapter(private val context: Activity, private val photoID:String, private val dataset: ArrayList<Comment?>, private val recyclerView: RecyclerView, private val changeListener:CommentsSubFragment.Listener?=null) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 

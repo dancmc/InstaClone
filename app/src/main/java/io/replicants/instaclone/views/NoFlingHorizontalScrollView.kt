@@ -2,9 +2,7 @@ package io.replicants.instaclone.views
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.View
 import android.widget.HorizontalScrollView
-import android.widget.ScrollView
 import androidx.annotation.Nullable
 
 class NoFlingHorizontalScrollView:HorizontalScrollView {

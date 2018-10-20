@@ -10,7 +10,10 @@ import io.replicants.instaclone.R
 import io.replicants.instaclone.adapters.ActivityFollowingAdapter
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
-import io.replicants.instaclone.pojos.*
+import io.replicants.instaclone.pojos.ActivityBase
+import io.replicants.instaclone.pojos.ActivityFollowing1
+import io.replicants.instaclone.pojos.ActivityFollowing2
+import io.replicants.instaclone.pojos.ActivityFollowing3
 import kotlinx.android.synthetic.main.subfragment_activity_following.view.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread

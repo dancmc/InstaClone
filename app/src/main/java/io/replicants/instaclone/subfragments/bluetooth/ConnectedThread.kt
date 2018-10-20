@@ -4,11 +4,9 @@ import android.bluetooth.BluetoothSocket
 import android.os.Handler
 import android.util.Log
 import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import java.io.*
-import java.lang.StringBuilder
 import kotlin.math.min
 
 private const val TAG = "TAG_BLUETOOTH"

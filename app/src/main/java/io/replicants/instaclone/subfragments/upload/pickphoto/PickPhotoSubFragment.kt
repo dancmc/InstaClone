@@ -2,22 +2,19 @@ package io.replicants.instaclone.subfragments.upload.pickphoto
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import io.replicants.instaclone.R
-import kotlinx.android.synthetic.main.subfragment_pick_photo.view.*
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.google.android.material.tabs.TabLayout
+import io.replicants.instaclone.R
 import io.replicants.instaclone.subfragments.BaseSubFragment
 import io.replicants.instaclone.utilities.Prefs
-import org.jetbrains.anko.toast
+import kotlinx.android.synthetic.main.subfragment_pick_photo.view.*
 
 
 class PickPhotoSubFragment: BaseSubFragment() {
@@ -48,25 +45,25 @@ class PickPhotoSubFragment: BaseSubFragment() {
 
     class PickPhotoVPAdapter(fm:FragmentManager, var photoObtainedListener: PhotoObtainedListener?) : FragmentStatePagerAdapter(fm) {
 
-        val fragmentArray = Array<Fragment>(2){Fragment()}
-
-        override fun getCount(): Int {
-            return 2
-        }
+        val fragmentArray = Array<Fragment?>(2){null}
 
         override fun getItem(position: Int): Fragment {
 
-            if(position==0){
-                val galleryFragment = GalleryPagerFragment()
-                galleryFragment.photoObtainedListener = photoObtainedListener
-                fragmentArray[0] = galleryFragment
-                return galleryFragment
+            return if(position==0){
+                fragmentArray[0] ?: GalleryPagerFragment().apply {
+                    fragmentArray[0] = this
+                    this.photoObtainedListener = this@PickPhotoVPAdapter.photoObtainedListener
+                }
             } else {
-                val camFragment = CameraPagerFragment()
-                camFragment.photoObtainedListener = photoObtainedListener
-                fragmentArray[1] = camFragment
-                return camFragment
+                fragmentArray[1] ?: CameraPagerFragment().apply {
+                    fragmentArray[1] = this
+                    this.photoObtainedListener = this@PickPhotoVPAdapter.photoObtainedListener
+                }
             }
+        }
+
+        override fun getCount(): Int {
+            return 2
         }
 
         override fun getPageTitle(position: Int): CharSequence? {

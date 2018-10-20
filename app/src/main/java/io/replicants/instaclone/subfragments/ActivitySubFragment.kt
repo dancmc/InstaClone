@@ -45,22 +45,23 @@ class ActivitySubFragment : BaseSubFragment() {
         return layout
     }
 
-    class ActivityVPAdapter(fm: FragmentManager, var listeners: BaseMainFragment.ClickListeners?) : FragmentStatePagerAdapter(fm) {
+    class ActivityVPAdapter(fm: FragmentManager, private var listeners: BaseMainFragment.ClickListeners?) : FragmentStatePagerAdapter(fm) {
 
-        override fun getCount(): Int {
-            return 2
-        }
+        var followingFrag:ActivityFollowingSubFragment? = null
+        var selfFrag : ActivitySelfSubFragment? = null
 
         override fun getItem(position: Int): Fragment {
 
-            if (position == 0) {
-                val followingFrag = ActivityFollowingSubFragment()
-                followingFrag.clickListeners = listeners
-                return followingFrag
+            return if (position == 0) {
+                followingFrag ?: ActivityFollowingSubFragment().apply {
+                    followingFrag = this
+                    clickListeners = listeners
+                }
             } else {
-                val selfFrag = ActivitySelfSubFragment()
-                selfFrag.clickListeners = listeners
-                return selfFrag
+                selfFrag ?: ActivitySelfSubFragment().apply {
+                    selfFrag = this
+                    clickListeners = listeners
+                }
             }
         }
 
@@ -70,6 +71,10 @@ class ActivitySubFragment : BaseSubFragment() {
             } else {
                 "You"
             }
+        }
+
+        override fun getCount(): Int {
+            return 2
         }
     }
 

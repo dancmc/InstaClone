@@ -4,17 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
-import com.google.android.material.tabs.TabLayout
 import io.replicants.instaclone.R
-import io.replicants.instaclone.subfragments.*
-import io.replicants.instaclone.subfragments.upload.pickphoto.CameraPagerFragment
-import io.replicants.instaclone.subfragments.upload.pickphoto.GalleryPagerFragment
-import io.replicants.instaclone.subfragments.upload.pickphoto.PickPhotoSubFragment
-import io.replicants.instaclone.subfragments.upload.post.PostPhotoSubFragment
-import kotlinx.android.synthetic.main.mainfragment_activity.view.*
+import io.replicants.instaclone.subfragments.ActivitySubFragment
+import io.replicants.instaclone.subfragments.ApproveListSubFragment
 
 class ActivityMainFragment : BaseMainFragment() {
 

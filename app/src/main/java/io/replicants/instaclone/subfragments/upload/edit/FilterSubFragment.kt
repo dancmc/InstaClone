@@ -1,23 +1,14 @@
 package io.replicants.instaclone.subfragments.upload.edit
 
 import android.os.Bundle
-import android.view.*
-import android.widget.SeekBar
-import android.widget.TextView
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import io.replicants.instaclone.R
 import io.replicants.instaclone.subfragments.BaseSubFragment
-import io.replicants.instaclone.utilities.Utils
-import kotlinx.android.synthetic.main.subfragment_adjust.view.*
 import kotlinx.android.synthetic.main.subfragment_edit_photo_cancel_done.view.*
 import kotlinx.android.synthetic.main.subfragment_filter.view.*
-import kotlinx.android.synthetic.main.subfragment_seekbar.view.*
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.sdk27.coroutines.onClick
-import org.jetbrains.anko.sdk27.coroutines.onScrollChange
-import org.jetbrains.anko.sdk27.coroutines.onSeekBarChangeListener
-import org.jetbrains.anko.sdk27.coroutines.onTouch
-import org.jetbrains.anko.toast
 
 class FilterSubFragment:BaseSubFragment() {
 

@@ -156,13 +156,22 @@ class ProfileHeader(val context: Context) {
                 clear()
             }
 
-            override fun networkFailure(context: Context?) {
-                super.networkFailure(context)
+            override fun networkFailure(context: Context?, code:Int) {
+                super.networkFailure(context, code)
                 clear()
             }
         }))
-        view.view_profile_header_grid_btn.onClick { listButtonsCallback?.onGridClicked() }
-        view.view_profile_header_list_btn.onClick { listButtonsCallback?.onListClicked() }
+        view.view_profile_header_grid_btn.isSelected = true
+        view.view_profile_header_grid_btn.onClick {
+            listButtonsCallback?.onGridClicked()
+            view.view_profile_header_grid_btn.isSelected = true
+            view.view_profile_header_list_btn.isSelected = false
+        }
+        view.view_profile_header_list_btn.onClick {
+            listButtonsCallback?.onListClicked()
+            view.view_profile_header_grid_btn.isSelected = false
+            view.view_profile_header_list_btn.isSelected = true
+        }
     }
 
     fun clear(){

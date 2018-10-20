@@ -11,8 +11,6 @@ import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.configuration.CameraConfiguration
@@ -25,7 +23,6 @@ import io.replicants.instaclone.utilities.Prefs
 import io.replicants.instaclone.utilities.Utils
 import io.replicants.instaclone.utilities.rotate
 import kotlinx.android.synthetic.main.subfragment_camera.view.*
-import kotlinx.android.synthetic.main.subfragment_gallery.view.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast

@@ -1,7 +1,9 @@
 package io.replicants.instaclone.subfragments.upload.edit
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import io.replicants.instaclone.R
 import io.replicants.instaclone.subfragments.BaseSubFragment
 import kotlinx.android.synthetic.main.subfragment_edit_controls.view.*

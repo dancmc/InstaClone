@@ -12,8 +12,10 @@ import retrofit2.http.*
 class InstaRetrofit {
 
     companion object {
-        private val apiUrlV2 = "https://dancmc.io/instacopy/v1/"
-//        private val apiUrlV2 = "http://10.0.0.3:8080/instacopy/v1/"
+        var domain = "dancmc.io"
+        private var apiUrl = getApiUrl()
+//        private val apiUrl = "http://10.0.0.3:8080/instacopy/v1/"
+
         private val httpclient = OkHttpClient.Builder()
                 .addInterceptor { chain ->
                     val originalRequest = chain.request()
@@ -27,15 +29,29 @@ class InstaRetrofit {
                     chain.proceed(newRequest)
                 }.build()
 
-        private val retrofit = Retrofit.Builder()
-                .client(httpclient)
-                .baseUrl(apiUrlV2)
-                .addConverterFactory(ScalarsConverterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
+        private var retrofit = getRetrofit()
 
         @JvmField
         var api = retrofit.create(PhotoApi::class.java)
+
+        @JvmStatic
+        fun rebuild(){
+            apiUrl = getApiUrl()
+            retrofit = getRetrofit()
+        }
+
+        fun getApiUrl():String{
+            return "https://$domain/instacopy/v1/"
+        }
+
+        fun getRetrofit():Retrofit{
+            return Retrofit.Builder()
+                    .client(httpclient)
+                    .baseUrl(apiUrl)
+                    .addConverterFactory(ScalarsConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+        }
     }
 
 

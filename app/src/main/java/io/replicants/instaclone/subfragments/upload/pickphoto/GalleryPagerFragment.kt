@@ -2,12 +2,10 @@ package io.replicants.instaclone.subfragments.upload.pickphoto
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.database.Cursor
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,7 +35,6 @@ import java.io.FileOutputStream
 import java.io.Serializable
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.collections.HashSet
 
 
 class GalleryPagerFragment : BaseSubFragment(), GalleryCursorAdapter.Listener {

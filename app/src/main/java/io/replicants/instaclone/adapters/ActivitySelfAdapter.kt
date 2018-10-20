@@ -19,9 +19,6 @@ import io.replicants.instaclone.utilities.GlideHeader
 import io.replicants.instaclone.utilities.Utils
 import io.replicants.instaclone.utilities.setClickableSpan
 import io.replicants.instaclone.utilities.setColorSpan
-import kotlinx.android.synthetic.main.adapter_activityfollowing1.view.*
-import kotlinx.android.synthetic.main.adapter_activityfollowing2.view.*
-import kotlinx.android.synthetic.main.adapter_activityfollowing3.view.*
 import kotlinx.android.synthetic.main.adapter_activityself1.view.*
 import kotlinx.android.synthetic.main.adapter_activityself2.view.*
 import kotlinx.android.synthetic.main.adapter_activityself3.view.*

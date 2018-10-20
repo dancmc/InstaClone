@@ -1,14 +1,9 @@
 package io.replicants.instaclone.maintabs;
 
-import android.view.LayoutInflater;
-
-
 import java.util.ArrayList;
-import java.util.zip.Inflater;
 
 import javax.annotation.Nullable;
 
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -19,13 +14,10 @@ import io.replicants.instaclone.subfragments.BaseSubFragment;
 import io.replicants.instaclone.subfragments.CommentsSubFragment;
 import io.replicants.instaclone.subfragments.DiscoverUsersSubFragment;
 import io.replicants.instaclone.subfragments.EditProfileSubFragment;
-import io.replicants.instaclone.subfragments.MapSubFragment;
 import io.replicants.instaclone.subfragments.PhotoSpecificSubFragment;
 import io.replicants.instaclone.subfragments.ProfileSubFragment;
 import io.replicants.instaclone.subfragments.UserListSubFragment;
 import io.replicants.instaclone.subfragments.bluetooth.BluetoothSubFragment;
-import retrofit2.Call;
-import retrofit2.Callback;
 
 public class BaseMainFragment extends Fragment {
 

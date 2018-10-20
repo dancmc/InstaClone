@@ -1,7 +1,6 @@
 package io.replicants.instaclone.subfragments.bluetooth
 
 import io.replicants.instaclone.pojos.InRangePhoto
-import io.replicants.instaclone.pojos.Photo
 
 interface BluetoothActivityInterface{
     fun photoObtained(filename: String)

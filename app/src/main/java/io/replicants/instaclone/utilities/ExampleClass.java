@@ -41,8 +41,8 @@ public class ExampleClass {
             }
 
             @Override
-            public void networkFailure(Context context) {
-                super.networkFailure(context);
+            public void networkFailure(Context context, int code) {
+                super.networkFailure(context, code);
             }
         });
 

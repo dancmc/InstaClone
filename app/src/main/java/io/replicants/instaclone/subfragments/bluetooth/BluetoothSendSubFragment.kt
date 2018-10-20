@@ -1,39 +1,23 @@
 package io.replicants.instaclone.subfragments.bluetooth
 
-import android.Manifest
 import android.app.ProgressDialog
-import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.signature.ObjectKey
-import io.realm.Realm
 import io.replicants.instaclone.R
-import io.replicants.instaclone.network.InstaApi
-import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.pojos.InRangePhoto
-import io.replicants.instaclone.pojos.Photo
-import io.replicants.instaclone.pojos.SavedPhoto
 import io.replicants.instaclone.subfragments.BaseSubFragment
 import io.replicants.instaclone.utilities.LocationCallback
 import io.replicants.instaclone.utilities.MyApplication
 import io.replicants.instaclone.utilities.Prefs
-import io.replicants.instaclone.utilities.Utils
 import kotlinx.android.synthetic.main.subfragment_bluetooth_send.view.*
-import kotlinx.android.synthetic.main.subfragment_post_photo.view.*
-import kotlinx.coroutines.experimental.runBlocking
-import org.jetbrains.anko.appcompat.v7.alertDialogLayout
-import org.jetbrains.anko.sdk27.coroutines.onCheckedChange
 import org.jetbrains.anko.sdk27.coroutines.onClick
-import org.jetbrains.anko.toast
-import org.json.JSONObject
-import java.io.File
 
 class BluetoothSendSubFragment : BaseSubFragment() {
 

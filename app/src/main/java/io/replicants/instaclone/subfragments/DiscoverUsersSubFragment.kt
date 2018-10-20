@@ -165,8 +165,8 @@ class DiscoverUsersSubFragment : BaseSubFragment() {
                 layout.subfragment_discover_users_suggest_refresh.isRefreshing = false
             }
 
-            override fun networkFailure(context: Context?) {
-                super.networkFailure(context)
+            override fun networkFailure(context: Context?,code:Int) {
+                super.networkFailure(context,code)
                 layout.subfragment_discover_users_suggest_refresh.isRefreshing = false
             }
         }
@@ -213,8 +213,8 @@ class DiscoverUsersSubFragment : BaseSubFragment() {
                 searchAdapter.currentlyLoading = false
             }
 
-            override fun networkFailure(context: Context) {
-                super.networkFailure(context)
+            override fun networkFailure(context: Context,code:Int) {
+                super.networkFailure(context,code)
                 searchUsers.removeAt(searchUsers.lastIndex)
                 searchAdapter.notifyDataSetChanged()
                 searchAdapter.currentlyLoading = false

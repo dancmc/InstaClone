@@ -5,21 +5,12 @@ import android.database.Cursor
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.CursorAdapter
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.signature.ObjectKey
 import io.replicants.instaclone.R
-import io.replicants.instaclone.pojos.BluetoothItem
-import io.replicants.instaclone.pojos.SavedPhoto
-import kotlinx.android.synthetic.main.adapter_gallery_header.view.*
 import kotlinx.android.synthetic.main.adapter_gallery_item.view.*
-import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.sdk27.coroutines.onLongClick
-import org.jetbrains.anko.toast
 
 
 // Inspired by https://stackoverflow.com/questions/26517855/using-the-recyclerview-with-a-database

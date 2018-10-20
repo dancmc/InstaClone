@@ -7,7 +7,7 @@ import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import io.replicants.instaclone.R
 import io.replicants.instaclone.pojos.User
-import java.util.ArrayList
+import java.util.*
 
 class DiscoverUserListAdapter(private val context: Activity, private val dataset: ArrayList<User?>, private val recyclerView: RecyclerView):UserListAdapter(context, dataset, recyclerView) {
 
