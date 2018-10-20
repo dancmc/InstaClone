@@ -3,6 +3,7 @@ package io.replicants.instaclone.subfragments.bluetooth
 import android.Manifest
 import android.app.ProgressDialog
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,6 +17,7 @@ import io.realm.Realm
 import io.replicants.instaclone.R
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
+import io.replicants.instaclone.pojos.InRangePhoto
 import io.replicants.instaclone.pojos.Photo
 import io.replicants.instaclone.pojos.SavedPhoto
 import io.replicants.instaclone.subfragments.BaseSubFragment
@@ -78,11 +80,12 @@ class BluetoothSendSubFragment : BaseSubFragment() {
             fun handlePost(){
 
                 dialog = ProgressDialog(context).apply {
-                    setMessage("Posting...")
+                    setMessage("Sending...")
                     show()
                 }
 
-                val photo = Photo()
+                val photo = InRangePhoto()
+                photo.displayName = Prefs.getInstance().readString(Prefs.DISPLAY_NAME,"")
                 photo.caption = caption
                 photo.locationName = locationName
                 longitude?.let { l->
@@ -91,6 +94,15 @@ class BluetoothSendSubFragment : BaseSubFragment() {
                 latitude?.let { l->
                     photo.latitude = l
                 }
+
+                val options = BitmapFactory.Options()
+                options.inJustDecodeBounds = true
+                BitmapFactory.decodeFile(filepath, options)
+                val width = options.outWidth
+                val height = options.outHeight
+
+                photo.regularWidth = width
+                photo.regularHeight = height
 
                 (activity as? BluetoothActivityInterface)?.sendPhoto(photo, filepath)
             }
@@ -113,7 +125,7 @@ class BluetoothSendSubFragment : BaseSubFragment() {
         return layout
     }
 
-    fun cancelSend(){
+    fun dismissProgress(){
         dialog?.let {
             if(it.isShowing){
                 it.dismiss()

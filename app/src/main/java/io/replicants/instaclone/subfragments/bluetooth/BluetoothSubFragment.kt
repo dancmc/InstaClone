@@ -36,6 +36,7 @@ import java.util.*
 import kotlin.collections.HashMap
 import android.R.attr.button
 import android.graphics.Bitmap
+import io.replicants.instaclone.activities.BluetoothActivity
 import io.replicants.instaclone.subfragments.upload.pickphoto.CropSubFragment
 import org.jetbrains.anko.toast
 
@@ -47,6 +48,13 @@ const val MESSAGE_TOAST: Int = 2
 const val MESSAGE_CONNECTED: Int = 3
 const val MESSAGE_CONNECTING: Int = 4
 const val MESSAGE_DISCONNECTED: Int = 5
+const val MESSAGE_PHOTO_RECEIVED: Int = 6
+const val MESSAGE_SEND_FAILED: Int = 7
+const val MESSAGE_SEND_SUCCEEDED: Int = 8
+
+
+const val ACK_FAIL="ACK_FAIL"
+const val ACK_SUCCESS="ACK_SUCCESS"
 
 
 private const val TAG = "TAG_BLUETOOTH"
@@ -81,12 +89,8 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
 
 
     private var bluetoothAdapter: BluetoothAdapter? = null
-    private var bluetoothList = Collections.synchronizedList(ArrayList<BluetoothItem>())
-    private var bluetoothMap = Collections.synchronizedMap(HashMap<String, ConnectedThread>())
+    lateinit var parentActivity :BluetoothActivity
 
-    // can have many client and socket threads at same time, but only 1 server thread
-    private var serverThread: ServerThread? = null
-    private var sendTo: String? = null
 
     private val mReceiver = object : BroadcastReceiver() {
 
@@ -100,9 +104,11 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
                     val deviceHardwareAddress = device.address
 
                     val item = BluetoothItem(device, deviceHardwareAddress, deviceName ?: "")
-                    if (item !in bluetoothList) {
-                        bluetoothList.add(item)
-                        bluetoothRecyclerAdapter.notifyDataSetChanged()
+                    parentActivity.bluetoothList.let { list->
+                        if (item !in list) {
+                            list.add(item)
+                            bluetoothRecyclerAdapter.notifyDataSetChanged()
+                        }
                     }
                 }
                 BluetoothDevice.ACTION_NAME_CHANGED -> {
@@ -121,11 +127,6 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.ACCESS_FINE_LOCATION)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
-        context?.registerReceiver(mReceiver, filter)
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
@@ -133,19 +134,24 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
             return layout
         }
 
+        parentActivity = activity as BluetoothActivity
+
         layout = inflater.inflate(R.layout.subfragment_bluetooth, container, false)
         layout.subfragment_bluetooth_root.flingView = layout.subfragment_bluetooth_flingview
         layout.subfragment_bluetooth_root.flingView?.listener = object:FlingView.Listener{
             override fun endMove(y: Int, path: String) {
                 if(y<galleryTopY){
-                    context?.toast(path)
-                    (activity as? BluetoothActivityInterface)?.photoObtained(path)
+                    if(parentActivity.sendTo!=null) {
+                        (activity as? BluetoothActivityInterface)?.photoObtained(path)
+                    }else {
+                        context?.toast("No user selected to send to")
+                    }
 
                 }
             }
         }
 
-        layout.subfragment_bluetooth_toolbar_back.onClick { clickListeners?.popBackStack(false) }
+        layout.subfragment_bluetooth_toolbar_back.onClick { parentActivity.finish() }
 
         layout.subfragment_bluetooth_scan.onClick {
             if (bluetoothAdapter?.isEnabled == false) {
@@ -156,7 +162,7 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
             }
         }
 
-        bluetoothRecyclerAdapter = BTListAdapter(context, bluetoothList)
+        bluetoothRecyclerAdapter = BTListAdapter(context, parentActivity.bluetoothList)
         bluetoothRecyclerAdapter.listener = this
         bluetoothRecycler = layout.subfragment_bluetooth_list
         bluetoothRecycler.layoutManager = LinearLayoutManager(context)
@@ -183,6 +189,11 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
         return layout
     }
 
+    override fun onResume() {
+        super.onResume()
+        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
+        context?.registerReceiver(mReceiver, filter)
+    }
 
     fun setupLayout() {
         layout.subfragment_bluetooth_permissions_bluetooth.visibility = View.GONE
@@ -255,23 +266,29 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
     // once a connection is established, close server socket, cancel discovery
     private fun startScan() {
         bluetoothAdapter?.cancelDiscovery()
-        bluetoothList.clear()
+        parentActivity.bluetoothList.clear()
         bluetoothRecyclerAdapter.notifyDataSetChanged()
         bluetoothAdapter?.startDiscovery()
 
         if (bluetoothAdapter?.scanMode != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
             val discoverableIntent: Intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
-                putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
+                putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 180)
             }
             startActivityForResult(discoverableIntent, REQUEST_ENABLE_DISCOVERABLE)
         }
-        serverThread?.cancel()
-        serverThread = ServerThread(bluetoothAdapter, getBluetoothHandler(), 300000)
-        serverThread?.start()
+        parentActivity.serverThread?.cancel()
+        parentActivity.serverThread = ServerThread(bluetoothAdapter, getBluetoothHandler(), 180000)
+        parentActivity.serverThread?.start()
     }
 
 
     override fun onClick(bluetoothItem: BluetoothItem) {
+
+        if (bluetoothAdapter?.isEnabled == false) {
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+            return
+        }
 
         when {
             !bluetoothItem.connecting && !bluetoothItem.connected -> {
@@ -285,7 +302,7 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
                     setSingleChoiceItems(items, -1) { dialog: DialogInterface?, which: Int ->
                         when (which) {
                             0 -> {
-                                sendTo = bluetoothItem.address
+                                parentActivity.sendTo = bluetoothItem.address
                                 layout.subfragment_bluetooth_selected.text = if (bluetoothItem.name.isNotBlank()) bluetoothItem.name else bluetoothItem.address
                                 dialog?.dismiss()
                             }
@@ -309,8 +326,11 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
 
     }
 
-    fun getBluetoothHandler(): Handler {
+    fun getBluetoothHandler(connectedAddress:String=""): Handler {
         return object : Handler(Looper.getMainLooper()) {
+
+            val connectedAddress = connectedAddress
+
             override fun handleMessage(msg: Message) {
                 when (msg.what) {
                     MESSAGE_CONNECTED -> {
@@ -325,9 +345,33 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
                     }
                     MESSAGE_DISCONNECTED -> {
                         (msg.obj as? BluetoothDevice)?.apply {
+                            if(this.name!=null && this.name.isNotBlank()){
+                                activity?.toast("Disconnected from ${this.name}")
+                            } else {
+                                activity?.toast("Disconnected from ${this.address}")
+                            }
                             handleDisconnection(this)
                         }
                     }
+                    MESSAGE_TOAST ->{
+                        (msg.obj as? String)?.apply {
+                            activity?.toast(this)
+                        }
+                    }
+                    MESSAGE_PHOTO_RECEIVED->{
+                        (msg.obj as? String)?.apply {
+                            parentActivity.receivedPhoto(connectedAddress, this)
+                        }
+                    }
+
+                    MESSAGE_SEND_SUCCEEDED->{
+                        parentActivity.handleSendSuccess()
+                    }
+
+                    MESSAGE_SEND_FAILED->{
+                        parentActivity.handleSendError()
+                    }
+
                 }
             }
         }
@@ -335,41 +379,48 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
 
     fun handleConnection(socket: BluetoothSocket) {
         val address = socket.remoteDevice.address
-        val item = bluetoothList.find { it.address == address }
+        val item = parentActivity.bluetoothList.find { it.address == address }
                 ?: BluetoothItem(socket.remoteDevice, address, socket.remoteDevice.name
                         ?: "").apply {
-                    bluetoothList.add(this)
+                    parentActivity.bluetoothList.add(this)
                 }
 
         item.connected = true
         item.connecting = false
         bluetoothRecyclerAdapter.notifyDataSetChanged()
 
-        val connectedThread = ConnectedThread(getBluetoothHandler(), socket)
-        bluetoothMap[address]?.cancel()
-        bluetoothMap[address] = connectedThread
+        if(parentActivity.sendTo==null){
+            parentActivity.sendTo = address
+            val name = socket.remoteDevice.name
+            layout.subfragment_bluetooth_selected.text =
+                    if (name!=null && name.isNotBlank()) name else address
+        }
+
+        val connectedThread = ConnectedThread(getBluetoothHandler(address), socket)
+        parentActivity.bluetoothMap[address]?.cancel()
+        parentActivity.bluetoothMap[address] = connectedThread
         connectedThread.start()
     }
 
     fun handleDisconnection(device: BluetoothDevice) {
         val address = device.address
-        val item = bluetoothList.find { it.address == address }
+        val item = parentActivity.bluetoothList.find { it.address == address }
         item?.connecting = false
         item?.connected = false
         bluetoothRecyclerAdapter.notifyDataSetChanged()
 
-        bluetoothMap.remove(address)?.cancel()
-        if (sendTo == address) {
-            sendTo = null
+        parentActivity.bluetoothMap.remove(address)?.cancel()
+        if (parentActivity.sendTo == address) {
+            parentActivity.sendTo = null
             layout.subfragment_bluetooth_selected.text = ""
         }
     }
 
     fun handleConnecting(device: BluetoothDevice) {
         val address = device.address
-        var item = bluetoothList.find { it.address == address }
+        var item = parentActivity.bluetoothList.find { it.address == address }
                 ?: BluetoothItem(device, address, device.name ?: "").apply {
-                    bluetoothList.add(this)
+                    parentActivity.bluetoothList.add(this)
                 }
 
         item.connected = false
@@ -478,22 +529,16 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onPause() {
+        super.onPause()
         context?.unregisterReceiver(mReceiver)
-        bluetoothMap.entries.forEach {
-            it.value.cancel()
-        }
-        bluetoothMap.clear()
-        serverThread?.cancel()
-        serverThread = null
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             REQUEST_ENABLE_DISCOVERABLE -> {
-                if (resultCode != Activity.RESULT_CANCELED) {
-
+                if (resultCode == Activity.RESULT_OK) {
+                    startScan()
                 }
             }
             else -> super.onActivityResult(requestCode, resultCode, data)

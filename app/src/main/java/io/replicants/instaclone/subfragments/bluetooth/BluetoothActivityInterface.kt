@@ -1,13 +1,17 @@
 package io.replicants.instaclone.subfragments.bluetooth
 
+import io.replicants.instaclone.pojos.InRangePhoto
 import io.replicants.instaclone.pojos.Photo
 
 interface BluetoothActivityInterface{
     fun photoObtained(filename: String)
     fun photoCropped(filename: String)
-    fun sendPhoto(photo:Photo, filepath:String)
+    fun sendPhoto(photo:InRangePhoto, filepath:String)
 
     fun goBack()
     fun errorAndGoBack(message:String)
+    fun handleSendSuccess()
+    fun handleSendError()
+    fun receivedPhoto(address:String, json:String)
 
 }

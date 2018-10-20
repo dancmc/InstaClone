@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import java.util.ArrayList;
 import java.util.zip.Inflater;
 
+import javax.annotation.Nullable;
+
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -45,8 +47,12 @@ public class BaseMainFragment extends Fragment {
         }
 
         @Override
-        public void moveToCommentsSubFragment(String photoID) {
-            changeFragment(CommentsSubFragment.newInstance(photoID));
+        public void moveToCommentsSubFragment(String photoID,@Nullable CommentsSubFragment.Listener changeListener) {
+            CommentsSubFragment frag = CommentsSubFragment.newInstance(photoID);
+            if(changeListener!=null){
+                frag.setChangeListener(changeListener);
+            }
+            changeFragment(frag);
         }
 
         @Override
@@ -56,7 +62,7 @@ public class BaseMainFragment extends Fragment {
 
         @Override
         public void moveToMapSubFragment() {
-            changeFragment(MapSubFragment.newInstance());
+//            changeFragment(MapSubFragment.newInstance());
         }
 
         @Override
@@ -143,7 +149,7 @@ public class BaseMainFragment extends Fragment {
 
         public void moveToUserListSubFragmentWithCall(UserListSubFragment.CallType callType, String id);
 
-        public void moveToCommentsSubFragment(String photoID);
+        public void moveToCommentsSubFragment(String photoID, @Nullable CommentsSubFragment.Listener changeListener);
 
         public void moveToPhotoSpecificSubFragment(ArrayList<String> photoIDs);
 

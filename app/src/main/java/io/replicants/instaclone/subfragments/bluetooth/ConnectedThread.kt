@@ -1,71 +1,126 @@
 package io.replicants.instaclone.subfragments.bluetooth
 
 import android.bluetooth.BluetoothSocket
-import android.os.Bundle
 import android.os.Handler
 import android.util.Log
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
+import java.io.*
+import java.lang.StringBuilder
+import kotlin.math.min
 
 private const val TAG = "TAG_BLUETOOTH"
+private const val START_MARKER = "START_MARKER"
+private const val END_MARKER = "END_MARKER"
 
 class ConnectedThread(private val handler: Handler, var bsocket: BluetoothSocket?) : Thread() {
 
     private var inStream: InputStream? = null
     private var outStream: OutputStream? = null
-    private val buffer: ByteArray = ByteArray(1024) // buffer store for the stream
+    private var dataInStream :DataInputStream?= null
+    private var dataOutStream :DataOutputStream?= null
+
+    private var stringData = StringBuilder()
+    private var timer:Job = launch {  }
+
+
 
     override fun run() {
-        inStream = bsocket?.inputStream
-        outStream = bsocket?.outputStream
+        inStream = BufferedInputStream(bsocket?.inputStream)
+        outStream = BufferedOutputStream(bsocket?.outputStream)
+        dataInStream = DataInputStream(inStream)
+        dataOutStream = DataOutputStream(outStream)
 
-        var numBytes: Int // bytes returned from read()
 
-        // Keep listening to the InputStream until an exception occurs.
         while (true) {
-            // Read from the InputStream.
-            numBytes = try {
-                inStream!!.read(buffer)
+            try {
+                val string = dataInStream!!.readUTF()
+
+                when(string){
+                    ACK_SUCCESS->{
+                        handler.obtainMessage(MESSAGE_TOAST, "Photo Sent!").sendToTarget()
+                        handler.obtainMessage(MESSAGE_SEND_SUCCEEDED).sendToTarget()
+                    }
+                    ACK_FAIL->{
+                        handler.obtainMessage(MESSAGE_TOAST, "Recipient received corrupted data, try again").sendToTarget()
+                        handler.obtainMessage(MESSAGE_SEND_FAILED).sendToTarget()
+                    }
+                    START_MARKER->{
+                        stringData = StringBuilder()
+                        timer = launch {
+                            delay(10000)
+                            stringData  = StringBuilder()
+                        }
+                    }
+
+                    END_MARKER->{
+                        timer.cancel()
+                        handler.obtainMessage(MESSAGE_PHOTO_RECEIVED,stringData.toString()).sendToTarget()
+                        stringData = StringBuilder()
+                    }
+
+                    else->{
+                        stringData.append(string)
+                    }
+                }
+
             } catch (e: Exception) {
                 Log.d(TAG, "Input stream was disconnected", e)
                 handler.obtainMessage(MESSAGE_DISCONNECTED, bsocket?.remoteDevice).sendToTarget()
                 break
             }
-
-            // Send the obtained bytes to the UI activity.
-            val readMsg = handler.obtainMessage(MESSAGE_READ, numBytes, -1, buffer)
-            readMsg.sendToTarget()
         }
     }
 
     // Call this from the main activity to send data to the remote device.
-    fun write(bytes: ByteArray) {
+    fun write(string: String) {
         try {
-            outStream?.write(bytes)
+            dataOutStream!!.writeUTF(string)
+            dataOutStream!!.flush()
         } catch (e: IOException) {
             Log.e(TAG, "Error occurred when sending data", e)
 
             // Send a failure message back to the activity.
-            val writeErrorMsg = handler.obtainMessage(MESSAGE_TOAST)
-            val bundle = Bundle().apply {
-                putString("toast", "Couldn't send data to the other device")
-            }
-            writeErrorMsg.data = bundle
-            handler.sendMessage(writeErrorMsg)
+            handler.obtainMessage(MESSAGE_SEND_FAILED).sendToTarget()
+            handler.obtainMessage(MESSAGE_TOAST, "Couldn't send data to the other device").sendToTarget()
             handler.obtainMessage(MESSAGE_DISCONNECTED, bsocket?.remoteDevice).sendToTarget()
             return
         }
+    }
 
-        // Share the sent message with the UI activity.
-        val writtenMsg = handler.obtainMessage(MESSAGE_WRITE, -1, -1, buffer)
-        writtenMsg.sendToTarget()
+    fun writeJson(string: String) {
+        try {
+            dataOutStream!!.writeUTF(START_MARKER)
+
+            val length = string.length
+            var start = 0
+            while (start<length){
+                val end = min(length, start+20000)
+                dataOutStream!!.writeUTF(string.substring(start, end))
+                start = end
+            }
+
+            dataOutStream!!.writeUTF(END_MARKER)
+            dataOutStream!!.flush()
+        } catch (e: IOException) {
+            Log.e(TAG, "Error occurred when sending data", e)
+
+            // Send a failure message back to the activity.
+            handler.obtainMessage(MESSAGE_SEND_FAILED).sendToTarget()
+            handler.obtainMessage(MESSAGE_TOAST, "Couldn't send data to the other device").sendToTarget()
+            handler.obtainMessage(MESSAGE_DISCONNECTED, bsocket?.remoteDevice).sendToTarget()
+            return
+        }
     }
 
     // Call this method from the main activity to shut down the connection.
     fun cancel() {
         try {
             bsocket?.close()
+            dataInStream?.close()
+            dataOutStream?.close()
         } catch (e: IOException) {
             Log.e(TAG, "Could not close the connect socket", e)
         }

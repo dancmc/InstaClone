@@ -18,7 +18,7 @@ class Photo {
     var latitude = 999.0
     var longitude = 999.0
     var timestamp = 0L
-    var distance = Double.MIN_VALUE
+    var distance = -1.0
     var smallWidth = 0
     var smallHeight = 0
     var thumbWidth = 0
@@ -28,4 +28,12 @@ class Photo {
 
     var inRange = false
 
+
+    override fun equals(other: Any?): Boolean {
+        return other is Photo && other.photoID == this.photoID
+    }
+
+    override fun hashCode(): Int {
+        return this.photoID.hashCode()
+    }
 }

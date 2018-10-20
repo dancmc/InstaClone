@@ -23,6 +23,7 @@ import io.replicants.instaclone.maintabs.BaseMainFragment
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.pojos.Photo
+import io.replicants.instaclone.subfragments.CommentsSubFragment
 import io.replicants.instaclone.subfragments.UserListSubFragment
 import io.replicants.instaclone.utilities.GlideHeader
 import io.replicants.instaclone.utilities.Utils
@@ -30,12 +31,15 @@ import io.replicants.instaclone.utilities.setClickableSpan
 import kotlinx.android.synthetic.main.adapter_feed_item.view.*
 import kotlinx.android.synthetic.main.adapter_feed_item_grid.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
+import org.jetbrains.anko.sdk27.coroutines.onLongClick
 import org.json.JSONObject
 import java.util.*
+import kotlin.collections.ArrayList
 
 class FeedAdapter(private val context: Activity, private val dataset: ArrayList<Photo?>, private val recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var onLoadMoreListener: OnLoadMoreListener? = null
+    var onLongClickListener: OnInRangeLongClick? = null
     var currentlyLoading = false
     var canLoadMore = true
     var header = LayoutInflater.from(context).inflate(R.layout.feed_header_dummy, null, false)
@@ -46,6 +50,8 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
     private val VIEW_TYPE_PHOTO = 1
     private val VIEW_TYPE_PHOTO_GRID = 2
     private val VIEW_TYPE_LOADING = 3
+
+    private val VIEW_TYPE_INRANGE = 4
 
 
     // this inner class doesn't need to be static since we never use it outside of FeedAdapter
@@ -90,6 +96,26 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                 }
             })
 
+
+        }
+    }
+
+    private inner class InRangeViewHolder(v: View) : RecyclerView.ViewHolder(v) {
+        // each data item is just a string in this case
+        var ivProfileHead = v.feed_item_profile_head
+        var tvProfileName = v.feed_item_profile_name
+        var tvLocationName = v.feed_item_location_name
+        var tvDistance = v.feed_item_distance
+        var ivPhoto = v.feed_item_image
+        var progressBar = v.feed_item_loading
+        var tvCaption = v.feed_item_caption
+        var tvDate = v.feed_item_date
+
+        init {
+
+            tvProfileName.movementMethod = LinkMovementMethod.getInstance()
+            tvLocationName.movementMethod = LinkMovementMethod.getInstance()
+            tvCaption.movementMethod = LinkMovementMethod.getInstance()
 
         }
     }
@@ -188,7 +214,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                     super.onScrolled(recyclerView, dx, dy)
 
                     if (!currentlyLoading && canLoadMore &&
-                            llm.itemCount <= llm.findLastVisibleItemPosition() + visibleThreshold) {
+                            dataset.size <= llm.findLastVisibleItemPosition() + visibleThreshold) {
                         currentlyLoading = true
                         onLoadMoreListener?.onLoadMore()
                     }
@@ -199,18 +225,13 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
     }
 
     override fun getItemViewType(position: Int): Int {
-        if (position == 0) {
-            return VIEW_TYPE_HEADER
-        } else {
-            if (dataset.get(position - 1) == null) {
-                return VIEW_TYPE_LOADING
-            } else {
-                if(recyclerView.layoutManager!!::class == LinearLayoutManager::class) {
-                    return VIEW_TYPE_PHOTO
-                } else {
-                    return VIEW_TYPE_PHOTO_GRID
-                }
-            }
+        val item = if(position>0) dataset[position - 1] else null
+        return when{
+            position == 0 ->VIEW_TYPE_HEADER
+            item == null->VIEW_TYPE_LOADING
+            recyclerView.layoutManager!!::class == LinearLayoutManager::class && item.inRange -> VIEW_TYPE_INRANGE
+            recyclerView.layoutManager!!::class == LinearLayoutManager::class && !item.inRange -> VIEW_TYPE_PHOTO
+            else->VIEW_TYPE_PHOTO_GRID
         }
     }
 
@@ -226,6 +247,10 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
             VIEW_TYPE_PHOTO -> {
                 val v = LayoutInflater.from(parent.context).inflate(R.layout.adapter_feed_item, parent, false) as View
                 PhotoViewHolder(v)
+            }
+            VIEW_TYPE_INRANGE -> {
+                val v = LayoutInflater.from(parent.context).inflate(R.layout.adapter_feed_item_inrange, parent, false) as View
+                InRangeViewHolder(v)
             }
             VIEW_TYPE_PHOTO_GRID -> {
                 val v = LayoutInflater.from(parent.context).inflate(R.layout.adapter_feed_item_grid, parent, false) as ImageView
@@ -312,7 +337,12 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                     val commentBuilder = SpannableStringBuilder()
                             .append(text)
                             .setClickableSpan(text, 0, ContextCompat.getColor(context, R.color.grey500)){
-                                clickListeners?.moveToCommentsSubFragment(feedItem.photoID)
+                                clickListeners?.moveToCommentsSubFragment(feedItem.photoID, object:CommentsSubFragment.Listener{
+                                    override fun commentsChanged(totalNumber: Int) {
+                                        feedItem.totalComments = totalNumber
+                                        notifyItemChanged(position)
+                                    }
+                                })
                             }
                     holder.tvCommentText.text = commentBuilder
                 }else {
@@ -340,13 +370,9 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                                 }
                             })
                             .into(holder.ivPhoto)
-                    holder.ivPhoto.onClick {
-                        clickListeners?.moveToPhotoSpecificSubFragment(arrayListOf(feedItem.photoID))
-                    }
                 } else {
                     Glide.with(context).clear(holder.ivPhoto)
                     holder.ivPhoto.setImageDrawable(null)
-                    holder.ivPhoto.onClick {}
                 }
 
 
@@ -355,10 +381,93 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                 }
 
                 holder.btComment.setOnClickListener {
-                    clickListeners?.moveToCommentsSubFragment(feedItem.photoID)
+                    clickListeners?.moveToCommentsSubFragment(feedItem.photoID,object:CommentsSubFragment.Listener{
+                        override fun commentsChanged(totalNumber: Int) {
+                            feedItem.totalComments = totalNumber
+                            notifyItemChanged(position)
+                        }
+                    })
                 }
 
 
+
+                holder.tvDate.text = Utils.formatDate(feedItem.timestamp)
+            }
+            is InRangeViewHolder->{
+                val feedItem = dataset[position - 1]!!
+
+                val image = holder.ivPhoto
+                image.setAspectRatio(feedItem.regularHeight / feedItem.regularWidth.toFloat())
+
+                holder.progressBar.visibility = View.VISIBLE
+
+                val displayNameBuilder = SpannableStringBuilder()
+                        .bold { append(feedItem.displayName) }
+                        .setClickableSpan(feedItem.displayName, 0) {
+                            clickListeners?.moveToProfileSubFragment(feedItem.displayName)
+                        }
+
+                holder.tvProfileName.text = displayNameBuilder
+
+                holder.tvDistance.text = if (
+                        Utils.validateLatLng(feedItem.latitude, feedItem.longitude) &&
+                        feedItem.distance >= 0) Utils.formatDistance(feedItem.distance) else ""
+
+                if (feedItem.locationName.isNotBlank()) {
+                    holder.tvLocationName.visibility = View.VISIBLE
+                    val locationNameBuilder = SpannableStringBuilder()
+                            .append(feedItem.locationName)
+                            .setClickableSpan(feedItem.locationName, 0) {
+                                clickListeners?.moveToMapSubFragment()
+                            }
+                    holder.tvLocationName.text = locationNameBuilder
+                } else {
+                    holder.tvLocationName.visibility = View.GONE
+                }
+
+                if(feedItem.caption.isNotBlank()){
+                    holder.tvCaption.visibility = View.VISIBLE
+                    val captionBuilder = SpannableStringBuilder()
+                            .bold { append("${feedItem.displayName} ") }
+                            .append(feedItem.caption)
+                            .setClickableSpan(feedItem.displayName,0){
+                                clickListeners?.moveToProfileSubFragment(feedItem.displayName)
+                            }
+                    holder.tvCaption.text = captionBuilder
+                } else {
+                    holder.tvCaption.visibility = View.GONE
+                }
+
+                val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
+                Glide.with(context)
+                        .load(feedItem.profileImage)
+                        .apply(requestOptions)
+                        .into(holder.ivProfileHead)
+
+
+                if (feedItem.regularUrl.isNotBlank()) {
+                    Glide.with(context)
+                            .load(feedItem.regularUrl)
+                            .listener(object : RequestListener<Drawable> {
+                                override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                                    return false
+                                }
+
+                                override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                                    holder.progressBar.visibility = View.GONE
+                                    return false
+                                }
+                            })
+                            .into(holder.ivPhoto)
+
+                } else {
+                    Glide.with(context).clear(holder.ivPhoto)
+                    holder.ivPhoto.setImageDrawable(null)
+                }
+
+                holder.ivPhoto.onLongClick {
+                    onLongClickListener?.onLongClick(feedItem.photoID)
+                }
 
                 holder.tvDate.text = Utils.formatDate(feedItem.timestamp)
             }
@@ -370,9 +479,18 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                 val feedItem = dataset[position - 1]!!
                 holder.ivPhoto.setAspectRatio(1f)
                 if (feedItem.smallUrl.isNotBlank()) {
-                    Glide.with(context)
-                            .load(GlideHeader.getUrlWithHeaders(feedItem.smallUrl))
-                            .into(holder.ivPhoto)
+
+                    if(!feedItem.inRange) {
+                        Glide.with(context)
+                                .load(GlideHeader.getUrlWithHeaders(feedItem.smallUrl))
+                                .into(holder.ivPhoto)
+                    }else {
+                        Glide.with(context)
+                                .load(feedItem.smallUrl)
+                                .into(holder.ivPhoto)
+                    }
+
+
                     holder.ivPhoto.onClick {
                         clickListeners?.moveToPhotoSpecificSubFragment(arrayListOf(feedItem.photoID))
                     }
@@ -404,5 +522,9 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
 
     interface OnLoadMoreListener {
         fun onLoadMore()
+    }
+
+    interface OnInRangeLongClick{
+        fun onLongClick(photoID:String)
     }
 }

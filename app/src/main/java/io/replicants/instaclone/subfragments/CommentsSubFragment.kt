@@ -39,6 +39,9 @@ class CommentsSubFragment : BaseSubFragment() {
     lateinit var adapter: CommentsAdapter
     val commentsList = ArrayList<Comment?>()
     lateinit var photoID: String
+    var changeListener:Listener? = null
+
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         if (this::layout.isInitialized) {
@@ -55,14 +58,14 @@ class CommentsSubFragment : BaseSubFragment() {
         val layoutManager = LinearLayoutManager(activity)
         recycler.layoutManager = layoutManager
 
-        adapter = CommentsAdapter(activity!!, photoID, commentsList, recycler)
+        adapter = CommentsAdapter(activity!!, photoID, commentsList, recycler, changeListener)
         adapter.clickListeners = clickListeners
         recycler.adapter = adapter
 
         adapter.onLoadMoreListener = object : CommentsAdapter.OnLoadMoreListener {
             override fun onLoadMore() {
                 recycler.post {
-                    val lastCommentID = if (commentsList.size > 0) commentsList.last()?.commentID else null
+                    val lastCommentID = commentsList.lastOrNull()?.commentID
                     commentsList.add(null)
                     adapter.notifyItemInserted(commentsList.lastIndex)
 
@@ -79,6 +82,7 @@ class CommentsSubFragment : BaseSubFragment() {
                             }
                             adapter.notifyDataSetChanged()
                             adapter.currentlyLoading = false
+                            changeListener?.commentsChanged(commentsList.size)
                         }
                     }))
                 }
@@ -118,5 +122,9 @@ class CommentsSubFragment : BaseSubFragment() {
                 adapter.notifyDataSetChanged()
             }
         }))
+    }
+
+    interface Listener{
+        fun commentsChanged(totalNumber:Int)
     }
 }

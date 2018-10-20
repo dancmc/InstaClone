@@ -27,7 +27,7 @@ class ClientThread(private val handler: Handler, val device: BluetoothDevice) : 
             newSocket?.connect()
             manageMyConnectedSocket(newSocket)
         } catch (e: IOException) {
-            Log.e(TAG, e.message)
+            Log.e(TAG, e.message?:"")
             newSocket?.close()
             handler.obtainMessage(MESSAGE_DISCONNECTED, device).sendToTarget()
         }

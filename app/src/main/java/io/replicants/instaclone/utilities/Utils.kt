@@ -20,7 +20,6 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import com.javadocmd.simplelatlng.LatLng
 import com.javadocmd.simplelatlng.LatLngTool
 import com.javadocmd.simplelatlng.util.LengthUnit
@@ -29,8 +28,14 @@ import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.pojos.*
 import io.replicants.instaclone.subfragments.upload.pickphoto.GalleryPagerFragment
+import kotlinx.coroutines.experimental.launch
+import org.apache.commons.io.FileUtils
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.*
+import java.lang.Exception
+import java.net.URL
+import java.nio.file.Files
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -250,8 +255,8 @@ class Utils {
         }
 
         @JvmStatic
-        fun validateLatLng(latitude:Double, longitude:Double): Boolean {
-            return latitude>=-90.0 && latitude<=90.0 && longitude>=-180.0 && longitude<=180.0
+        fun validateLatLng(latitude: Double, longitude: Double): Boolean {
+            return latitude >= -90.0 && latitude <= 90.0 && longitude >= -180.0 && longitude <= 180.0
         }
 
         @JvmStatic
@@ -325,11 +330,11 @@ class Utils {
         }
 
         @JvmStatic
-        fun setContrastOnColorMatrix(cm: ColorMatrix, oldContrast:Float, newContrast: Float) {
+        fun setContrastOnColorMatrix(cm: ColorMatrix, oldContrast: Float, newContrast: Float) {
             val undoMatrix = ColorMatrix().apply {
-                array[0] = 1/oldContrast
-                array[6] = 1/oldContrast
-                array[12] = 1/oldContrast
+                array[0] = 1 / oldContrast
+                array[6] = 1 / oldContrast
+                array[12] = 1 / oldContrast
             }
             val newMatrix = ColorMatrix().apply {
                 array[0] = newContrast
@@ -369,17 +374,17 @@ class Utils {
         }
 
         @JvmStatic
-        fun redirectToSettings(@StringRes title:Int, @StringRes text:Int, context: Context) {
+        fun redirectToSettings(@StringRes title: Int, @StringRes text: Int, context: Context) {
             AlertDialog.Builder(context).apply {
                 setTitle(title)
                 setMessage(text)
-                setNegativeButton(R.string.cancel){ dialog, id ->
+                setNegativeButton(R.string.cancel) { dialog, id ->
 
                 }
                 setPositiveButton(R.string.go_to_settings) { dialog, id ->
-                    val intent =  Intent()
+                    val intent = Intent()
                     intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                    val uri = Uri.fromParts ("package", context.packageName, null)
+                    val uri = Uri.fromParts("package", context.packageName, null)
                     intent.data = uri
                     context.startActivity(intent)
                 }
@@ -388,14 +393,19 @@ class Utils {
         }
 
         @JvmStatic
-        fun updateDetails(context: Context, success:()->Unit, failure:(JSONObject?)->Unit={}){
-            InstaApi.getDetails().enqueue(InstaApi.generateCallback(context, object: InstaApiCallback(){
+        fun updateDetails(context: Context, success: () -> Unit, failure: (JSONObject?) -> Unit = {}) {
+            InstaApi.getDetails().enqueue(InstaApi.generateCallback(context, object : InstaApiCallback() {
                 override fun success(jsonResponse: JSONObject?) {
 
                     Prefs.getInstance().writeString(Prefs.USERNAME, jsonResponse?.optString("username"))
                     Prefs.getInstance().writeString(Prefs.USER_ID, jsonResponse?.optString("user_id"))
                     Prefs.getInstance().writeString(Prefs.DISPLAY_NAME, jsonResponse?.optString("display_name"))
-                    Prefs.getInstance().writeString(Prefs.PROFILE_IMAGE, jsonResponse?.optString("profile_image"))
+
+                    val profileImageURL = jsonResponse?.optString("profile_image")
+                    Prefs.getInstance().writeString(Prefs.PROFILE_IMAGE, profileImageURL)
+                    profileImageURL?.let { im->
+                        launch{saveProfileImageToFile(context, im)}
+                    }
 
                     success.invoke()
                 }
@@ -430,7 +440,7 @@ class Utils {
         }
 
         @JvmStatic
-        fun getDirectoryCursor(context: Context,imageDirectory: GalleryPagerFragment.ImageDirectory): Cursor {
+        fun getDirectoryCursor(context: Context, imageDirectory: GalleryPagerFragment.ImageDirectory): Cursor {
             val projection = arrayOf(MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA)
             val cursor: Cursor
             if (imageDirectory.albumName == "All") {
@@ -440,8 +450,51 @@ class Utils {
             }
             return cursor
         }
-    }
 
+        @JvmStatic
+        @Synchronized
+        fun saveProfileImageToFile(context: Context,url:String){
+
+
+            try {
+                FileUtils.copyInputStreamToFile(URL(url).openConnection().apply {
+                    setRequestProperty("Authorization", Prefs.getInstance().readString(Prefs.JWT,""))
+                }.getInputStream(), File(context.filesDir, "profile.jpg"))
+            }catch (e:Exception){
+                println(e.message)
+            }
+        }
+
+
+        @JvmStatic
+        fun inrangeToPhoto(context: Context,inRangePhoto: InRangePhoto):Photo{
+            val photo = Photo()
+            photo.inRange = true
+            photo.photoID = inRangePhoto.photoID
+
+            photo.displayName = inRangePhoto.displayName
+            photo.caption = inRangePhoto.caption
+            photo.locationName = inRangePhoto.locationName
+            photo.latitude = inRangePhoto.latitude
+            photo.longitude = inRangePhoto.longitude
+            photo.timestamp = inRangePhoto.timestamp
+            photo.regularWidth = inRangePhoto.regularWidth
+            photo.regularHeight = inRangePhoto.regularHeight
+            val folder = File(context.filesDir, "inRange")
+            val photoFile = File(folder, "${photo.photoID}.jpg")
+            val profileFile = File(folder, "${photo.photoID}-profile.jpg")
+            photo.profileImage = profileFile.absolutePath
+            photo.regularUrl = photoFile.absolutePath
+            photo.smallWidth = inRangePhoto.regularWidth
+            photo.smallHeight = inRangePhoto.regularHeight
+            photo.smallUrl = photoFile.absolutePath
+            photo.thumbWidth = inRangePhoto.regularWidth
+            photo.thumbHeight = inRangePhoto.regularHeight
+            photo.thumbUrl = photoFile.absolutePath
+
+            return photo
+        }
+    }
 
 
 }
@@ -464,7 +517,7 @@ fun SpannableStringBuilder.setClickableSpan(textToClick: String, index: Int = -1
     return this
 }
 
-fun SpannableStringBuilder.setColorSpan(textToColor: String,index: Int = -1,color: Int = Utils.colorBlack):SpannableStringBuilder{
+fun SpannableStringBuilder.setColorSpan(textToColor: String, index: Int = -1, color: Int = Utils.colorBlack): SpannableStringBuilder {
     val colorSpan = ForegroundColorSpan(color)
     val start = if (index != -1) index else indexOf(textToColor)
     setSpan(colorSpan,

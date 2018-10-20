@@ -263,7 +263,7 @@ class EditPhotoSubFragment : BaseSubFragment(),
 
             try {
                 FileOutputStream(file).use { out ->
-                    mutableBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+                    mutableBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out)
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -273,7 +273,7 @@ class EditPhotoSubFragment : BaseSubFragment(),
 
         // Setup the toolbar
         layout.subfragment_edit_photo_toolbar_back.onClick {
-            saveDialog.show()
+            activity?.onBackPressed()
         }
 
         layout.subfragment_edit_photo_toolbar_next.onClick {
@@ -478,6 +478,19 @@ class EditPhotoSubFragment : BaseSubFragment(),
                 postConcat(sepiaMatrix)
                 postConcat(sepiaMatrix2)
             }
+            FilterSubFragment.ANTWERP-> colorMatrix.apply {
+                val antwerpMatrix = ColorMatrix().apply {
+                    setScale(1f, 1.25f, 1.25f, 1f)
+                }
+                postConcat(antwerpMatrix)
+            }
+
+            FilterSubFragment.MYSTIC-> colorMatrix.apply {
+                val mysticMatrix = ColorMatrix().apply {
+                    setScale(1.25f, 1.25f, 1f, 1f)
+                }
+                postConcat(mysticMatrix)
+            }
         }
 
         when(filter){
@@ -498,10 +511,16 @@ class EditPhotoSubFragment : BaseSubFragment(),
                 postConcat(sepiaMatrix2)
             }
             FilterSubFragment.ANTWERP-> colorMatrix.apply {
-                val greyMatrix = ColorMatrix().apply {
-                    setScale(0f, 0.8f, 0.85f, 1f)
+                val antwerpMatrix = ColorMatrix().apply {
+                    setScale(1f, 0.8f, 0.8f, 1f)
                 }
-                postConcat(greyMatrix)
+                postConcat(antwerpMatrix)
+            }
+            FilterSubFragment.MYSTIC-> colorMatrix.apply {
+                val mysticMatrix = ColorMatrix().apply {
+                    setScale(0.8f, 0.8f, 1f, 1f)
+                }
+                postConcat(mysticMatrix)
             }
         }
         this.filter = filter

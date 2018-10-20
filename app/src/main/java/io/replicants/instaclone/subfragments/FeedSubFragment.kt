@@ -9,26 +9,31 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.view.*
 import android.widget.Button
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import io.realm.Realm
 import io.replicants.instaclone.R
 import io.replicants.instaclone.activities.BluetoothActivity
 import io.replicants.instaclone.adapters.FeedAdapter
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
+import io.replicants.instaclone.pojos.InRangePhoto
 import io.replicants.instaclone.pojos.Photo
 import io.replicants.instaclone.utilities.LocationCallback
 import io.replicants.instaclone.utilities.MyApplication
 import io.replicants.instaclone.utilities.Prefs
 import io.replicants.instaclone.utilities.Utils
 import kotlinx.android.synthetic.main.subfragment_feed.view.*
+import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
 
 
 class FeedSubFragment : BaseSubFragment() {
@@ -52,10 +57,10 @@ class FeedSubFragment : BaseSubFragment() {
     lateinit var adapter: FeedAdapter
     lateinit var locationRequestButton: Button
     lateinit var layout: View
-
+    lateinit var realm: Realm
 
     var locationManager: LocationManager? = null
-    var feedItems = ArrayList<Photo?>()
+    val feedItems = ArrayList<Photo?>()
     var lastLocation: Location? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -76,10 +81,11 @@ class FeedSubFragment : BaseSubFragment() {
             }
         }
 
+        realm = Realm.getDefaultInstance()
 
         layout.subfragment_feed_toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
-                R.id.action_wifi -> {
+                R.id.action_bluetooth -> {
                     val intent = Intent(context, BluetoothActivity::class.java)
                     startActivity(intent)
                     true
@@ -161,7 +167,8 @@ class FeedSubFragment : BaseSubFragment() {
 
 
                 recyclerView.post {
-                    val lastPhotoID = if (feedItems.size > 0) feedItems.last()?.photoID else null
+
+                    val lastPhotoID = feedItems.lastOrNull { p -> p != null && !p.inRange }?.photoID
                     feedItems.add(null)
                     adapter.notifyItemInserted(feedItems.lastIndex)
 
@@ -182,6 +189,33 @@ class FeedSubFragment : BaseSubFragment() {
             }
         }
 
+        adapter.onLongClickListener = object : FeedAdapter.OnInRangeLongClick {
+            override fun onLongClick(photoID: String) {
+                var dialog: AlertDialog?=null
+                dialog = AlertDialog.Builder(context!!).apply {
+                    setTitle("Delete Photo")
+                    setMessage("Do you want to delete this In Range Photo?")
+                    setPositiveButton(R.string.ok) { _, _ ->
+                        realm.beginTransaction()
+                        realm.where(InRangePhoto::class.java).equalTo("photoID", photoID).findFirst()?.deleteFromRealm()
+                        realm.commitTransaction()
+
+                        feedItems.removeAll { it?.photoID == photoID }
+                        adapter.notifyDataSetChanged()
+
+                        launch {
+                            val folder = File(context.filesDir, "inRange")
+                            File(folder, "$photoID.jpg").delete()
+                            File(folder, "$photoID-profile.jpg").delete()
+                        }
+                    }
+                    setNegativeButton(R.string.cancel) { _, _ ->
+                        dialog?.dismiss()
+                    }
+                }.show()
+            }
+        }
+
 
         return layout
     }
@@ -191,6 +225,7 @@ class FeedSubFragment : BaseSubFragment() {
         adapter.currentlyLoading = true
         feedItems.clear()
         adapter.notifyDataSetChanged()
+
 
         if (Prefs.getInstance().readString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString()) == InstaApi.Sort.DATE.toString()) {
             InstaApi.getFeed(InstaApi.Sort.DATE, null, null, null).enqueue(InstaApi.generateCallback(activity, initialApiCallback()))
@@ -234,16 +269,39 @@ class FeedSubFragment : BaseSubFragment() {
         return object : InstaApiCallback() {
             override fun success(jsonResponse: JSONObject?) {
                 val photoArray = jsonResponse?.optJSONArray("photos") ?: JSONArray()
-                var photoList: List<Photo> = Utils.photosFromJsonArray(photoArray)
+                val photoList: List<Photo> = Utils.photosFromJsonArray(photoArray)
+
+                realm.where(InRangePhoto::class.java).findAll().forEach { inrange ->
+                    feedItems.add(Utils.inrangeToPhoto(context!!, inrange))
+                }
+                feedItems.addAll(photoList)
+
 
                 if (Prefs.getInstance().readString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString()) == InstaApi.Sort.LOCATION.toString()) {
-                    photoList = photoList.filterNot { it.latitude == 999.0 || it.longitude == 999.0 }
+
+                    feedItems.forEach {
+                        it?.let { p ->
+                            if (p.inRange) {
+                                p.distance = Utils.distance(lastLocation?.latitude
+                                        ?: 0.0, lastLocation?.longitude
+                                        ?: 0.0, p.latitude, p.longitude)
+                            }
+                        }
+                    }
+
+                    feedItems.retainAll {
+                        Utils.validateLatLng(it?.latitude ?: 999.0, it?.longitude ?: 999.0)
+                    }
+                    feedItems.sortBy { it?.distance }
+                } else {
+                    feedItems.sortByDescending { it?.timestamp }
                 }
 
-                feedItems.addAll(photoList)
                 adapter.currentlyLoading = false
                 adapter.canLoadMore = true
                 adapter.notifyDataSetChanged()
+
+                recyclerView.scrollToPosition(0)
 
                 layout.subfragment_feed_refresh.isRefreshing = false
             }
@@ -264,15 +322,21 @@ class FeedSubFragment : BaseSubFragment() {
         return object : InstaApiCallback() {
             override fun success(jsonResponse: JSONObject?) {
                 val photoArray = jsonResponse?.optJSONArray("photos") ?: JSONArray()
-                var photoList: List<Photo> = Utils.photosFromJsonArray(photoArray)
-
-                // remove photos with invalid longitudes and latitudes (no location data when uploaded
-                if (Prefs.getInstance().readString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString()) == InstaApi.Sort.LOCATION.toString()) {
-                    photoList = photoList.filterNot { it.latitude == 999.0 || it.longitude == 999.0 }
-                }
+                val photoList: List<Photo> = Utils.photosFromJsonArray(photoArray)
 
                 feedItems.removeAt(feedItems.lastIndex)
                 feedItems.addAll(photoList)
+
+                // remove photos with invalid longitudes and latitudes (no location data when uploaded)
+                if (Prefs.getInstance().readString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString()) == InstaApi.Sort.LOCATION.toString()) {
+                    feedItems.retainAll {
+                        Utils.validateLatLng(it?.latitude ?: 999.0, it?.longitude ?: 999.0)
+                    }
+                    feedItems.sortBy { it?.distance }
+                } else {
+                    feedItems.sortByDescending { it?.timestamp }
+                }
+
                 if (photoList.isEmpty()) {
                     adapter.canLoadMore = false
                 }
@@ -306,4 +370,5 @@ class FeedSubFragment : BaseSubFragment() {
     interface FeedFragmentInterface {
         fun moveToSettings()
     }
+
 }

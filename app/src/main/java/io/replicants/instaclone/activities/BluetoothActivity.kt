@@ -5,25 +5,44 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Base64
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
+import io.realm.Realm
 import io.replicants.instaclone.R
+import io.replicants.instaclone.pojos.BluetoothItem
+import io.replicants.instaclone.pojos.InRangePhoto
 import io.replicants.instaclone.pojos.Photo
-import io.replicants.instaclone.subfragments.bluetooth.BluetoothActivityInterface
-import io.replicants.instaclone.subfragments.bluetooth.BluetoothCropSubFragment
-import io.replicants.instaclone.subfragments.bluetooth.BluetoothSubFragment
+import io.replicants.instaclone.subfragments.bluetooth.*
 import io.replicants.instaclone.subfragments.upload.edit.EditPhotoSubFragment
 import io.replicants.instaclone.subfragments.upload.pickphoto.PickPhotoSubFragment
 import io.replicants.instaclone.subfragments.upload.post.PostPhotoSubFragment
 import io.replicants.instaclone.utilities.MyApplication
 import io.replicants.instaclone.utilities.Prefs
+import io.replicants.instaclone.utilities.Utils
+import kotlinx.coroutines.experimental.launch
+import org.apache.commons.io.FileUtils
 import org.jetbrains.anko.toast
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.File
+import java.io.IOException
+import java.nio.file.Files
 import java.util.*
 
-// Same as Instagram's Upload Photo activity
+
+
+
 class BluetoothActivity : AppCompatActivity(), EditPhotoSubFragment.PhotoEditListener,BluetoothActivityInterface{
 
     val photoID = UUID.randomUUID().toString()
+
+    var bluetoothList = Collections.synchronizedList(ArrayList<BluetoothItem>())
+    var bluetoothMap = Collections.synchronizedMap(HashMap<String, ConnectedThread>())
+    var sendTo: String? = null
+
+    // can have many client and socket threads at same time, but only 1 server thread
+    var serverThread: ServerThread? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,23 +79,121 @@ class BluetoothActivity : AppCompatActivity(), EditPhotoSubFragment.PhotoEditLis
 
 
     override fun photoEdited(photoID: String, postFilepath: String) {
-//        val tx = supportFragmentManager.beginTransaction()
-//
-//        val postFrag = PostPhotoSubFragment.newInstance
-//        tx.replace(R.id.bluetooth_container, postFrag)
-//        tx.addToBackStack("photoEdited")
-//        tx.commit()
-        toast("moving to send fragment")
+        val tx = supportFragmentManager.beginTransaction()
+
+        val sendFrag = BluetoothSendSubFragment.newInstance(postFilepath)
+        tx.replace(R.id.bluetooth_container, sendFrag)
+        tx.addToBackStack("photoEdited")
+        tx.commit()
     }
 
 
 
     override fun editCancelled() {
+        supportFragmentManager.popBackStack("photoCropped", FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    }
+
+    override fun sendPhoto(photo: InRangePhoto, filepath: String) {
+
+        if (sendTo==null){
+            toast("Recipient no longer connected!")
+            supportFragmentManager.popBackStack("photoObtained", FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            return
+        }
+
+        launch {
+            val base64Photo = Base64.encodeToString(FileUtils.readFileToByteArray(File(filepath)), Base64.DEFAULT)
+
+            val profilePhoto = File(filesDir, "profile.jpg")
+            val base64Profile = if (profilePhoto.exists()) {
+                Base64.encodeToString(FileUtils.readFileToByteArray(profilePhoto), Base64.DEFAULT)
+            } else {
+                ""
+            }
+
+            val json = JSONObject()
+            json.put("photo", base64Photo)
+            json.put("profile_photo", base64Profile)
+            json.put("caption", photo.caption)
+            json.put("location_name", photo.locationName)
+            json.put("display_name", photo.displayName)
+            json.put("latitude", photo.latitude)
+            json.put("longitude", photo.longitude)
+            json.put("timestamp", System.currentTimeMillis())
+            json.put("width", photo.regularWidth)
+            json.put("height", photo.regularHeight)
+
+            bluetoothMap[sendTo].let { thread ->
+                thread?.writeJson(json.toString())
+            }
+        }
+    }
+
+    override fun receivedPhoto(address:String, json: String) {
+        val folder = File(filesDir, "inRange")
+
+        try {
+            val jsonObject = JSONObject(json)
+            val photo = InRangePhoto()
+            val photoID = UUID.randomUUID().toString()
+            val profileID = "$photoID-profile"
+            photo.photoID = photoID
+            photo.profileImageID = profileID
+            photo.caption = jsonObject.optString("caption")
+            photo.locationName = jsonObject.optString("location_name")
+            photo.displayName = jsonObject.optString("display_name")
+            photo.latitude = jsonObject.optDouble("latitude", 999.0)
+            photo.longitude = jsonObject.optDouble("longitude", 999.0)
+            photo.timestamp = jsonObject.optLong("timestamp")
+            photo.regularWidth = jsonObject.optInt("width")
+            photo.regularHeight = jsonObject.optInt("height")
+
+            val photoString= jsonObject.optString("photo")
+            val photoByteArray = Base64.decode(photoString, Base64.DEFAULT)
+            val photoFile = File(folder, "$photoID.jpg")
+            FileUtils.writeByteArrayToFile(photoFile, photoByteArray)
+
+
+            val profilePhotoString = jsonObject.optString("profile_photo")
+            if(profilePhotoString.isNotBlank()){
+                val profileByteArray = Base64.decode(profilePhotoString, Base64.DEFAULT)
+                val profileFile = File(folder, "$profileID.jpg")
+                FileUtils.writeByteArrayToFile(profileFile, profileByteArray)
+            }
+
+            val realm = Realm.getDefaultInstance()
+            realm.beginTransaction()
+            realm.copyToRealmOrUpdate(photo)
+            realm.commitTransaction()
+
+            bluetoothMap[address]?.write(ACK_SUCCESS)
+
+            toast("Received photo from in-range friend")
+
+        }catch (e:JSONException){
+            toast("Received corrupted transmission")
+            bluetoothMap[address]?.write(ACK_FAIL)
+        } catch(e:IOException){
+            toast("Failed to save received photo")
+            bluetoothMap[address]?.write(ACK_FAIL)
+        }
+
+    }
+
+    override fun handleSendSuccess() {
+        toast("Photo sent!")
+        val frag = supportFragmentManager.findFragmentById(R.id.bluetooth_container)
+        (frag as? BluetoothSendSubFragment)?.apply {
+            dismissProgress()
+        }
         supportFragmentManager.popBackStack("photoObtained", FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 
-    override fun sendPhoto(photo: Photo, filepath: String) {
-
+    override fun handleSendError() {
+        val frag = supportFragmentManager.findFragmentById(R.id.bluetooth_container)
+        (frag as? BluetoothSendSubFragment)?.apply {
+            dismissProgress()
+        }
     }
 
     override fun errorAndGoBack(message: String) {
@@ -96,6 +213,17 @@ class BluetoothActivity : AppCompatActivity(), EditPhotoSubFragment.PhotoEditLis
         }
 
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        bluetoothMap.entries.forEach {
+            it.value.cancel()
+        }
+        bluetoothMap.clear()
+        serverThread?.cancel()
+        serverThread = null
+    }
+
 
 
 }

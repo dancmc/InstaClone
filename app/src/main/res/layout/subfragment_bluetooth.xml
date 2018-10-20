@@ -75,6 +75,7 @@
         app:layout_constraintTop_toBottomOf="@id/subfragment_bluetooth_toolbar"
         android:gravity="center_vertical"
         android:layout_marginTop="8dp"
+        android:textSize="16sp"
         android:ellipsize="end"
         app:layout_constraintRight_toRightOf="parent"/>
 
@@ -84,6 +85,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
         android:text="Selected :"
+        android:textSize="16sp"
         android:layout_marginLeft="16dp"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="@id/subfragment_bluetooth_selected"

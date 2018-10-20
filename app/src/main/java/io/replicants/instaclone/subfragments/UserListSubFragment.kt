@@ -119,7 +119,7 @@ class UserListSubFragment : BaseSubFragment() {
                 } else {
                     recyclerView.post {
 
-                        val lastName = if (users.size > 0) users.last()?.displayName else null
+                        val lastName = users.lastOrNull()?.displayName
                         users.add(null)
                         adapter.notifyItemInserted(users.lastIndex)
 

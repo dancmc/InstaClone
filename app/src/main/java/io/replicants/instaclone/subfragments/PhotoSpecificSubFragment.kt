@@ -6,10 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import io.realm.Realm
 import io.replicants.instaclone.R
 import io.replicants.instaclone.adapters.FeedAdapter
 import io.replicants.instaclone.network.InstaApi
 import io.replicants.instaclone.network.InstaApiCallback
+import io.replicants.instaclone.pojos.InRangePhoto
 import io.replicants.instaclone.pojos.Photo
 import io.replicants.instaclone.utilities.Utils
 import kotlinx.android.synthetic.main.subfragment_photo_specific.view.*
@@ -45,6 +47,7 @@ class PhotoSpecificSubFragment : BaseSubFragment() {
         layout = inflater.inflate(R.layout.subfragment_photo_specific, container, false)
 
         val argsList = arguments?.getStringArrayList("photoIDs") ?: ArrayList<String>()
+        val realm = Realm.getDefaultInstance()
 
         // deal with the feed list
         recyclerView = layout.subfragment_photo_specific_recycler
@@ -70,7 +73,15 @@ class PhotoSpecificSubFragment : BaseSubFragment() {
             override fun success(jsonResponse: JSONObject?) {
                 val list = Utils.photosFromJsonArray(jsonResponse?.optJSONArray("photos")
                         ?: JSONArray())
-                photoList.addAll(list)
+                val inrangeList = realm.where(InRangePhoto::class.java).`in`("photoID", argsList.toTypedArray()).findAll().map {
+                    Utils.inrangeToPhoto(context!!,it)
+                }
+                val map = HashMap<String, Photo>()
+                list.forEach { map.put(it.photoID, it) }
+                inrangeList.forEach { photo-> photo.let { map.put(it.photoID, it) }}
+
+                argsList.forEach { photoList.add(map[it]) }
+
                 adapter.notifyDataSetChanged()
             }
         }))

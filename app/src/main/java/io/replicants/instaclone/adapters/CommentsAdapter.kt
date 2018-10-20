@@ -24,6 +24,7 @@ import io.replicants.instaclone.network.InstaApiCallback
 import io.replicants.instaclone.pojos.Comment
 import io.replicants.instaclone.pojos.SavedPhoto
 import io.replicants.instaclone.pojos.User
+import io.replicants.instaclone.subfragments.CommentsSubFragment
 import io.replicants.instaclone.utilities.*
 import kotlinx.android.synthetic.main.adapter_comment_item.view.*
 import java.util.ArrayList
@@ -36,7 +37,7 @@ import org.jetbrains.anko.toast
 import org.jetbrains.anko.yesButton
 import org.json.JSONObject
 
-open class CommentsAdapter(private val context: Activity, private val photoID:String, private val dataset: ArrayList<Comment?>, private val recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+open class CommentsAdapter(private val context: Activity, private val photoID:String, private val dataset: ArrayList<Comment?>, private val recyclerView: RecyclerView, private val changeListener:CommentsSubFragment.Listener?=null) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var clickListeners: BaseMainFragment.ClickListeners? = null
     var onLoadMoreListener: CommentsAdapter.OnLoadMoreListener? = null
@@ -139,6 +140,7 @@ open class CommentsAdapter(private val context: Activity, private val photoID:St
                         override fun success(jsonResponse: JSONObject?) {
                             dataset.remove(comment)
                             notifyDataSetChanged()
+                            changeListener?.commentsChanged(dataset.size)
                         }
                     }))
                 }

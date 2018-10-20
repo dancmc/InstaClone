@@ -2,17 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_wifi"
-        android:icon="@drawable/menu_radio"
+        android:id="@+id/action_bluetooth"
+        android:icon="@drawable/icon_bluetooth"
         android:title="@string/adhoc_swiping"
         app:showAsAction="ifRoom"/>
 
-    <!-- Settings, should always be in the overflow -->
-    <item
-        android:id="@+id/action_settings"
-        android:icon="@drawable/menu_settings"
-        android:title="@string/settings"
-        app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_sort"
@@ -34,4 +28,10 @@
                 android:title="Grid"/>
         </menu>
     </item>
+
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/menu_settings"
+        android:title="@string/settings"
+        app:showAsAction="ifRoom"/>
 </menu>
