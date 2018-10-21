@@ -27,7 +27,10 @@ import org.jetbrains.anko.yesButton
 import org.json.JSONObject
 import java.util.*
 
-open class UserListAdapter(private val context: Activity, private val dataset: ArrayList<User?>, recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+// Adapter for displaying lists of users, with links to profile page and buttons to follow
+open class UserListAdapter(private val context: Activity, private val dataset: ArrayList<User?>,
+                           recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var clickListeners: BaseMainFragment.ClickListeners? = null
     var onLoadMoreListener: UserListAdapter.OnLoadMoreListener? = null

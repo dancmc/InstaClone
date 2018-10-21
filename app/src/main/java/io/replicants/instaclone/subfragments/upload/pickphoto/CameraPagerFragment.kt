@@ -7,10 +7,10 @@ import android.hardware.Camera
 import android.hardware.Camera.CameraInfo
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.core.content.ContextCompat
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.configuration.CameraConfiguration
@@ -52,7 +52,7 @@ class CameraPagerFragment : BaseSubFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
-        if(this::layout.isInitialized){
+        if (this::layout.isInitialized) {
             return layout
         }
 
@@ -60,6 +60,7 @@ class CameraPagerFragment : BaseSubFragment() {
         layout.subfragment_camera_toolbar.onClick {
             activity?.finish()
         }
+
 
         return layout
     }
@@ -77,7 +78,7 @@ class CameraPagerFragment : BaseSubFragment() {
                 context?.let { c ->
                     Utils.redirectToSettings(R.string.request_camera_title, R.string.request_camera_text, c)
                 }
-            }else {
+            } else {
                 requestPermissions(arrayOf(Manifest.permission.CAMERA), Prefs.CAMERA_REQUEST_CODE)
             }
         }
@@ -173,13 +174,24 @@ class CameraPagerFragment : BaseSubFragment() {
 
     override fun onStart() {
         super.onStart()
-        Handler().postDelayed({
-            if (ContextCompat.checkSelfPermission(context!!, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                permissionGranted()
-            } else {
-                permissionDenied()
+//        Handler().postDelayed({
+//            if (ContextCompat.checkSelfPermission(context!!, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+//                permissionGranted()
+//            } else {
+//                permissionDenied()
+//            }
+//        }, 500)
+
+        layout.subfragment_camera_cameraview.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                layout.subfragment_camera_cameraview.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                if (ContextCompat.checkSelfPermission(context!!, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    permissionGranted()
+                } else {
+                    permissionDenied()
+                }
             }
-        }, 500)
+        })
 
 
     }

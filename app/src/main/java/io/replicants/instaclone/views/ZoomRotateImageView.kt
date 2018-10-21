@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 2018 Daniel Chan
+ * Custom original implementation to mimic the zoom/crop process in Instagram for photos from gallery
  */
 
 class ZoomRotateImageView : ImageView {

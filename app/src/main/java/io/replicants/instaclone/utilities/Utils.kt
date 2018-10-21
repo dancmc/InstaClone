@@ -56,25 +56,17 @@ class Utils {
         val oneDayMs = 1000 * 60 * 60 * 24
         @JvmField
         val oneWeekMs = 1000 * 60 * 60 * 24 * 7
-
         @JvmField
         val oneHrMs = 1000 * 60 * 60
-
         @JvmField
         val oneMinMs = 1000 * 60
-
         @JvmField
         val oneMonthMs = 1000L * 60 * 60 * 24 * 30
-
         @JvmField
         val oneYrMs = 1000L * 60 * 60 * 24 * 365
 
-        @JvmStatic
-        fun distance(lat1: Double, long1: Double, lat2: Double, long2: Double): Double {
-            val point1 = LatLng(lat1, long1)
-            val point2 = LatLng(lat2, long2)
-            return LatLngTool.distance(point1, point2, LengthUnit.KILOMETER)
-        }
+
+        // JSON METHODS
 
         @JvmStatic
         fun photoFromJson(jsonObject: JSONObject): Photo {
@@ -175,6 +167,7 @@ class Utils {
             when{
                 jsonObject.optBoolean("are_following")-> user.followStatusToThem = User.STATUS_FOLLOWING
                 jsonObject.optBoolean("have_requested") ->user.followStatusToThem = User.STATUS_REQUESTED
+                jsonObject.optBoolean("requested_them") ->user.followStatusToThem = User.STATUS_REQUESTED
             }
 
             user.reason = jsonObject.optString("reason")
@@ -242,10 +235,12 @@ class Utils {
             return results
         }
 
+        // DISTANCE & DATE METHODS
         @JvmStatic
-        fun hideKeyboardFrom(context: Context, view: View) {
-            val imm = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0)
+        fun distance(lat1: Double, long1: Double, lat2: Double, long2: Double): Double {
+            val point1 = LatLng(lat1, long1)
+            val point2 = LatLng(lat2, long2)
+            return LatLngTool.distance(point1, point2, LengthUnit.KILOMETER)
         }
 
         @JvmStatic
@@ -319,6 +314,8 @@ class Utils {
             }
         }
 
+        // MISC UTILITY METHODS
+
         // https://stackoverflow.com/questions/12891520/how-to-programmatically-change-contrast-of-a-bitmap-in-android
         @JvmStatic
         fun setBrightnessOnColorMatrix(cm: ColorMatrix, brightness: Int) {
@@ -341,9 +338,7 @@ class Utils {
                 array[6] = newContrast
                 array[12] = newContrast
             }
-//            cm.array[0] *= newContrast/oldContrast
-//            cm.array[6] *= newContrast/oldContrast
-//            cm.array[12] *= newContrast/oldContrast
+
             cm.apply {
                 postConcat(undoMatrix)
                 postConcat(newMatrix)
@@ -371,6 +366,12 @@ class Utils {
             }
 
             return result
+        }
+
+        @JvmStatic
+        fun hideKeyboardFrom(context: Context, view: View) {
+            val imm = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0)
         }
 
         @JvmStatic
