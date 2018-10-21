@@ -14,6 +14,7 @@ import org.jetbrains.anko.sdk27.coroutines.onLongClick
 
 
 // Inspired by https://stackoverflow.com/questions/26517855/using-the-recyclerview-with-a-database
+// This is the adapter for the gallery in the BluetoothSubFragment
 class BluetoothGalleryCursorAdapter(var context: Context, var cursor: Cursor, var clickListener: Listener, startingCursorPos: Int = 0) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     lateinit var cursorAdapter: CursorAdapter
@@ -56,7 +57,6 @@ class BluetoothGalleryCursorAdapter(var context: Context, var cursor: Cursor, va
         val imageView = v.gallery_item_image
     }
 
-    // These are the methods that control the ordering
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return PhotoViewHolder(cursorAdapter.newView(context, cursorAdapter.cursor, parent))
@@ -78,8 +78,6 @@ class BluetoothGalleryCursorAdapter(var context: Context, var cursor: Cursor, va
         }
 
     }
-
-
 
     interface Listener {
         fun onLongClick(v:View, path:String)

@@ -16,8 +16,9 @@ import io.replicants.instaclone.utilities.MyApplication
 import io.replicants.instaclone.utilities.Prefs
 import org.jetbrains.anko.toast
 
-// Same as Instagram's Upload Photo activity
-class UploadPhotoActivity : AppCompatActivity(), PickPhotoSubFragment.PhotoObtainedListener, EditPhotoSubFragment.PhotoEditListener, PostPhotoSubFragment.PhotoPostListener {
+// Modelled after Instagram's Upload Photo activity
+class UploadPhotoActivity : AppCompatActivity(), PickPhotoSubFragment.PhotoObtainedListener,
+        EditPhotoSubFragment.PhotoEditListener, PostPhotoSubFragment.PhotoPostListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,11 +34,10 @@ class UploadPhotoActivity : AppCompatActivity(), PickPhotoSubFragment.PhotoObtai
 
         transaction.add(R.id.add_photo_container, getPhotoFragment, "getPhoto")
         transaction.commit()
-
-
     }
 
 
+    // Callbacks for child fragments
     override fun photoObtained(photoID: String, filename: String) {
         val tx = supportFragmentManager.beginTransaction()
         val editFrag = EditPhotoSubFragment.newInstance(photoID, filename)
@@ -70,6 +70,7 @@ class UploadPhotoActivity : AppCompatActivity(), PickPhotoSubFragment.PhotoObtai
     }
 
 
+    // Custom back button handling
     override fun onBackPressed() {
         val frag = supportFragmentManager.findFragmentById(R.id.add_photo_container)
         when{

@@ -20,6 +20,7 @@ import org.jetbrains.anko.sdk27.coroutines.onLongClick
 
 
 // Inspired by https://stackoverflow.com/questions/26517855/using-the-recyclerview-with-a-database
+// Adapter to display a gallery in the Upload Photo Activity
 class GalleryCursorAdapter(var context: Context, var layoutManager: GridLayoutManager, var drafts: ArrayList<SavedPhoto>, var cursor: Cursor, var clickListener: Listener, startingCursorPos: Int = 0) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     lateinit var cursorAdapter: CursorAdapter

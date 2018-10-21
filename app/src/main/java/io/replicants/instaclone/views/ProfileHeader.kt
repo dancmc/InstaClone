@@ -85,7 +85,7 @@ class ProfileHeader(val context: Context) {
                         clickListeners?.moveToEditProfileSubFragment(displayName)
                     }
                 }else {
-                    if (user.followStatusToMe == 2) {
+                    if (user.followStatusToMe == User.STATUS_REQUESTED) {
                         view.view_profile_header_approve_request.visibility = View.VISIBLE
                         view.view_profile_header_approve_request.onClick {
                             InstaApi.approveUser(displayName).enqueue(InstaApi.generateCallback(context, object : InstaApiCallback() {

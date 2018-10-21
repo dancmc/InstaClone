@@ -38,6 +38,8 @@ import org.jetbrains.anko.sdk27.coroutines.onLongClick
 import org.json.JSONObject
 import java.util.*
 
+
+// Adapter for displaying a feed of photos with or without a header - Used in feed, profile, etc
 class FeedAdapter(private val context: Activity, private val dataset: ArrayList<Photo?>, private val recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var onLoadMoreListener: OnLoadMoreListener? = null
@@ -56,9 +58,7 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
     private val VIEW_TYPE_INRANGE = 4
 
 
-    // this inner class doesn't need to be static since we never use it outside of FeedAdapter
     private inner class PhotoViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        // each data item is just a string in this case
         var ivProfileHead = v.feed_item_profile_head
         var tvProfileName = v.feed_item_profile_name
         var tvLocationName = v.feed_item_location_name

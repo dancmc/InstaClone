@@ -29,13 +29,15 @@ import org.jetbrains.anko.clickable
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.util.*
 
+// Adapter for viewpager tab showing activity of users you follow
 class ActivityFollowingAdapter(private val context: Activity, private val dataset: ArrayList<ActivityBase>, private val recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var clickListeners: BaseMainFragment.ClickListeners? = null
 
-    private val ACTIVITY_TYPE_1 = 1
-    private val ACTIVITY_TYPE_2 = 2
-    private val ACTIVITY_TYPE_3 = 3
+    // Types are defined in our API Specification
+    private val ACTIVITY_TYPE_1 = 1 // when one person likes multiple photos
+    private val ACTIVITY_TYPE_2 = 2 // when multiple people like one photo
+    private val ACTIVITY_TYPE_3 = 3 // when a user starts following other users
 
     private inner class ActivityFollowingHolder1(v: View) : RecyclerView.ViewHolder(v) {
 
@@ -104,12 +106,17 @@ class ActivityFollowingAdapter(private val context: Activity, private val datase
 
         when (holder) {
             is ActivityFollowingHolder1 -> {
+
                 val item = dataset[position] as ActivityFollowing1
+
+                // load the profile image
                 val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.profileImage))
                         .apply(requestOptions)
                         .into(holder.ivProfileImage)
+
+                // construct the text with clickable links
                 val time = Utils.formatDateForActivity(item.timestamp)
                 val textBuilder = SpannableStringBuilder()
                         .bold { append(item.displayName) }
@@ -120,6 +127,8 @@ class ActivityFollowingAdapter(private val context: Activity, private val datase
                         }
                 holder.tvText.text = textBuilder
 
+
+                // load photos with clickable links
                 if (item.photosLiked.size > 6) {
                     holder.llSecondImageRow.visibility = View.VISIBLE
                     holder.llSecondImageRow.onClick {
@@ -148,6 +157,8 @@ class ActivityFollowingAdapter(private val context: Activity, private val datase
             }
             is ActivityFollowingHolder2 -> {
                 val item = dataset[position] as ActivityFollowing2
+
+                // load profile image
                 val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.previewUsers[0].profileImage))
@@ -155,6 +166,7 @@ class ActivityFollowingAdapter(private val context: Activity, private val datase
                         .into(holder.ivProfileImage)
                 val textBuilder = SpannableStringBuilder()
 
+                // construct text with links
                 item.previewUsers.forEachIndexed { index, user ->
                     when (index) {
                         0 -> textBuilder.bold { append(user.displayName) }
@@ -189,24 +201,27 @@ class ActivityFollowingAdapter(private val context: Activity, private val datase
 
                 holder.tvText.text = textBuilder
 
+
+                // load photo with link
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.photo.thumbUrl))
                         .into(holder.ivImage)
 
-//                holder.tvText.onClick {
-//                    clickListeners?.moveToPhotoSpecificSubFragment(arrayListOf(item.photo.photoID))
-//                }
                 holder.ivImage.onClick {
                     clickListeners?.moveToPhotoSpecificSubFragment(arrayListOf(item.photo.photoID))
                 }
             }
             is ActivityFollowingHolder3 -> {
                 val item = dataset[position] as ActivityFollowing3
+
+                // load profile image
                 val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.profileImage))
                         .apply(requestOptions)
                         .into(holder.ivProfileImage)
+
+                // construct text with links
                 val textBuilder = SpannableStringBuilder()
                         .bold { append(item.displayName) }
                         .append(" started following ")

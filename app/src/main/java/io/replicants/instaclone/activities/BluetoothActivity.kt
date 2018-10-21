@@ -22,8 +22,8 @@ import java.util.*
 
 class BluetoothActivity : AppCompatActivity(), EditPhotoSubFragment.PhotoEditListener,BluetoothActivityInterface{
 
+    // variables hold connections formed in BluetoothSubFragment
     val photoID = UUID.randomUUID().toString()
-
     var bluetoothList = Collections.synchronizedList(ArrayList<BluetoothItem>())
     var bluetoothMap = Collections.synchronizedMap(HashMap<String, ConnectedThread>())
     var sendTo: String? = null
@@ -34,7 +34,6 @@ class BluetoothActivity : AppCompatActivity(), EditPhotoSubFragment.PhotoEditLis
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bluetooth)
-
 
         val manager = supportFragmentManager
         if(supportFragmentManager.findFragmentById(R.id.bluetooth_container)==null){
@@ -47,6 +46,7 @@ class BluetoothActivity : AppCompatActivity(), EditPhotoSubFragment.PhotoEditLis
     }
 
 
+    // CALLBACK METHODS for fragments
     override fun photoObtained(filename: String) {
         val tx = supportFragmentManager.beginTransaction()
         val editFrag = BluetoothCropSubFragment.newInstance(photoID, filename)
@@ -60,6 +60,7 @@ class BluetoothActivity : AppCompatActivity(), EditPhotoSubFragment.PhotoEditLis
         val tx = supportFragmentManager.beginTransaction()
         val editFrag = EditPhotoSubFragment.newInstance(photoID, filename)
         editFrag.listener = this
+
         tx.replace(R.id.bluetooth_container, editFrag)
         tx.addToBackStack("photoCropped")
         tx.commit()
@@ -68,14 +69,12 @@ class BluetoothActivity : AppCompatActivity(), EditPhotoSubFragment.PhotoEditLis
 
     override fun photoEdited(photoID: String, postFilepath: String) {
         val tx = supportFragmentManager.beginTransaction()
-
         val sendFrag = BluetoothSendSubFragment.newInstance(postFilepath)
+
         tx.replace(R.id.bluetooth_container, sendFrag)
         tx.addToBackStack("photoEdited")
         tx.commit()
     }
-
-
 
     override fun editCancelled() {
         supportFragmentManager.popBackStack("photoCropped", FragmentManager.POP_BACK_STACK_INCLUSIVE)
@@ -206,6 +205,7 @@ class BluetoothActivity : AppCompatActivity(), EditPhotoSubFragment.PhotoEditLis
 
     }
 
+    // clean up threads on activity finish
     override fun onDestroy() {
         super.onDestroy()
         bluetoothMap.entries.forEach {

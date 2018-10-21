@@ -12,7 +12,10 @@ class ActivitySelf4 :ActivityBase{
     companion object {
         fun fromJson(jsonObject: JSONObject): ActivitySelf4 {
             val activity = ActivitySelf4()
-            activity.requests = Utils.usersFromJsonArray(jsonObject.optJSONArray("requests")?:JSONArray())
+            activity.requests = Utils.usersFromJsonArray(jsonObject.optJSONArray("users")?:JSONArray())
+            activity.requests.forEach {
+                it.followStatusToMe = User.STATUS_REQUESTED
+            }
 
             return activity
         }

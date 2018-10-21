@@ -11,8 +11,10 @@ import io.replicants.instaclone.pojos.BluetoothItem
 import kotlinx.android.synthetic.main.adapter_bluetooth_item.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 
-class BTListAdapter(private val context: Context?, private val dataset: MutableList<BluetoothItem>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    var listener :BTListAdapter.Listener?=null
+
+// Adapter for the list of bluetooth devices in BluetoothSubFragment
+class BluetoothListAdapter(private val context: Context?, private val dataset: MutableList<BluetoothItem>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    var listener :BluetoothListAdapter.Listener?=null
 
 
     inner class BTHolder(v: View) : RecyclerView.ViewHolder(v) {

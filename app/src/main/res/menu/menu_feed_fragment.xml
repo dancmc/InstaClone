@@ -4,7 +4,7 @@
     <item
         android:id="@+id/action_bluetooth"
         android:icon="@drawable/icon_bluetooth"
-        android:title="@string/adhoc_swiping"
+        android:title="@string/bluetooth"
         app:showAsAction="ifRoom"/>
 
 

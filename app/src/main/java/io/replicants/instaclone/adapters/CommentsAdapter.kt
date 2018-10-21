@@ -26,6 +26,8 @@ import org.jetbrains.anko.sdk27.coroutines.onLongClick
 import org.json.JSONObject
 import java.util.*
 
+
+// Adapter for displaying comments in CommentsSubFragment
 open class CommentsAdapter(private val context: Activity, private val photoID:String, private val dataset: ArrayList<Comment?>, private val recyclerView: RecyclerView, private val changeListener:CommentsSubFragment.Listener?=null) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var clickListeners: BaseMainFragment.ClickListeners? = null

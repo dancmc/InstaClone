@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import androidx.annotation.Nullable
 import androidx.constraintlayout.widget.ConstraintLayout
-import io.replicants.instaclone.subfragments.bluetooth.FlingView
 
 class InterceptConstraintLayout:ConstraintLayout{
     constructor(context: Context) : super(context) {}
@@ -18,7 +17,7 @@ class InterceptConstraintLayout:ConstraintLayout{
     var lastX = 0f
     var lastY = 0f
 
-    var flingView :FlingView?=null
+    var flingView : FlingView?=null
 
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {

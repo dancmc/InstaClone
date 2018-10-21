@@ -1,4 +1,4 @@
-package io.replicants.instaclone.subfragments.bluetooth
+package io.replicants.instaclone.views
 
 import android.animation.Animator
 import android.animation.ValueAnimator
@@ -133,8 +133,8 @@ class FlingView : View {
                 // calculate dx and dy
                 // v = ab^t, where say 0.05 = ab^ 2 - means v will become 5% in 2 seconds
                 // total distance in x secs = ab^x/ln(b)
-                dx = velocityX / 150f * Math.pow(speedBase, 1.0).toFloat() / -Math.log(speedBase).toFloat()
-                dy = velocityY / 150f * Math.pow(speedBase, 1.0).toFloat() / -Math.log(speedBase).toFloat()
+                dx = velocityX / 10f * Math.pow(speedBase, 1.0).toFloat() / -Math.log(speedBase).toFloat()
+                dy = velocityY / 10f * Math.pow(speedBase, 1.0).toFloat() / -Math.log(speedBase).toFloat()
 
 
                 flingAnimator = ValueAnimator.ofFloat(duration)
@@ -155,8 +155,8 @@ class FlingView : View {
                     cumulativeTranslationX = targetTranslationXAtTime
                     cumulativeTranslationY = targetTranslationYAtTime
 
-                    moveX += targetTranslationXAtTime
-                    moveY += targetTranslationYAtTime
+                    moveX += translateXStep
+                    moveY += translateYStep
 
                     invalidate()
                 }

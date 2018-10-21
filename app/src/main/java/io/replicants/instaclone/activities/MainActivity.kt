@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
             layoutParams.width = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 32f, displayMetrics).toInt()
             iconView.layoutParams = layoutParams
         }
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+        navigation.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
 
         initialiseAndAuthorise(savedInstanceState)
 
@@ -65,6 +65,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    // switch to hardcoded backup server in case of failure
     private fun initialiseAndAuthorise(savedInstanceState: Bundle?) {
         if (Prefs.getInstance().readString(Prefs.JWT, "").isBlank()) {
             logout()
@@ -100,7 +101,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
+
+    // Listener for BottomNavigationView
+    private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_home -> {
                 switchFragment(TAG_HOME)
@@ -127,6 +130,8 @@ class MainActivity : AppCompatActivity() {
         false
     }
 
+
+    // Mechanism to switch when tab in BottomNavigationView pressed
     private fun switchFragment(target: String) {
 
         if (currentFragment == target) {
@@ -170,12 +175,14 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    // Custom dealing with back button presses
     override fun onBackPressed() {
 
         val fm = supportFragmentManager
         for (frag in fm.fragments) {
             if (frag.isVisible) {
-                // give opportunity for mainfragment to consume back press
+
+                // give opportunity for child MainFragment to consume back press
                 if (frag is BaseMainFragment) {
                     if (frag.handleBackPress()) {
                         return
@@ -214,6 +221,18 @@ class MainActivity : AppCompatActivity() {
         outState?.putString("currentFragment", currentFragment)
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (finishedUploading) {
+            switchFragment(TAG_PROFILE)
+            finishedUploading = false
+            (supportFragmentManager.findFragmentByTag(currentFragment) as? ProfileMainFragment?)?.showUploaded()
+        }
+    }
+
+    // Complicated to deal with situations where user has previously ticked don't ask again
+    // We need to present a redirect to settings dialog if they decide to request again in the future
+    // so store a variable in preferences
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == Prefs.LOCATION_REQUEST_CODE) {
             if (permissions.size == 1 && permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION) {
@@ -236,26 +255,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == UPLOAD_PHOTO_REQUEST && resultCode == Activity.RESULT_OK) {
-
             toast("Successfully uploaded photo!")
             finishedUploading = true
-
-
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (finishedUploading) {
-            switchFragment(TAG_PROFILE)
-            finishedUploading = false
 
-            (supportFragmentManager.findFragmentByTag(currentFragment) as? ProfileMainFragment?)?.showUploaded()
-        }
-
-    }
-
+    // utility to do some housekeeping when app is started
     private fun cleanupStorage() {
         val savedSet = HashSet<String>()
         Realm.getDefaultInstance().use { realm ->

@@ -15,6 +15,7 @@ import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import androidx.annotation.Nullable
 import io.replicants.instaclone.utilities.Easing
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import java.util.concurrent.atomic.AtomicBoolean

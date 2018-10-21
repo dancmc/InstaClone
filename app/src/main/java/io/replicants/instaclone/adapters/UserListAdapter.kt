@@ -27,7 +27,7 @@ import org.jetbrains.anko.yesButton
 import org.json.JSONObject
 import java.util.*
 
-open class UserListAdapter(private val context: Activity, private val dataset: ArrayList<User?>, private val recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+open class UserListAdapter(private val context: Activity, private val dataset: ArrayList<User?>, recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var clickListeners: BaseMainFragment.ClickListeners? = null
     var onLoadMoreListener: UserListAdapter.OnLoadMoreListener? = null

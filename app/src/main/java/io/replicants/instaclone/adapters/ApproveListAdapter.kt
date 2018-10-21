@@ -45,15 +45,21 @@ class ApproveListAdapter(private val context: Activity, private val dataset: Arr
 
         val userItem = dataset[position]
         holder as UserHolder
+
+        // load profile photo
         val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
         Glide.with(context)
                 .load(GlideHeader.getUrlWithHeaders(userItem?.profileImage))
                 .apply(requestOptions)
                 .into(holder.ivProfileImage)
+
+        // load name and links
         holder.tvDisplayName.text = SpannableStringBuilder()
                 .bold { append(userItem?.displayName) }
         holder.tvProfileName.text = userItem?.profileName
 
+
+        // approve button
         val followStatusToMe = userItem?.followStatusToMe
         if(followStatusToMe == User.STATUS_REQUESTED){
             holder.btnFollow.text = "Approve"
@@ -66,7 +72,7 @@ class ApproveListAdapter(private val context: Activity, private val dataset: Arr
             }
         }
 
-        holder.layout.onClick {
+        holder.itemView.onClick {
             clickListeners?.moveToProfileSubFragment(userItem?.displayName)
         }
     }

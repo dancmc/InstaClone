@@ -2,30 +2,30 @@
 <io.replicants.instaclone.views.InterceptConstraintLayout
     android:id="@+id/subfragment_bluetooth_root"
     xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:background="@color/white"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-              android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/subfragment_bluetooth_toolbar"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        app:contentInsetLeft="0dp"
-        android:elevation="4dp"
         android:background="@color/offwhite"
+        android:elevation="4dp"
+        app:contentInsetLeft="0dp"
         app:contentInsetStart="0dp"
-        app:titleTextAppearance="@style/Toolbar.TitleText"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:titleTextAppearance="@style/Toolbar.TitleText">
 
         <ImageView
             android:id="@+id/subfragment_bluetooth_toolbar_back"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:padding="8dp"
             android:layout_marginRight="4dp"
+            android:padding="8dp"
             android:src="@drawable/icon_close_grey"/>
 
         <androidx.appcompat.widget.AppCompatSpinner
@@ -37,13 +37,13 @@
             android:id="@+id/subfragment_bluetooth_scan"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:textSize="18sp"
-            android:textStyle="bold"
+            android:layout_gravity="right"
+            android:gravity="center"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:text="Scan"
-            android:gravity="center"
-            android:layout_gravity="right"/>
+            android:textSize="18sp"
+            android:textStyle="bold"/>
 
     </androidx.appcompat.widget.Toolbar>
 
@@ -52,74 +52,88 @@
         android:id="@+id/subfragment_bluetooth_none"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@id/subfragment_bluetooth_list"
-        android:layout_marginTop="8dp"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/subfragment_bluetooth_list"
         android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
         android:text="Bluetooth not available on this device"
         android:textSize="18sp"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/subfragment_bluetooth_list"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/subfragment_bluetooth_list"/>
 
-    <TextView
-        android:id="@+id/subfragment_bluetooth_selected"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/subfragment_bluetooth_selected_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxLines="1"
-        tools:text="Dan's S3"
-        android:layout_marginLeft="16dp"
-        app:layout_constraintLeft_toRightOf="@id/subfragment_bluetooth_connected"
-        android:layout_marginRight="16dp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/subfragment_bluetooth_toolbar"
+        android:orientation="horizontal"
         android:gravity="center_vertical"
         android:layout_marginTop="8dp"
-        android:textSize="16sp"
-        android:ellipsize="end"
-        app:layout_constraintRight_toRightOf="parent"/>
-
-    <TextView
-        android:id="@+id/subfragment_bluetooth_connected"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:text="Selected :"
-        android:textSize="16sp"
+        android:padding="8dp"
         android:layout_marginLeft="16dp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="@id/subfragment_bluetooth_selected"
-        app:layout_constraintBottom_toBottomOf="@id/subfragment_bluetooth_selected"
-        app:layout_constraintRight_toLeftOf="@id/subfragment_bluetooth_selected"/>
+        android:layout_marginRight="16dp"
+        app:layout_constraintTop_toBottomOf="@id/subfragment_bluetooth_toolbar">
+
+
+        <TextView
+            android:id="@+id/subfragment_bluetooth_connected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:text="Selected :"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/subfragment_bluetooth_selected"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/subfragment_bluetooth_selected"
+            app:layout_constraintTop_toTopOf="@id/subfragment_bluetooth_selected"/>
+
+        <TextView
+            android:id="@+id/subfragment_bluetooth_selected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toRightOf="@id/subfragment_bluetooth_connected"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/subfragment_bluetooth_toolbar"
+            tools:text="Dan's S3"/>
+
+    </LinearLayout>
 
     <View
         android:id="@+id/subfragment_bluetooth_separator1"
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
+        android:layout_marginTop="8dp"
         android:background="@color/grey400"
-        app:layout_constraintTop_toBottomOf="@id/subfragment_bluetooth_selected"
-        android:layout_marginTop="8dp"/>
+        app:layout_constraintTop_toBottomOf="@id/subfragment_bluetooth_selected_layout"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/subfragment_bluetooth_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/subfragment_bluetooth_separator1"
-        app:layout_constraintDimensionRatio="1.5"/>
+        app:layout_constraintDimensionRatio="1.5"
+        app:layout_constraintTop_toBottomOf="@id/subfragment_bluetooth_separator1"/>
 
     <Button
         android:id="@+id/subfragment_bluetooth_permissions_bluetooth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@id/subfragment_bluetooth_list"
         android:background="@drawable/rectangle_rounded"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/subfragment_bluetooth_list"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:text="Request Bluetooth Permissions"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/subfragment_bluetooth_list"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/subfragment_bluetooth_list"/>
 
     <View
         android:id="@+id/subfragment_bluetooth_separator2"
@@ -133,27 +147,27 @@
         android:id="@+id/subfragment_bluetooth_gallery"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/subfragment_bluetooth_separator2"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/subfragment_bluetooth_separator2"/>
 
     <Button
         android:id="@+id/subfragment_bluetooth_permissions_storage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@id/subfragment_bluetooth_gallery"
         android:background="@drawable/rectangle_rounded"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/subfragment_bluetooth_gallery"
-        android:text="Request Storage Permissions"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:visibility="gone"/>
-    
-    <io.replicants.instaclone.subfragments.bluetooth.FlingView
+        android:text="Request Storage Permissions"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/subfragment_bluetooth_gallery"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/subfragment_bluetooth_gallery"/>
+
+    <io.replicants.instaclone.views.FlingView
         android:id="@+id/subfragment_bluetooth_flingview"
         android:layout_width="match_parent"
-        android:elevation="2dp"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:elevation="2dp"/>
 
 </io.replicants.instaclone.views.InterceptConstraintLayout>

@@ -30,10 +30,11 @@ class ActivitySelfAdapter(private val context: Activity, private val dataset: Ar
 
     var clickListeners: BaseMainFragment.ClickListeners? = null
 
-    private val ACTIVITY_TYPE_1 = 1
-    private val ACTIVITY_TYPE_2 = 2
-    private val ACTIVITY_TYPE_3 = 3
-    private val ACTIVITY_TYPE_4 = 4
+    // types based on API Spec
+    private val ACTIVITY_TYPE_1 = 1 // users started following you
+    private val ACTIVITY_TYPE_2 = 2 // users liked your post
+    private val ACTIVITY_TYPE_3 = 3 // users commented on your post
+    private val ACTIVITY_TYPE_4 = 4 // users requested to follow
 
     private inner class ActivitySelfHolder1(v: View) : RecyclerView.ViewHolder(v) {
 
@@ -97,11 +98,16 @@ class ActivitySelfAdapter(private val context: Activity, private val dataset: Ar
         when (holder) {
             is ActivitySelfHolder1 -> {
                 val item = dataset[position] as ActivitySelf1
+
+                // load profile image
                 val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.users[0].profileImage))
                         .apply(requestOptions)
                         .into(holder.ivProfileImage)
+
+
+                // set up text and links
                 val textBuilder = SpannableStringBuilder()
                 val previewUsers = item.users.take(3)
                 previewUsers.forEachIndexed { index, user ->
@@ -146,11 +152,11 @@ class ActivitySelfAdapter(private val context: Activity, private val dataset: Ar
 
                 holder.tvText.text = textBuilder
 
-
-
             }
             is ActivitySelfHolder2 -> {
                 val item = dataset[position] as ActivitySelf2
+
+                // load profile image
                 val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.previewUsers[0].profileImage))
@@ -158,6 +164,7 @@ class ActivitySelfAdapter(private val context: Activity, private val dataset: Ar
                         .into(holder.ivProfileImage)
                 val textBuilder = SpannableStringBuilder()
 
+                // set up text and links
                 item.previewUsers.forEachIndexed { index, user ->
                     when (index) {
                         0 -> textBuilder.bold { append(user.displayName) }
@@ -200,6 +207,8 @@ class ActivitySelfAdapter(private val context: Activity, private val dataset: Ar
 
                 holder.tvText.text = textBuilder
 
+
+                // load thumbnail of photo and link
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.photo.thumbUrl))
                         .into(holder.ivImage)
@@ -210,15 +219,18 @@ class ActivitySelfAdapter(private val context: Activity, private val dataset: Ar
             }
             is ActivitySelfHolder3 -> {
                 val item = dataset[position] as ActivitySelf3
+
+                // load profile photo
                 val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.previewComment.profileImage))
                         .apply(requestOptions)
                         .into(holder.ivProfileImage)
+
+
+                // set up text and links
                 val textBuilder = SpannableStringBuilder()
                 textBuilder.bold { append(item.previewComment.displayName) }
-
-
                 val time = Utils.formatDateForActivity(item.timestamp)
                 var others = ""
                 if (item.recentComments > 1) {
@@ -242,6 +254,7 @@ class ActivitySelfAdapter(private val context: Activity, private val dataset: Ar
 
                 holder.tvText.text = textBuilder
 
+                // load photo thumbnail
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.photo.thumbUrl))
                         .into(holder.ivImage)
@@ -252,11 +265,16 @@ class ActivitySelfAdapter(private val context: Activity, private val dataset: Ar
             }
             is ActivitySelfHolder4 -> {
                 val item = dataset[position] as ActivitySelf4
+
+                // load profile photo
                 val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
                 Glide.with(context)
                         .load(GlideHeader.getUrlWithHeaders(item.requests[0].profileImage))
                         .apply(requestOptions)
                         .into(holder.ivProfileImage)
+
+
+                // set up text and links
                 val textBuilder = SpannableStringBuilder()
                 val previewUsers = item.requests.take(3)
                 previewUsers.forEachIndexed { index, user ->
@@ -285,7 +303,10 @@ class ActivitySelfAdapter(private val context: Activity, private val dataset: Ar
 
                 holder.tvText.text = textBuilder
 
-                holder.layout.onClick {
+                holder.itemView.onClick {
+                    clickListeners?.moveToApproveListSubFragment(item.requests)
+                }
+                holder.tvText.onClick {
                     clickListeners?.moveToApproveListSubFragment(item.requests)
                 }
 

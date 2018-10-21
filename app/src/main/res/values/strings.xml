@@ -4,6 +4,7 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
 
+    <!-- REGISTRATION -->
     <string name="register">Register</string>
     <string name="register_alt">Don\'t have an account yet? Register here</string>
     <string name="login">Login</string>
@@ -15,29 +16,34 @@
     <string name="register_display_name">Display Name</string>
     <string name="register_email">Email</string>
 
-    <string name="adhoc_swiping">Bluetooth</string>
+    <!-- MENU -->
+    <string name="bluetooth">Bluetooth</string>
     <string name="next">Next</string>
     <string name="settings">Settings</string>
     <string name="sort">Sort</string>
     <string name="sort_location">Location</string>
     <string name="sort_date">Date</string>
 
-    <string name="request_location">Request Location Permission</string>
-    <string name="request_location_failed">Failed to get location permission</string>
+
+    <!-- PROFILE -->
     <string name="posts">posts</string>
     <string name="followers">followers</string>
     <string name="following">following</string>
 
+    <!-- PHOTO EDITING -->
     <string name="confirm">Confirm</string>
     <string name="save_draft_text">Do you want to save your draft?</string>
     <string name="save_draft_title">Save Draft</string>
-    <string name="go_to_settings">Go to Settings</string>
-    <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
     <string name="save_draft">Save Draft</string>
     <string name="discard">Discard</string>
     <string name="edit_photo">Edit Photo</string>
     <string name="crop_photo">Crop Photo</string>
+
+
+    <!-- REQUESTS -->
+    <string name="go_to_settings">Go to Settings</string>
+    <string name="request_location">Request Location Permission</string>
+    <string name="request_location_failed">Failed to get location permission</string>
 
     <string name="request_storage_location_text">Previously ticked never ask again, please go to settings and allow Storage and Location in Permissions.</string>
     <string name="request_storage_location_title">Request Storage/Location</string>
@@ -50,5 +56,9 @@
 
     <string name="request_location_text">Previously ticked never ask again, please go to settings and allow Location in Permissions.</string>
     <string name="request_location_title">Request Location</string>
+
+    <!-- MISC -->
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

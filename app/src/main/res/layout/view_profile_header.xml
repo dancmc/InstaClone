@@ -130,14 +130,14 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:background="@drawable/rectangle_rounded"
-        android:minHeight="24dp"
-        android:textSize="10sp"
+        android:minHeight="32dp"
+        android:textSize="12sp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/view_profile_header_image"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintLeft_toRightOf="@id/view_profile_header_follow_btn"
         app:layout_constraintRight_toRightOf="parent"
-        tools:text="Approve Request"/>
+        android:text="Approve"/>
 
     <TextView
         android:id="@+id/view_profile_header_profile_name"

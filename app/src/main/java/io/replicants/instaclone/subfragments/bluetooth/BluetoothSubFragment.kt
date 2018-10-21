@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.replicants.instaclone.R
 import io.replicants.instaclone.activities.BluetoothActivity
-import io.replicants.instaclone.adapters.BTListAdapter
+import io.replicants.instaclone.adapters.BluetoothListAdapter
 import io.replicants.instaclone.adapters.BluetoothGalleryCursorAdapter
 import io.replicants.instaclone.pojos.BluetoothItem
 import io.replicants.instaclone.subfragments.BaseSubFragment
@@ -29,6 +29,7 @@ import io.replicants.instaclone.subfragments.upload.pickphoto.GalleryPagerFragme
 import io.replicants.instaclone.utilities.Prefs
 import io.replicants.instaclone.utilities.Utils
 import io.replicants.instaclone.utilities.Utils.Companion.getDirectoryCursor
+import io.replicants.instaclone.views.FlingView
 import kotlinx.android.synthetic.main.subfragment_bluetooth.view.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.sdk27.coroutines.onClick
@@ -55,7 +56,7 @@ const val ACK_SUCCESS="ACK_SUCCESS"
 
 private const val TAG = "TAG_BLUETOOTH"
 
-class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, BluetoothGalleryCursorAdapter.Listener {
+class BluetoothSubFragment : BaseSubFragment(), BluetoothListAdapter.Listener, BluetoothGalleryCursorAdapter.Listener {
 
     companion object {
 
@@ -72,7 +73,7 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
 
     lateinit var layout: View
     lateinit var bluetoothRecycler: RecyclerView
-    lateinit var bluetoothRecyclerAdapter: BTListAdapter
+    lateinit var bluetoothRecyclerAdapter: BluetoothListAdapter
 
     lateinit var galleryRecycler: RecyclerView
     lateinit var galleryRecyclerAdapter: BluetoothGalleryCursorAdapter
@@ -134,7 +135,7 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
 
         layout = inflater.inflate(R.layout.subfragment_bluetooth, container, false)
         layout.subfragment_bluetooth_root.flingView = layout.subfragment_bluetooth_flingview
-        layout.subfragment_bluetooth_root.flingView?.listener = object:FlingView.Listener{
+        layout.subfragment_bluetooth_root.flingView?.listener = object: FlingView.Listener{
             override fun endMove(y: Int, path: String) {
                 if(y<galleryTopY){
                     if(parentActivity.sendTo!=null) {
@@ -158,7 +159,7 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
             }
         }
 
-        bluetoothRecyclerAdapter = BTListAdapter(context, parentActivity.bluetoothList)
+        bluetoothRecyclerAdapter = BluetoothListAdapter(context, parentActivity.bluetoothList)
         bluetoothRecyclerAdapter.listener = this
         bluetoothRecycler = layout.subfragment_bluetooth_list
         bluetoothRecycler.layoutManager = LinearLayoutManager(context)
