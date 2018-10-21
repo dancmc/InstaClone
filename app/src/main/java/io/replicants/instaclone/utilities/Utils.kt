@@ -171,10 +171,12 @@ class Utils {
                 }
             }
             user.followingWhoFollow = followingList
-            user.areFollowing = jsonObject.optBoolean("are_following")
-            if (user.areFollowing) {
-                user.followStatusToThem = 1
+
+            when{
+                jsonObject.optBoolean("are_following")-> user.followStatusToThem = User.STATUS_FOLLOWING
+                jsonObject.optBoolean("have_requested") ->user.followStatusToThem = User.STATUS_REQUESTED
             }
+
             user.reason = jsonObject.optString("reason")
 
             return user
@@ -447,9 +449,9 @@ class Utils {
             val projection = arrayOf(MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA)
             val cursor: Cursor
             if (imageDirectory.albumName == "All") {
-                cursor = MediaStore.Images.Media.query(context!!.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, MediaStore.Images.Media.DATE_TAKEN + " DESC");
+                cursor = MediaStore.Images.Media.query(context.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, MediaStore.Images.Media.DATE_TAKEN + " DESC");
             } else {
-                cursor = MediaStore.Images.Media.query(context!!.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, MediaStore.Images.Media.BUCKET_ID + " = ?", arrayOf("${imageDirectory.id}"), MediaStore.Images.Media.DATE_TAKEN + " DESC");
+                cursor = MediaStore.Images.Media.query(context.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, MediaStore.Images.Media.BUCKET_ID + " = ?", arrayOf("${imageDirectory.id}"), MediaStore.Images.Media.DATE_TAKEN + " DESC");
             }
             return cursor
         }
@@ -457,7 +459,6 @@ class Utils {
         @JvmStatic
         @Synchronized
         fun saveProfileImageToFile(context: Context,url:String){
-
 
             try {
                 FileUtils.copyInputStreamToFile(URL(url).openConnection().apply {

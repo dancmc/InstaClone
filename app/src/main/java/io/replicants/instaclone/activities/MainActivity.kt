@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun initialiseAndAuthorise(savedInstanceState: Bundle?){
+    private fun initialiseAndAuthorise(savedInstanceState: Bundle?) {
         if (Prefs.getInstance().readString(Prefs.JWT, "").isBlank()) {
             logout()
         } else {
@@ -82,16 +82,16 @@ class MainActivity : AppCompatActivity() {
                             logout()
                         }
                     },
-                    networkFailure = { code->
-                        if(code == 502) {
-                            when(InstaRetrofit.domain){
-                                "dancmc.io"->{
+                    networkFailure = { code ->
+                        if (code == 502) {
+                            when (InstaRetrofit.domain) {
+                                "dancmc.io" -> {
                                     InstaRetrofit.domain = "danielchan.io"
                                     InstaRetrofit.rebuild()
                                     toast("Switching to backup server")
                                     initialiseAndAuthorise(savedInstanceState)
                                 }
-                                "danielchan.io"->{
+                                "danielchan.io" -> {
                                     toast("Both servers down")
                                 }
                             }
@@ -258,9 +258,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun cleanupStorage() {
         val savedSet = HashSet<String>()
-        Realm.getDefaultInstance().where(SavedPhoto::class.java).findAll().forEach {
-            savedSet.add(it.photoFile)
-            savedSet.add(it.photoFilePreview)
+        Realm.getDefaultInstance().use { realm ->
+            realm.where(SavedPhoto::class.java).findAll().forEach {
+                savedSet.add(it.photoFile)
+                savedSet.add(it.photoFilePreview)
+            }
         }
         var folder = File(filesDir, "photos")
         if (folder.exists()) {

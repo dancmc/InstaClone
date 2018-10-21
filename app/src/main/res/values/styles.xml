@@ -28,6 +28,7 @@
         <item name="android:focusable">false</item>
         <item name="android:longClickable">false</item>
         <item name="android:lineSpacingExtra">1dp</item>
+        <item name="android:inputType">textMultiLine|textNoSuggestions</item>
         <item name="android:textColor">@drawable/edittext_custom</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="android:textSize">14sp</item>

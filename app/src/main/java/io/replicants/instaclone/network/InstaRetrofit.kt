@@ -14,7 +14,7 @@ class InstaRetrofit {
     companion object {
         var domain = "dancmc.io"
         private var apiUrl = getApiUrl()
-//        private val apiUrl = "http://10.0.0.3:8080/instacopy/v1/"
+//        private var apiUrl = "http://10.0.0.3:8080/instacopy/v1/"
 
         private val httpclient = OkHttpClient.Builder()
                 .addInterceptor { chain ->

@@ -7,6 +7,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -35,6 +36,7 @@ class DiscoverUsersSubFragment : BaseSubFragment() {
 
     var searchName = ""
     var page = 1
+    var lastSearchTime = System.currentTimeMillis()
 
     companion object {
 
@@ -111,10 +113,16 @@ class DiscoverUsersSubFragment : BaseSubFragment() {
                     searchRecyclerView.visibility = View.VISIBLE
                     executeSearch()
                 }
-
-
             }
         })
+
+        layout.subfragment_discover_users_searchbar.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE)   {
+                executeSearch()
+                return@setOnEditorActionListener true
+            }
+            return@setOnEditorActionListener false
+        }
 
         layout.subfragment_discover_users_searchbar.requestFocus()
 
@@ -174,19 +182,31 @@ class DiscoverUsersSubFragment : BaseSubFragment() {
 
     private fun executeSearch() {
         page = 1
+        val startTime = System.currentTimeMillis()
         InstaApi.discoverSearch(searchName, page).enqueue(InstaApi.generateCallback(activity, object : InstaApiCallback() {
             override fun success(jsonResponse: JSONObject?) {
                 page++
                 val userArray = jsonResponse?.optJSONArray("users") ?: JSONArray()
                 val userList: List<User> = Utils.usersFromJsonArray(userArray)
 
-                searchUsers.addAll(userList)
-                searchAdapter.currentlyLoading = false
-                searchAdapter.canLoadMore = true
-                searchAdapter.notifyDataSetChanged()
+                modifySearchList(userList, startTime)
             }
 
         }))
+    }
+
+    @Synchronized
+    private fun modifySearchList(userList: List<User>, searchTime:Long){
+
+        if(searchTime>lastSearchTime){
+            searchUsers.clear()
+            searchUsers.addAll(userList)
+            searchAdapter.currentlyLoading = false
+            searchAdapter.canLoadMore = true
+            searchAdapter.notifyDataSetChanged()
+            lastSearchTime = searchTime
+        }
+
     }
 
     // only applies to search

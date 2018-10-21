@@ -117,7 +117,7 @@ class BluetoothActivity : AppCompatActivity(), EditPhotoSubFragment.PhotoEditLis
         }
     }
 
-    override fun receivedPhoto(address:String, json: String) {
+    override fun receivedPhoto(name:String, address:String, json: String) {
         val folder = File(filesDir, "inRange")
 
         try {
@@ -156,7 +156,11 @@ class BluetoothActivity : AppCompatActivity(), EditPhotoSubFragment.PhotoEditLis
 
             bluetoothMap[address]?.write(ACK_SUCCESS)
 
-            toast("Received photo from in-range friend")
+            when{
+                name.isNotBlank()->toast("Received photo from in-range friend : $name")
+                address.isNotBlank()->toast("Received photo from in-range friend : $address")
+                else-> toast("Received photo from in-range friend")
+            }
 
         }catch (e:JSONException){
             toast("Received corrupted transmission")

@@ -62,31 +62,6 @@ class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener 
         cropImageView?.clearImage()
     }
 
-    /** Set the options of the crop image view to the given values.  */
-//    fun setCropImageViewOptions(options: CropImageViewOptions) {
-//        cropImageView!!.scaleType = options.scaleType
-//        cropImageView!!.cropShape = options.cropShape
-//        cropImageView!!.guidelines = options.guidelines
-//        cropImageView!!.setAspectRatio(options.aspectRatio.first, options.aspectRatio.second)
-//        cropImageView!!.setFixedAspectRatio(options.fixAspectRatio)
-//        cropImageView!!.setMultiTouchEnabled(options.multitouch)
-//        cropImageView!!.isShowCropOverlay = options.showCropOverlay
-//        cropImageView!!.isShowProgressBar = options.showProgressBar
-//        cropImageView!!.isAutoZoomEnabled = options.autoZoomEnabled
-//        cropImageView!!.maxZoom = options.maxZoomLevel
-//        cropImageView!!.isFlippedHorizontally = options.flipHorizontally
-//        cropImageView!!.isFlippedVertically = options.flipVertically
-//    }
-
-    /** Set the initial rectangle to use.  */
-    fun setInitialCropRect() {
-        cropImageView!!.cropRect = Rect(100, 300, 500, 1200)
-    }
-
-    /** Reset crop window to initial rectangle.  */
-    fun resetCropRect() {
-        cropImageView!!.resetCropRect()
-    }
 
     fun updateCurrentCropViewOptions() {
         // have some preset options
@@ -114,9 +89,9 @@ class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener 
         cropImageView = rootView.findViewById(R.id.subfragment_crop_imageview)
         cropImageView!!.setOnSetImageUriCompleteListener(this)
         cropImageView!!.setOnCropImageCompleteListener(onCropImageCompleteListener)
-//        cropImageView!!.setScaleType(CropImageView.ScaleType.FIT_CENTER);
-        cropImageView!!.setCropShape(CropImageView.CropShape.RECTANGLE);
-        cropImageView!!.setGuidelines(CropImageView.Guidelines.ON_TOUCH);
+//        cropImageView!!.setScaleType(CropImageView.ScaleType.FIT_CENTER)
+        cropImageView!!.cropShape = CropImageView.CropShape.RECTANGLE
+        cropImageView!!.guidelines = CropImageView.Guidelines.ON_TOUCH
         cropImageView!!.rotatedDegrees
         plainImageView = rootView.subfragment_plain_imageview
 
@@ -135,10 +110,6 @@ class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener 
     }
 
 
-    override fun onResume() {
-        super.onResume()
-
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 //        if (item.getItemId() === R.id.main_action_crop) {
@@ -161,11 +132,6 @@ class CropSubFragment : Fragment(), CropImageView.OnSetImageUriCompleteListener 
         cropImageView?.rotateImage(deg)
     }
 
-
-    override fun onStop() {
-        super.onStop()
-
-    }
 
     override fun onSetImageUriComplete(view: CropImageView, uri: Uri, error: Exception?) {
         if (error == null) {

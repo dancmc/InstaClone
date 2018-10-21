@@ -38,7 +38,7 @@ class RegisterSubFragment:BaseSubFragment(){
         }
 
         layout.button_register.setOnClickListener {
-            // TODO need to do some validation of inputs
+            // ideally do some validation of inputs for email but doesn't matter here
             (activity as LoginActivity).register(
                     layout.input_register_username.text.toString(),
                     layout.input_register_password.text.toString(),

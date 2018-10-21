@@ -11,6 +11,6 @@ interface BluetoothActivityInterface{
     fun errorAndGoBack(message:String)
     fun handleSendSuccess()
     fun handleSendError()
-    fun receivedPhoto(address:String, json:String)
+    fun receivedPhoto(name:String, address:String, json:String)
 
 }

@@ -271,31 +271,9 @@ class FeedSubFragment : BaseSubFragment() {
                 val photoArray = jsonResponse?.optJSONArray("photos") ?: JSONArray()
                 val photoList: List<Photo> = Utils.photosFromJsonArray(photoArray)
 
-                realm.where(InRangePhoto::class.java).findAll().forEach { inrange ->
-                    feedItems.add(Utils.inrangeToPhoto(context!!, inrange))
-                }
                 feedItems.addAll(photoList)
 
-
-                if (Prefs.getInstance().readString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString()) == InstaApi.Sort.LOCATION.toString()) {
-
-                    feedItems.forEach {
-                        it?.let { p ->
-                            if (p.inRange) {
-                                p.distance = Utils.distance(lastLocation?.latitude
-                                        ?: 0.0, lastLocation?.longitude
-                                        ?: 0.0, p.latitude, p.longitude)
-                            }
-                        }
-                    }
-
-                    feedItems.retainAll {
-                        Utils.validateLatLng(it?.latitude ?: 999.0, it?.longitude ?: 999.0)
-                    }
-                    feedItems.sortBy { it?.distance }
-                } else {
-                    feedItems.sortByDescending { it?.timestamp }
-                }
+                initialCallbackHandleInRange()
 
                 adapter.currentlyLoading = false
                 adapter.canLoadMore = true
@@ -308,13 +286,56 @@ class FeedSubFragment : BaseSubFragment() {
 
             override fun failure(context: Context, jsonResponse: JSONObject?) {
                 super.failure(context, jsonResponse)
+
+                initialCallbackHandleInRange()
+
+                adapter.currentlyLoading = false
+                adapter.canLoadMore = false
+                adapter.notifyDataSetChanged()
+
+                recyclerView.scrollToPosition(0)
+
                 layout.subfragment_feed_refresh.isRefreshing = false
             }
 
             override fun networkFailure(context: Context?,code:Int) {
                 super.networkFailure(context,code)
+
+                initialCallbackHandleInRange()
+
+                adapter.currentlyLoading = false
+                adapter.canLoadMore = false
+                adapter.notifyDataSetChanged()
+
+                recyclerView.scrollToPosition(0)
+
                 layout.subfragment_feed_refresh.isRefreshing = false
             }
+        }
+    }
+
+    private fun initialCallbackHandleInRange(){
+        realm.where(InRangePhoto::class.java).findAll().forEach { inrange ->
+            feedItems.add(Utils.inrangeToPhoto(context!!, inrange))
+        }
+        if (Prefs.getInstance().readString(Prefs.FEED_SORT, InstaApi.Sort.DATE.toString()) == InstaApi.Sort.LOCATION.toString()) {
+
+            feedItems.forEach {
+                it?.let { p ->
+                    if (p.inRange) {
+                        p.distance = Utils.distance(lastLocation?.latitude
+                                ?: 0.0, lastLocation?.longitude
+                                ?: 0.0, p.latitude, p.longitude)
+                    }
+                }
+            }
+
+            feedItems.retainAll {
+                Utils.validateLatLng(it?.latitude ?: 999.0, it?.longitude ?: 999.0)
+            }
+            feedItems.sortBy { it?.distance }
+        } else {
+            feedItems.sortByDescending { it?.timestamp }
         }
     }
 

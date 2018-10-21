@@ -25,6 +25,7 @@ import io.replicants.instaclone.utilities.setColorSpan
 import kotlinx.android.synthetic.main.adapter_activityfollowing1.view.*
 import kotlinx.android.synthetic.main.adapter_activityfollowing2.view.*
 import kotlinx.android.synthetic.main.adapter_activityfollowing3.view.*
+import org.jetbrains.anko.clickable
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.util.*
 
@@ -210,19 +211,31 @@ class ActivityFollowingAdapter(private val context: Activity, private val datase
                         .bold { append(item.displayName) }
                         .append(" started following ")
                         .bold { append(item.usersFollowed[0].displayName) }
+
+                var link = item.usersFollowed[0].displayName
+
                 if (item.usersFollowed.size != 1) {
                     val remaining = item.usersFollowed.size - 1
+                    val others = "$remaining ${if (remaining == 1) "other" else "others"}"
+
                     textBuilder.append(" and ")
-                    textBuilder.bold { append("$remaining ${if (remaining == 1) "other" else "others"}") }
+                    textBuilder.bold { append(others) }
+
+                    link += " and $others"
                 }
                 val time = Utils.formatDateForActivity(item.timestamp)
                 textBuilder.append(". $time")
                 textBuilder.setColorSpan(time, color = ContextCompat.getColor(context, R.color.grey400))
-                holder.tvText.text = textBuilder
 
-                holder.tvText.onClick {
+                textBuilder.setClickableSpan(item.displayName){
+                    clickListeners?.moveToProfileSubFragment(item.displayName)
+                }
+
+                textBuilder.setClickableSpan(link){
                     clickListeners?.moveToUserListSubFragmentWithList(item.usersFollowed, "${item.usersFollowed.size} users")
                 }
+                holder.tvText.text = textBuilder
+
             }
         }
 

@@ -195,9 +195,8 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
         layout.subfragment_bluetooth_permissions_bluetooth.visibility = View.GONE
         layout.subfragment_bluetooth_scan.visibility = View.VISIBLE
 
-        // todo initialise gallery part
-        populateDirectory()
 
+        populateDirectory()
     }
 
     private fun populateDirectory() {
@@ -322,10 +321,8 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
 
     }
 
-    fun getBluetoothHandler(connectedAddress:String=""): Handler {
-        return object : Handler(Looper.getMainLooper()) {
-
-            val connectedAddress = connectedAddress
+    fun getBluetoothHandler(name:String="", connectedAddress:String=""): Handler {
+        return object : Handler(Looper.getMainLooper()){
 
             override fun handleMessage(msg: Message) {
                 when (msg.what) {
@@ -356,7 +353,7 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
                     }
                     MESSAGE_PHOTO_RECEIVED->{
                         (msg.obj as? String)?.apply {
-                            parentActivity.receivedPhoto(connectedAddress, this)
+                            parentActivity.receivedPhoto(name, connectedAddress, this)
                         }
                     }
 
@@ -375,6 +372,7 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
 
     fun handleConnection(socket: BluetoothSocket) {
         val address = socket.remoteDevice.address
+        val name = socket.remoteDevice.name
         val item = parentActivity.bluetoothList.find { it.address == address }
                 ?: BluetoothItem(socket.remoteDevice, address, socket.remoteDevice.name
                         ?: "").apply {
@@ -387,12 +385,11 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
 
         if(parentActivity.sendTo==null){
             parentActivity.sendTo = address
-            val name = socket.remoteDevice.name
             layout.subfragment_bluetooth_selected.text =
                     if (name!=null && name.isNotBlank()) name else address
         }
 
-        val connectedThread = ConnectedThread(getBluetoothHandler(address), socket)
+        val connectedThread = ConnectedThread(getBluetoothHandler(name = name?:"", connectedAddress= address), socket)
         parentActivity.bluetoothMap[address]?.cancel()
         parentActivity.bluetoothMap[address] = connectedThread
         connectedThread.start()
@@ -528,6 +525,11 @@ class BluetoothSubFragment : BaseSubFragment(), BTListAdapter.Listener, Bluetoot
     override fun onPause() {
         super.onPause()
         context?.unregisterReceiver(mReceiver)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        bluetoothAdapter?.cancelDiscovery()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

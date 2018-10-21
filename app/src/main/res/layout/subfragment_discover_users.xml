@@ -33,6 +33,8 @@
             android:textColor="@color/grey500"
             android:hint="Search"
             android:maxLines="1"
+            android:inputType="text"
+            android:imeOptions="actionDone"
             android:background="@drawable/rectangle_square"
             android:layout_marginRight="16dp"/>
     </androidx.appcompat.widget.Toolbar>

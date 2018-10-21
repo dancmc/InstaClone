@@ -12,7 +12,6 @@ public class User {
     public String displayName = "";
     public Integer numberPosts = 0;
     public Boolean isPrivate = false;
-    public Boolean areFollowing = false;
     public Integer followers = 0;
     public Integer following = 0;
     public Integer followStatusToThem = 0;

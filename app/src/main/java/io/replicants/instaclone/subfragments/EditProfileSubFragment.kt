@@ -3,6 +3,8 @@ package io.replicants.instaclone.subfragments
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +24,11 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
 import org.json.JSONObject
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.lang.Exception
+import java.util.*
+import kotlin.math.roundToInt
 
 class EditProfileSubFragment : BaseSubFragment() {
 
@@ -124,7 +131,48 @@ class EditProfileSubFragment : BaseSubFragment() {
                         show()
                     }
 
-                    // todo scale the photo first
+                    // scale the photo first
+                    if(newPhotoFile!=null) {
+                        newPhotoFile = try {
+                            val bitmap = BitmapFactory.decodeFile(newPhotoFile!!.absolutePath)
+                            val tempFolder = File(context!!.filesDir, "photos")
+                            val tempFile = File(tempFolder, UUID.randomUUID().toString())
+                            var dimensions = Pair(bitmap.width, bitmap.height)
+
+                            fun scale(scale: Double) {
+                                val newWidth = Math.min(Math.floor(dimensions.first * scale).roundToInt(), dimensions.first)
+                                val newHeight = Math.min(Math.floor(dimensions.second * scale).roundToInt(), dimensions.second)
+                                dimensions = Pair(newWidth, newHeight)
+                            }
+
+                            // we want shortest side at most 1080
+                            when {
+                                dimensions.first <= 1080 || dimensions.second <= 1080 -> {
+                                }
+                                dimensions.first > dimensions.second -> {
+                                    val scale = 1080 / dimensions.second.toDouble()
+                                    scale(scale)
+                                }
+                                else -> {
+                                    val scale = 1080 / dimensions.first.toDouble()
+                                    scale(scale)
+                                }
+                            }
+
+                            val scaledBitmap = Bitmap.createScaledBitmap(bitmap, dimensions.first, dimensions.second, false)
+                            FileOutputStream(tempFile).use { out ->
+                                scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out)
+                            }
+                            bitmap.recycle()
+                            scaledBitmap.recycle()
+                            tempFile
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            newPhotoFile
+                        }
+                    }
+
+
                     InstaApi.updateDetails(newPhotoFile, oldPassword, password, inputEmail, inputFirstName, inputLastName, inputDisplayName, inputProfileName, inputProfileDesc, privacy).enqueue(InstaApi.generateCallback(context, object : InstaApiCallback() {
                         override fun success(jsonResponse: JSONObject?) {
                             context?.toast("Successfully updated details")
