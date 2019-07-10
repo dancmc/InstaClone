@@ -12,7 +12,7 @@ import retrofit2.http.*
 class InstaRetrofit {
 
     companion object {
-        var domain = "dancmc.io"
+        var domain = "danielchan.io"
         private var apiUrl = getApiUrl()
 //        private var apiUrl = "http://10.0.0.3:8080/instacopy/v1/"
 
@@ -38,10 +38,12 @@ class InstaRetrofit {
         fun rebuild(){
             apiUrl = getApiUrl()
             retrofit = getRetrofit()
+            api = retrofit.create(PhotoApi::class.java)
         }
 
         fun getApiUrl():String{
             return "https://$domain/instacopy/v1/"
+//            return "http://192.168.1.4:8080/instacopy/v1/"
         }
 
         fun getRetrofit():Retrofit{

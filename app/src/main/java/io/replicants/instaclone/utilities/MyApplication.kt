@@ -69,7 +69,7 @@ class MyApplication : Application() {
                     }
                 }
                 locationManager?.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0f, listener)
-                locationManager?.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0f, listener)
+                locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0f, listener)
             }
         }
     }

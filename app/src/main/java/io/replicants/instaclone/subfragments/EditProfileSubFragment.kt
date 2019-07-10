@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
 import com.bumptech.glide.Glide
@@ -134,10 +135,18 @@ class EditProfileSubFragment : BaseSubFragment() {
                     // scale the photo first
                     if(newPhotoFile!=null) {
                         newPhotoFile = try {
-                            val bitmap = BitmapFactory.decodeFile(newPhotoFile!!.absolutePath)
+                            val bitmap = Glide
+                                    .with(context!!)
+                                    .asBitmap()
+                                    .load(newPhotoFile)
+                                    .submit()
+                                    .get()
+
                             val tempFolder = File(context!!.filesDir, "photos")
                             val tempFile = File(tempFolder, UUID.randomUUID().toString())
                             var dimensions = Pair(bitmap.width, bitmap.height)
+
+
 
                             fun scale(scale: Double) {
                                 val newWidth = Math.min(Math.floor(dimensions.first * scale).roundToInt(), dimensions.first)
@@ -159,7 +168,7 @@ class EditProfileSubFragment : BaseSubFragment() {
                                 }
                             }
 
-                            val scaledBitmap = Bitmap.createScaledBitmap(bitmap, dimensions.first, dimensions.second, false)
+                            val scaledBitmap = Bitmap.createScaledBitmap(bitmap, bitmap.width, bitmap.height, false)
                             FileOutputStream(tempFile).use { out ->
                                 scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out)
                             }
@@ -219,10 +228,12 @@ class EditProfileSubFragment : BaseSubFragment() {
                 }
                 cursor?.close()
                 val requestOptions = RequestOptions().signature(ObjectKey(System.currentTimeMillis()))
+
                 Glide.with(context!!)
                         .load(newPhotoFile)
                         .apply(requestOptions)
                         .into(layout.profile_image)
+
             }
         }
         super.onActivityResult(requestCode, resultCode, data)

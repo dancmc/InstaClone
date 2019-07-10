@@ -89,8 +89,8 @@ class Utils {
             for (i in 0 until previewCommentsJsonArray.length()) {
                 val previewTextObject = previewCommentsJsonArray.optJSONObject(i)
                 if (previewTextObject != null) {
-                    val displayName = previewCommentObject.optString("display_name")
-                    val text = previewCommentObject.optString("text")
+                    val displayName = previewTextObject.optString("display_name")
+                    val text = previewTextObject.optString("text")
                     previewCommentsList.add(Pair(displayName, text))
                 }
             }
@@ -434,9 +434,9 @@ class Utils {
             val albumID = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID)
 
             val directorySet = HashSet<GalleryPagerFragment.ImageDirectory>()
-            while (cursor.moveToNext()) {
+            do {
                 directorySet.add(GalleryPagerFragment.ImageDirectory(cursor.getInt(albumID), cursor.getString(albumName)))
-            }
+            }while (cursor.moveToNext())
             cursor.close()
             val resultList = ArrayList<GalleryPagerFragment.ImageDirectory>()
             resultList.addAll(directorySet)

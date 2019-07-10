@@ -321,14 +321,14 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
                 if (feedItem.previewComments.isNotEmpty()){
                     holder.tvCommentPreviews.visibility = View.VISIBLE
                     val commentPreviewBuilder = SpannableStringBuilder()
-                    feedItem.previewComments.forEach {
+                    feedItem.previewComments[0].let {
                         commentPreviewBuilder.bold { append("${it.first} ") }
                                 .append(it.second)
-                                .append("\n")
                                 .setClickableSpan(it.first,0){
                                     clickListeners?.moveToProfileSubFragment(it.first)
                                 }
                     }
+                    holder.tvCommentPreviews.text = commentPreviewBuilder
                 } else {
                     holder.tvCommentPreviews.visibility = View.GONE
                 }
@@ -475,6 +475,8 @@ class FeedAdapter(private val context: Activity, private val dataset: ArrayList<
             }
             is HeaderViewHolder->{
                 holder.container.removeAllViews()
+                (header.parent as? ViewGroup)?.removeAllViews()
+
                 holder.container.addView(header)
             }
             is PhotoGridViewHolder->{
